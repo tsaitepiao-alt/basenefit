@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>basenefit · 運動成長空間</title>
+<title>Basenefit · 運動成長空間</title>
 <style>
   :root{
     --side:#1b1b19; --side2:#232320; --ink:#141412; --muted:#71756f; --line:#e4e5e0;
@@ -18,7 +18,7 @@
 
   /* ============ 側邊欄 ============ */
   .side{background:var(--side);color:#efece4;padding:22px 18px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh}
-  .brand{display:flex;align-items:center;gap:8px;font-size:21px;font-weight:700;letter-spacing:.3px}
+  .brand{font-size:21px;font-weight:700;letter-spacing:.3px}
   .brand b{color:var(--lime)}
   .tag{font-size:10px;border:1px solid #4a4a44;color:#cfcabc;border-radius:6px;padding:1px 5px;letter-spacing:.5px}
   .strap{font-size:11px;letter-spacing:2.4px;color:#8d8d83}
@@ -124,46 +124,65 @@
   .dlg-b{padding:8px 20px 20px}
   footer.pg{color:var(--muted);font-size:12.5px;text-align:center;padding:8px 0 40px;letter-spacing:.6px}
 
+  /* ===== 手機版：右側選單抽屜 ===== */
+  .menu-btn,.menu-close,.scrim,.nav .mi{display:none}
+
   @media(max-width:900px){
     .app{grid-template-columns:1fr}
-    .side{position:static;height:auto;flex-direction:row;align-items:center;gap:12px;overflow-x:auto;padding:14px}
+    .side{position:sticky;top:0;z-index:50;height:auto;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;box-shadow:0 3px 16px rgba(0,0,0,.3)}
     .side .strap,.side .foot,.side .group{display:none}
-    .nav{flex-direction:row;gap:6px}
-    .nav a{white-space:nowrap}
+    .side .brand{font-size:19px}
+    .menu-btn{display:flex;align-items:center;gap:9px;background:var(--lime);color:#1b1b19;border:none;font-weight:800;font-size:15.5px;letter-spacing:.5px;padding:12px 18px;border-radius:13px;min-height:48px;box-shadow:0 3px 0 var(--lime-dark);cursor:pointer}
+    .menu-btn .mb-ico{font-size:17px;line-height:1}
+    .menu-btn:active{transform:translateY(1px)}
+    .navwrap{display:contents}
+    .nav{position:fixed;top:0;right:0;height:100dvh;width:min(82vw,330px);background:var(--side);flex-direction:column;gap:6px;padding:78px 14px 26px;overflow-y:auto;transform:translateX(106%);transition:transform .26s ease;z-index:70;box-shadow:-14px 0 40px rgba(0,0,0,.5)}
+    .nav.open{transform:none}
+    .nav .mi{display:inline}
+    .nav a{font-size:17px;padding:15px 14px;border-radius:13px;gap:12px;white-space:nowrap}
+    .menu-close{display:flex;position:absolute;top:16px;right:16px;width:44px;height:44px;align-items:center;justify-content:center;background:#2f2f2a;color:#efece4;border:none;border-radius:13px;font-size:17px;cursor:pointer}
+    .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;opacity:0;pointer-events:none;transition:opacity .26s}
+    .scrim.open{opacity:1;pointer-events:auto}
     .grid2,.grid3,.grid4{grid-template-columns:1fr}
-    .wrap{padding:18px}
+    #vid-list,#as-list,#pg-log,#pg-cmp{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    table{min-width:620px}
+    th{white-space:nowrap}
+    .wrap{padding:18px;padding-top:22px}
     h1{font-size:24px}
   }
 </style>
 </head>
 <body>
 <div class="app">
-  <!-- ===== 側邊欄（品牌名與標語是佔位，換成你自己的）===== -->
+  <!-- ===== 側邊欄 ===== -->
   <aside class="side">
-    <div class="brand">base<b>benefit</b> <span class="tag">AI</span></div>
+    <div class="brand">Base<b>benefit</b></div>
     <div class="strap">TRAIN · TRACK · GROW</div>
-    <div>
+    <button class="menu-btn" onclick="toggleMenu()" aria-label="開啟選單"><span class="mb-ico">☰</span> 選單</button>
+    <div class="navwrap">
       <div class="group">你的運動成長空間</div>
-      <nav class="nav">
-        <a href="#/home"      data-page="home">運動首頁</a>
-        <a href="#/videos"    data-page="videos">動作影片</a>
-        <a href="#/assessment" data-page="assessment">能力評估</a>
-        <a href="#/plan"      data-page="plan">訓練計畫</a>
-        <a href="#/progress"  data-page="progress">進步追蹤</a>
-        <a href="#/coach"     data-page="coach">教練工作區</a>
-        <a href="#/settings"  data-page="settings">學員與設定</a>
+      <nav class="nav" id="nav">
+        <button class="menu-close" onclick="toggleMenu(false)" aria-label="關閉選單">✕</button>
+        <a href="#/home"      data-page="home"><span class="mi">🏠</span>運動首頁</a>
+        <a href="#/videos"    data-page="videos"><span class="mi">🎥</span>動作影片</a>
+        <a href="#/assessment" data-page="assessment"><span class="mi">📋</span>能力評估</a>
+        <a href="#/plan"      data-page="plan"><span class="mi">🗓</span>訓練計畫</a>
+        <a href="#/progress"  data-page="progress"><span class="mi">📈</span>進步追蹤</a>
+        <a href="#/coach"     data-page="coach"><span class="mi">🧢</span>教練工作區</a>
+        <a href="#/settings"  data-page="settings"><span class="mi">⚙️</span>學員與設定</a>
       </nav>
     </div>
     <div class="foot">
       <strong>START SMALL, STAY LONG.</strong>
       一步一步，練出自己的節奏。<br>
-      V1.1 私人試用
+      V1.2 私人試用
     </div>
   </aside>
+  <div class="scrim" id="scrim" onclick="toggleMenu(false)"></div>
 
   <main>
     <div class="topbar">
-      <div class="crumb">basenefit / <b id="crumb">運動首頁</b></div>
+      <div class="crumb">Basenefit / <b id="crumb">運動首頁</b></div>
       <div class="who"><span id="who-name">williampiao</span><span class="avatar" id="who-ini">W</span></div>
     </div>
 
@@ -414,7 +433,7 @@
             <div id="coach-list"></div>
           </div>
         </div>
-        <footer class="pg">basenefit · 慢慢練，練久一點 ｜ PRIVATE BETA / 2026</footer>
+        <footer class="pg">Basenefit · 慢慢練，練久一點 ｜ PRIVATE BETA / 2026</footer>
       </section>
 
     </div>
@@ -472,6 +491,7 @@ function route(){
   document.querySelectorAll(".page").forEach(el => el.classList.toggle("show", el.id === "page-" + page));
   document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.page === page));
   document.getElementById("crumb").textContent = TITLES[page];
+  toggleMenu(false);
   window.scrollTo({top:0});
   render();
 }
@@ -690,9 +710,21 @@ function saveSettings(){
 function exportData(){
   const blob = new Blob([JSON.stringify(S,null,2)], {type:"application/json"});
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = "basefit-data.json"; a.click();
+  a.href = URL.createObjectURL(blob); a.download = "basenefit-data.json"; a.click();
 }
 function resetData(){ if (confirm("清空所有資料？")) { S = seed(); save(); render(); toast("已清空"); } }
+
+/* ================= 手機版選單抽屜 ================= */
+function toggleMenu(force){
+  const nav = document.getElementById("nav"), scrim = document.getElementById("scrim");
+  if (!nav) return;
+  const open = (force === undefined) ? !nav.classList.contains("open") : !!force;
+  nav.classList.toggle("open", open);
+  if (scrim) scrim.classList.toggle("open", open);
+  document.body.style.overflow = open ? "hidden" : "";
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") toggleMenu(false); });
+document.querySelectorAll(".nav a").forEach(a => a.addEventListener("click", () => toggleMenu(false)));
 
 /* ================= 課表月曆 ================= */
 function shiftMonth(d){
