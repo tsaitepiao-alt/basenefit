@@ -243,6 +243,7 @@
         <a href="#/quiz"      data-page="quiz"><span class="mi">🎯</span>棒球小考</a>
         <a href="#/progress"  data-page="progress"><span class="mi">📈</span>進步追蹤</a>
         <a href="#/coach"     data-page="coach"><span class="mi">🧢</span>教練工作區</a>
+        <a href="#/install"   data-page="install"><span class="mi">☁️</span>雲端安裝</a>
         <a href="#/settings"  data-page="settings"><span class="mi">⚙️</span>學員與設定</a>
       </nav>
     </div>
@@ -636,6 +637,229 @@
         </div>
       </section>
 
+      <!-- ========== 雲端安裝說明 ========== -->
+      <section class="page" id="page-install">
+        <div class="eyebrow">CLOUD SETUP</div>
+        <h1>雲端同步安裝（約 3 分鐘）</h1>
+        <p class="lead">做完之後，學員在自己手機考的成績、教練在自己電腦都看得到。資料存在<b>你自己的 Google 試算表</b>，不經過第三方。</p>
+
+        <div class="card">
+          <div class="hrow"><h2>你要做的事（只有 6 步）</h2><span class="pill">一次性</span></div>
+          <ol class="list">
+            <li><b>開一個空白試算表</b>：<a href="https://sheet.new" target="_blank" rel="noopener">點這裡開（sheet.new）</a></li>
+            <li>上方選單 <b>擴充功能</b> → <b>Apps Script</b>（會開新分頁）</li>
+            <li>把編輯器裡原有的 <code>function myFunction() {}</code> <b>全部刪掉</b></li>
+            <li>按下面的 <b>「複製程式碼」</b>，回到 Apps Script 編輯器 <b>貼上</b>（⌘V），再按 💾 儲存</li>
+            <li>右上 <b>部署</b> → <b>新增部署作業</b> → 左邊齒輪選 <b>網頁應用程式</b>，然後：
+              <br>・說明：隨便填　・<b>執行身分：我</b>　・<b>可以存取的使用者：任何人</b>
+              <br>按 <b>部署</b> → <b>授權存取權</b> → 選你的帳號 →（若出現警告）<b>進階</b> → <b>前往（不安全）</b> → <b>允許</b></li>
+            <li>複製最後出現的 <b>網頁應用程式網址</b>（結尾是 <code>/exec</code>）→ 貼到「學員與設定 → 雲端同步」的欄位，按<b>儲存設定</b></li>
+          </ol>
+          <p class="credit">為什麼會出現「不安全」警告？因為這是你自己寫的程式、沒有經過 Google 市集審核，屬於正常現象。程式碼就在下面，你可以自己檢查。</p>
+        </div>
+
+        <div class="card">
+          <div class="hrow"><h2>程式碼（貼上這一整份）</h2>
+            <button class="btn lime sm" onclick="copyGas()">📋 複製程式碼</button></div>
+          <p class="req" style="margin:0 0 10px" id="gas-copy-state">按「複製程式碼」再貼到 Apps Script 編輯器即可。</p>
+          <pre id="gas-code" style="max-height:320px;overflow:auto;background:#1b1b18;color:#e8ecd8;border-radius:12px;padding:14px;font-size:12px;line-height:1.6;white-space:pre;text-align:left">/**
+ * basenefit 雲端同步後端（Google Apps Script）
+ * ------------------------------------------------------------
+ * 用途：讓多名學員／教練在不同手機上共用同一份資料。
+ * 資料存在你自己的 Google 試算表裡（不會經過第三方）。
+ *
+ * 儲存格式（工作分頁 basefit-state）：
+ *   A 欄 = 同步代號（key，例如學員姓名或代號）
+ *   B 欄 = 片號
+ *   C 欄 = 資料（JSON 片段）
+ *   D 欄 = 更新時間
+ *
+ * 為什麼要「分片」：Google 試算表單一格上限 5 萬字元，
+ * 20 位學員的資料約一個月就會超過，所以整包 JSON 切成
+ * 4 萬字元一片、一片一列存放；每片前面加一個空白，
+ * 避免內容被試算表當成公式。
+ *
+ * 為什麼要「分代號」：每位學員用自己的代號存自己的一份，
+ * 才不會互相覆蓋；教練可用 action=all 一次彙整所有人的小考弱點。
+ *
+ * 部署步驟見同資料夾的 README-雲端同步.md
+ * 部署時務必選：執行身分＝我、可以存取的使用者＝任何人
+ */
+
+const SHEET_NAME = &#x27;basefit-state&#x27;;
+const CHUNK = 40000;
+const MAX_KEYS = 60;      // 彙整時最多處理幾位學員（保護用）
+
+function doPost(e) {
+  try {
+    const body = JSON.parse(e.postData.contents);
+    if (body.action === &#x27;save&#x27;) {
+      const key = safeKey(body.key);
+      const n = setState(key, body.state);
+      return out({ ok: true, key: key, chunks: n });
+    }
+    return out({ ok: false, error: &#x27;unknown action: &#x27; + body.action });
+  } catch (err) {
+    return out({ ok: false, error: String(err) });
+  }
+}
+
+function doGet(e) {
+  const p = (e &amp;&amp; e.parameter) || {};
+  const action = p.action || &#x27;load&#x27;;
+  let payload;
+  if (action === &#x27;load&#x27;) {
+    const key = safeKey(p.key);
+    payload = { ok: true, key: key, state: getState(key) };
+  } else if (action === &#x27;keys&#x27;) {
+    payload = { ok: true, keys: listKeys() };
+  } else if (action === &#x27;all&#x27;) {
+    payload = { ok: true, keys: listKeys(), all: getAllSummary() };
+  } else {
+    payload = { ok: false, error: &#x27;unknown action&#x27; };
+  }
+  // 支援 JSONP：前端用 &lt;script&gt; 讀取，才能繞過瀏覽器的跨網域限制
+  if (p.callback) {
+    return ContentService
+      .createTextOutput(p.callback + &#x27;(&#x27; + JSON.stringify(payload) + &#x27;);&#x27;)
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return out(payload);
+}
+
+/* ---------- 試算表存取 ---------- */
+
+function safeKey(k) {
+  const s = String(k == null ? &#x27;&#x27; : k).trim().replace(/[\r\n\t]/g, &#x27; &#x27;).slice(0, 60);
+  return s || &#x27;default&#x27;;
+}
+
+function sheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_NAME);
+    sh.getRange(1, 1, 1, 4).setValues([[&#x27;同步代號&#x27;, &#x27;片號&#x27;, &#x27;資料&#x27;, &#x27;更新時間&#x27;]]);
+    sh.setColumnWidth(1, 120);
+    sh.setColumnWidth(2, 60);
+    sh.setColumnWidth(3, 600);
+  }
+  return sh;
+}
+
+function setState(key, state) {
+  const sh = sheet();
+  const last = sh.getLastRow();
+  if (last &gt;= 2) {                                   // 先清掉這個代號的舊資料
+    const col = sh.getRange(2, 1, last - 1, 1).getValues();
+    for (let i = col.length - 1; i &gt;= 0; i--) {
+      if (String(col[i][0]).trim() === key) sh.deleteRow(i + 2);
+    }
+  }
+  const chunks = chunkState(JSON.stringify(state));
+  const start = sh.getLastRow() + 1;
+  const rows = chunks.map(function (c, i) { return [key, i + 1, c, new Date()]; });
+  sh.getRange(start, 1, rows.length, 4).setValues(rows);
+  return rows.length;
+}
+
+function getState(key) {
+  const sh = sheet();
+  const last = sh.getLastRow();
+  if (last &lt; 2) return null;
+  const rows = sh.getRange(2, 1, last - 1, 3).getValues();
+  const pairs = [];
+  for (let i = 0; i &lt; rows.length; i++) {
+    if (String(rows[i][0]).trim() !== key) continue;
+    const cell = rows[i][2];
+    if (cell === &#x27;&#x27; || cell === null) continue;
+    pairs.push([Number(rows[i][1]) || (i + 1), String(cell)]);
+  }
+  pairs.sort(function (a, b) { return a[0] - b[0]; });   // 依片號還原順序
+  const json = joinChunks(pairs.map(function (p) { return p[1]; }));
+  return json ? JSON.parse(json) : null;
+}
+
+function listKeys() {
+  const sh = sheet();
+  const last = sh.getLastRow();
+  if (last &lt; 2) return [];
+  const rows = sh.getRange(2, 1, last - 1, 1).getValues();
+  const seen = {};
+  for (let i = 0; i &lt; rows.length; i++) {
+    const k = String(rows[i][0] || &#x27;&#x27;).trim();
+    if (k) seen[k] = 1;
+  }
+  return Object.keys(seen).sort();
+}
+
+/* 只回傳彙整需要的欄位（小考弱點），避免整包資料太大 */
+function getAllSummary() {
+  const map = {};
+  const keys = listKeys();
+  for (let i = 0; i &lt; keys.length &amp;&amp; i &lt; MAX_KEYS; i++) {
+    const st = getState(keys[i]);
+    if (!st) continue;
+    map[keys[i]] = {
+      me: { name: (st.me &amp;&amp; st.me.name) || keys[i] },
+      quiz: slimQuiz(st.quiz),
+      sessions: (st.sessions || []).length
+    };
+  }
+  return map;
+}
+
+/* 小考統計瘦身：最多 200 題、解說只留前 40 字，避免回應過大 */
+function slimQuiz(q) {
+  const st = (q &amp;&amp; q.stats) || {};
+  const ks = Object.keys(st).slice(0, 200);
+  const out = {};
+  for (let i = 0; i &lt; ks.length; i++) {
+    const v = st[ks[i]] || {};
+    out[ks[i]] = {
+      seen: Number(v.seen) || 0,
+      wrong: Number(v.wrong) || 0,
+      text: String(v.text || &#x27;&#x27;).slice(0, 80),
+      ans: String(v.ans || &#x27;&#x27;).slice(0, 60),
+      why: String(v.why || &#x27;&#x27;).slice(0, 40)
+    };
+  }
+  return { stats: out, history: ((q &amp;&amp; q.history) || []).slice(-20) };
+}
+
+/* ---------- 純函式（可獨立測試）---------- */
+
+function chunkState(str) {
+  const out = [];
+  for (let i = 0; i &lt; str.length; i += CHUNK) out.push(&#x27; &#x27; + str.substr(i, CHUNK));
+  return out;
+}
+
+function joinChunks(chunks) {
+  return chunks.map(function (c) { return String(c).slice(1); }).join(&#x27;&#x27;);
+}
+
+/* ---------- 輸出 ---------- */
+
+function out(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+</pre>
+        </div>
+
+        <div class="card">
+          <h2 style="margin-bottom:8px">裝好之後怎麼用</h2>
+          <ul class="keys">
+            <li><b>每位學員</b>在「學員與設定」把自己的<b>同步代號</b>填成自己的名字（例如：小明），然後做完訓練／考完小考按「上傳到雲端」。</li>
+            <li><b>教練</b>在「教練工作區」按 <b>☁ 從雲端彙整</b>，就能看到<b>所有學員</b>的常錯題與弱點排行（含「誰錯最多」）。</li>
+            <li>換新手機時打開網站，會<b>自動下載</b>自己代號的資料。</li>
+            <li>照片（你自己上傳的圖）留在手機本機，不會上傳，所以同步很快。</li>
+          </ul>
+          <div style="margin-top:14px"><button class="btn ghost" onclick="go('#/settings')">回學員與設定</button></div>
+        </div>
+      </section>
+
       <!-- ========== 7. 學員與設定 ========== -->
       <section class="page" id="page-settings">
         <div class="eyebrow">ACCOUNT</div>
@@ -672,6 +896,7 @@
             <button class="btn ghost" onclick="syncAll()">彙整所有學員</button>
           </div>
           <p class="req" id="api-state" style="margin:10px 0 0"></p>
+          <p class="req" style="margin:8px 0 0">還沒有雲端網址？看 <a href="#/install"><b>雲端安裝說明（3 分鐘）</b></a></p>
         </div>
         <div class="grid2">
           <div class="card">
@@ -778,7 +1003,7 @@ function go(h){ location.hash = h; }
 /* ============ 路由 ============ */
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
                 diagrams:"圖解教室", analysis:"動作解析", quiz:"棒球小考",
-                progress:"進步追蹤", coach:"教練工作區", settings:"學員與設定"};
+                progress:"進步追蹤", coach:"教練工作區", install:"雲端安裝", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
   const page = TITLES[p] ? p : "home";
@@ -2095,6 +2320,20 @@ function autoSync(){
   if (!hasCloud()) return;
   const empty = !(S.sessions || []).length && !(S.videos || []).length && !(S.assessments || []).length;
   if (empty) syncPull(true);
+}
+
+function copyGas(){
+  const el = document.getElementById("gas-code");
+  const txt = el ? el.textContent : "";
+  const done = () => { const st = document.getElementById("gas-copy-state"); if (st) st.textContent = "✅ 已複製！回到 Apps Script 編輯器按 ⌘V 貼上。"; toast("程式碼已複製"); };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done, () => fallbackCopy(el, done));
+  } else fallbackCopy(el, done);
+}
+function fallbackCopy(el, done){
+  const r = document.createRange(); r.selectNodeContents(el);
+  const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  try { document.execCommand("copy"); done(); } catch(e){ toast("請長按選取複製"); }
 }
 
 route();
