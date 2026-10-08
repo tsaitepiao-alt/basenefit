@@ -289,6 +289,16 @@
           <div class="hrow"><h2>今日動作清單</h2><span class="pill" id="home-list-count">10 個動作</span></div>
           <ol class="list" id="home-today"></ol>
         </div>
+
+        <div class="card">
+          <div class="hrow"><h2>☁ 雲端同步</h2><span class="pill" id="sync-pill">未設定</span></div>
+          <p class="req" id="sync-info" style="margin:0 0 12px"></p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn lime" onclick="syncPush()">上傳這台裝置</button>
+            <button class="btn ghost" onclick="syncPull()">下載雲端資料</button>
+            <button class="btn ghost" onclick="go('#/coach')">教練檢視</button>
+          </div>
+        </div>
       </section>
 
       <!-- ========== 2. 動作影片 ========== -->
@@ -614,8 +624,9 @@
             </div>
           </div>
           <div class="card">
-            <h2 style="margin-bottom:4px">學員常錯題（小考）</h2>
-            <p class="req" style="margin:0 0 10px">依答錯次數排序，可直接看到學員卡在哪個觀念。</p>
+            <div class="hrow"><h2>學員常錯題（小考）</h2>
+              <button class="btn sm ghost" onclick="syncAll()">☁ 從雲端彙整</button></div>
+            <p class="req" style="margin:0 0 10px">依答錯次數排序，可直接看到學員卡在哪個觀念。<b>按「從雲端彙整」可看到所有學員的（跨手機）</b>。</p>
             <div id="coach-quiz"></div>
           </div>
           <div class="card">
@@ -649,13 +660,16 @@
         </div>
         <div class="card">
           <h2 style="margin-bottom:8px">雲端同步（讓多位學員／教練共用同一份資料）</h2>
-          <p class="req" style="margin:0 0 10px">貼上你部署好的 Google Apps Script 網址，就能把資料存到你的 Google 試算表；沒填的話只存在這台裝置的瀏覽器裡。</p>
-          <label>Apps Script 網址</label>
+          <p class="req" style="margin:0 0 10px">資料會存到你自己的 Google 試算表。每位學員用<b>自己的同步代號</b>存自己的一份，不會互相覆蓋；教練可用彙整功能看所有人的小考弱點。</p>
+          <label>我的同步代號（學員姓名或代號）</label>
+          <input id="set-key" placeholder="例如：小明 / A01">
+          <label style="margin-top:10px">Apps Script 網址（通常不用填，已內建）</label>
           <input id="set-api" placeholder="https://script.google.com/macros/s/..../exec">
           <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn lime" onclick="saveApi()">儲存網址</button>
+            <button class="btn lime" onclick="saveApi()">儲存設定</button>
             <button class="btn ghost" onclick="syncPush()">上傳到雲端</button>
             <button class="btn ghost" onclick="syncPull()">從雲端下載</button>
+            <button class="btn ghost" onclick="syncAll()">彙整所有學員</button>
           </div>
           <p class="req" id="api-state" style="margin:10px 0 0"></p>
         </div>
@@ -735,6 +749,8 @@ const seed = () => ({
   focus: "bat",
   media: {},
   quiz: {history: []},
+  syncCode: "",
+  syncAt: "",
   api: "",
 });
 
@@ -900,6 +916,21 @@ function render(){
   }
   const ql = document.getElementById("quiz-last");
   if (ql) ql.textContent = (S.quiz && S.quiz.last) ? `上次 ${S.quiz.last.score} 分 · ${S.quiz.last.at}` : "尚未測驗";
+  const sp = document.getElementById("sync-pill");
+  if (sp) sp.textContent = hasCloud() ? "已連線" : "未設定";
+  const si = document.getElementById("sync-info");
+  if (si) si.innerHTML = hasCloud()
+    ? `同步代號：<b>${syncKey()}</b>　${S.syncAt ? "上次同步 " + S.syncAt : "還沒同步過"}<br>
+       每次做完訓練或考完小考，按一下「上傳這台裝置」就會存進你的 Google 試算表。`
+    : `尚未啟用雲端，資料只存在這台裝置的瀏覽器。`;
+  const ast = document.getElementById("api-state");
+  if (ast) ast.textContent = hasCloud()
+    ? ("目前雲端：" + cloudUrl().slice(0, 62) + "…" + (S.syncAt ? "（上次同步 " + S.syncAt + "）" : ""))
+    : "尚未設定雲端網址（只用本機資料）";
+  const sk = document.getElementById("set-key");
+  if (sk && document.activeElement !== sk) sk.value = S.syncCode || "";
+  const sak = document.getElementById("set-api");
+  if (sak && document.activeElement !== sak && !sak.value) sak.value = S.api || "";
   const qh = document.getElementById("quiz-history");
   if (qh) {
     const h = (S.quiz && S.quiz.history) || [];
@@ -1736,14 +1767,23 @@ function renderQuizStats(){
     } else {
       const top = all.slice().sort((a, b) => (b.wrong - a.wrong) || (b.rate - a.rate)).slice(0, 12);
       const avg = h.length ? Math.round(h.reduce((s, x) => s + x.score, 0) / h.length) : 0;
+      const agg = aggRows();
       box.innerHTML = `
         <p class="req" style="margin:0 0 10px">測驗次數 ${h.length} 次　平均 ${avg} 分　考過 ${all.length} 題（依答錯次數排序）</p>
+        ${agg.length ? `<p class="req" style="margin:0 0 8px"><b>☁ 雲端彙整（${Object.keys(AGG).length} 位學員）</b></p>
+          ${agg.map((x, i) => `<div class="q">
+            <div class="qt"><b>${i + 1}.</b> ${x.text}
+              <span class="tag-no">全體答錯 ${x.wrong} 次／考 ${x.seen} 次（${Math.round(x.wrong / x.seen * 100)}%）</span></div>
+            <div class="why"><b>正確答案：</b>${x.ans}<br><b>解說：</b>${x.why}<br>
+              <b>誰錯：</b>${Object.keys(x.who).map(k => k + "（" + x.who[k] + " 次）").join("、")}</div>
+          </div>`).join("")}
+          <p class="credit" style="margin:10px 0 16px">以上是跨裝置彙整的結果。</p>` : ""}
         ${top.map((x, i) => `<div class="q">
           <div class="qt"><b>${i + 1}.</b> ${x.text}
             <span class="tag-no">答錯 ${x.wrong} 次／考 ${x.seen} 次（${Math.round(x.rate * 100)}%）</span></div>
           <div class="why"><b>正確答案：</b>${x.ans}<br><b>解說：</b>${x.why}</div>
         </div>`).join("")}
-        <p class="credit" style="margin-top:10px">※ 目前紀錄存在「這台裝置」的瀏覽器。要做成跨裝置共用（學員在自己手機考、教練在自己電腦看），需先設定「學員與設定 → 雲端同步」。</p>`;
+        <p class="credit" style="margin-top:10px">※ 下面是<b>這台裝置</b>的紀錄。要合併所有學員（各自手機考的），按上面的「☁ 從雲端彙整」。</p>`;
     }
   }
   const pg = document.getElementById("pg-quiz");
@@ -1955,34 +1995,110 @@ function assignCoach(studentId, coachId){
 }
 
 /* ================= 雲端同步（Google Apps Script）================= */
+// 部署完成後，把 Web App 網址貼在下面，所有裝置（學員手機、教練電腦）就會自動共用同一份雲端資料。
+// 也可以在「學員與設定」頁用不同網址覆蓋它。
+const DEFAULT_CLOUD = "";
+
+let AGG = null;                                   // 教練端從雲端彙整回來的資料
+
+function cloudUrl(){ return (S.api || DEFAULT_CLOUD || "").trim(); }
+function hasCloud(){ return !!cloudUrl(); }
+function syncKey(){ return String(S.syncCode || (S.me && S.me.name) || "default").trim() || "default"; }
+
+function stampSync(){
+  S.syncAt = new Date().toLocaleString("zh-TW", {month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit"});
+}
+
 function saveApi(){
+  const k = document.getElementById("set-key");
+  if (k) S.syncCode = k.value.trim();
   S.api = document.getElementById("set-api").value.trim();
-  save(); render(); toast(S.api ? "已儲存雲端網址" : "已清除雲端網址");
+  save(); render();
+  toast(S.syncCode ? ("同步代號：" + S.syncCode) : "已儲存設定");
 }
-async function syncPush(){
-  if (!S.api) return toast("先貼上 Apps Script 網址");
+
+async function syncPush(silent){
+  const url = cloudUrl();
+  if (!url){ if (!silent) toast("還沒設定雲端網址"); return 0; }
   try {
-    // Apps Script 不回 CORS 標頭，所以用 no-cors 單向送出（送出即成功，讀不到回應）
-    await fetch(S.api, {method:"POST", mode:"no-cors", body: JSON.stringify({action:"save", state:S})});
-    toast("已送出到雲端（到你的試算表看得到）");
-  } catch(e){ toast("連線失敗：" + e.message); }
+    // Apps Script 不回 CORS 標頭 → 用 no-cors 單向送出（送出即成功，讀不到回應）
+    // 照片（base64）留在本機不上傳，避免整包太大、手機很慢
+    const payload = Object.assign({}, S, {media: {}});
+    await fetch(url, {method:"POST", mode:"no-cors",
+      body: JSON.stringify({action:"save", key: syncKey(), state: payload})});
+    stampSync(); save(); render();
+    if (!silent) toast("已上傳（" + syncKey() + "）· " + S.syncAt);
+    return 1;
+  } catch(e){ if (!silent) toast("連線失敗：" + e.message); return 0; }
 }
-function syncPull(){
-  if (!S.api) return toast("先貼上 Apps Script 網址");
+
+function syncPull(silent){
+  const url = cloudUrl();
+  if (!url){ if (!silent) toast("還沒設定雲端網址"); return; }
+  const key = syncKey();
   const cb = "basefitPull" + Date.now();
-  const timer = setTimeout(()=>{ if (window[cb]) { toast("雲端沒有回應（檢查網址與分享權限）"); delete window[cb]; } }, 12000);
+  const timer = setTimeout(() => { if (window[cb]) { if (!silent) toast("雲端沒有回應（檢查網址與權限）"); delete window[cb]; } }, 15000);
   window[cb] = j => {
     clearTimeout(timer); delete window[cb];
-    if (j && j.state){ S = Object.assign(seed(), j.state); save(); render(); toast("已從雲端下載"); }
-    else toast("雲端還沒有資料");
+    if (j && j.state){
+      const localMedia = S.media || {};
+      S = Object.assign(seed(), j.state);
+      S.media = Object.assign({}, S.media || {}, localMedia);   // 本機照片優先保留
+      if (!S.syncCode) S.syncCode = key;
+      stampSync(); save(); render();
+      if (!silent) toast("已下載雲端資料（" + key + "）");
+    } else if (!silent) toast("雲端還沒有「" + key + "」的資料，先按上傳");
   };
-  const s = document.createElement("script");
-  s.src = `${S.api}?action=load&callback=${cb}`;
-  s.onerror = () => { clearTimeout(timer); toast("連線失敗（確認網址結尾是 /exec）"); };
-  document.body.appendChild(s);
+  const sc = document.createElement("script");
+  sc.src = url + "?action=load&key=" + encodeURIComponent(key) + "&callback=" + cb;
+  sc.onerror = () => { clearTimeout(timer); if (!silent) toast("連線失敗（確認網址結尾是 /exec）"); };
+  document.body.appendChild(sc);
+}
+
+/* 教練：一次抓回所有學員的小考弱點並彙整 */
+function syncAll(silent){
+  const url = cloudUrl();
+  if (!url){ if (!silent) toast("還沒設定雲端網址"); return; }
+  const cb = "basefitAll" + Date.now();
+  const timer = setTimeout(() => { if (window[cb]) { if (!silent) toast("雲端沒有回應"); delete window[cb]; } }, 25000);
+  window[cb] = j => {
+    clearTimeout(timer); delete window[cb];
+    if (j && j.all){
+      AGG = j.all; render();
+      if (!silent) toast("已彙整 " + Object.keys(j.all).length + " 位學員");
+    } else if (!silent) toast("雲端還沒有學員資料");
+  };
+  const sc = document.createElement("script");
+  sc.src = url + "?action=all&callback=" + cb;
+  sc.onerror = () => { clearTimeout(timer); if (!silent) toast("連線失敗（確認網址結尾是 /exec）"); };
+  document.body.appendChild(sc);
+}
+
+function aggRows(){
+  if (!AGG) return [];
+  const acc = {};
+  Object.keys(AGG).forEach(k => {
+    const st = (((AGG[k] || {}).quiz) || {}).stats || {};
+    Object.keys(st).forEach(id => {
+      const v = st[id];
+      const row = acc[id] || (acc[id] = {text: v.text, ans: v.ans, why: v.why, wrong: 0, seen: 0, who: {}});
+      row.wrong += v.wrong; row.seen += v.seen;
+      if (v.wrong > 0) row.who[k] = (row.who[k] || 0) + v.wrong;
+    });
+  });
+  return Object.keys(acc).map(id => acc[id]).filter(r => r.wrong > 0)
+    .sort((a, b) => (b.wrong - a.wrong) || (b.seen - a.seen)).slice(0, 12);
+}
+
+/* 新裝置（本機沒資料）自動把雲端資料抓下來 */
+function autoSync(){
+  if (!hasCloud()) return;
+  const empty = !(S.sessions || []).length && !(S.videos || []).length && !(S.assessments || []).length;
+  if (empty) syncPull(true);
 }
 
 route();
+autoSync();
 </script>
 </body>
 </html>
