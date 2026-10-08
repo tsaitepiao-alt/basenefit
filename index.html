@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>basenefit · 運動成長空間</title>
+<style>
+  :root{
+    --side:#1b1b19; --side2:#232320; --ink:#141412; --muted:#71756f; --line:#e4e5e0;
+    --bg:#f4f4f1; --card:#ffffff; --lime:#cbf24c; --lime-dark:#a9cc35; --danger:#c0503c;
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--ink);
+    font:15px/1.7 -apple-system,"PingFang TC","Noto Sans TC",system-ui,sans-serif}
+  .app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+
+  /* ============ 側邊欄 ============ */
+  .side{background:var(--side);color:#efece4;padding:22px 18px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh}
+  .brand{display:flex;align-items:center;gap:8px;font-size:21px;font-weight:700;letter-spacing:.3px}
+  .brand b{color:var(--lime)}
+  .tag{font-size:10px;border:1px solid #4a4a44;color:#cfcabc;border-radius:6px;padding:1px 5px;letter-spacing:.5px}
+  .strap{font-size:11px;letter-spacing:2.4px;color:#8d8d83}
+  .side .group{font-size:11px;color:#8d8d83;letter-spacing:1.4px;margin:2px 0 4px}
+  .nav{display:flex;flex-direction:column;gap:2px}
+  .nav a{display:flex;align-items:center;gap:10px;color:#d8d5cb;text-decoration:none;padding:9px 11px;border-radius:10px;font-size:14.5px}
+  .nav a:hover{background:#2a2a26;color:#fff}
+  .nav a.on{background:var(--lime);color:#1b1b19;font-weight:700}
+  .side .foot{margin-top:auto;font-size:11.5px;color:#77776e;line-height:1.8}
+  .side .foot strong{color:#d8d5cb;font-weight:600;display:block;letter-spacing:1.6px;font-size:11px}
+
+  /* ============ 主區 ============ */
+  main{min-width:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 26px;border-bottom:1px solid var(--line);background:#fbfbf9;position:sticky;top:0;z-index:20}
+  .crumb{font-size:12px;letter-spacing:1.2px;color:var(--muted)}
+  .crumb b{color:var(--ink)}
+  .who{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+  .avatar{width:26px;height:26px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-size:12px;font-weight:700;color:#1b1b19}
+  .wrap{padding:26px;max-width:1080px;width:100%}
+  .page{display:none}
+  .page.show{display:block}
+
+  .eyebrow{font-size:11px;letter-spacing:2.2px;color:var(--muted)}
+  h1{font-size:30px;line-height:1.35;margin:6px 0 10px;letter-spacing:.5px}
+  h2{font-size:17px;margin:0}
+  .lead{color:var(--muted);font-size:14.5px;margin:0 0 22px;max-width:62ch}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:18px}
+  .card.tight{padding:16px 18px}
+  .hrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+  button,.btn{font:inherit;cursor:pointer;border-radius:10px;border:1px solid transparent;padding:9px 15px;background:#232320;color:#fff;font-size:14px;text-decoration:none;display:inline-block;white-space:nowrap}
+  button:hover,.btn:hover{opacity:.9}
+  .btn.lime{background:var(--lime);color:#1b1b19;font-weight:700}
+  .btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+  .btn.sm{padding:6px 12px;font-size:13px}
+  input,select,textarea{font:inherit;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  textarea{min-height:92px;resize:vertical}
+  label{display:block;font-size:13px;color:var(--muted);margin:12px 0 5px}
+  .req{font-size:12px;color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+  th{font-size:11.5px;letter-spacing:1.2px;color:var(--muted);font-weight:600}
+  tr:last-child td{border-bottom:none}
+
+  .pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;background:#f0f0ec;color:var(--muted)}
+  .pill.lime{background:var(--lime);color:#1b1b19;font-weight:700}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  .stat .n{font-size:30px;font-weight:700;line-height:1.1}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:4px}
+  .empty{border:1.5px dashed #d7d9d2;border-radius:12px;padding:26px;text-align:center;color:var(--muted);font-size:14px;background:#fcfcfa}
+
+  .drop{border:1.5px dashed #cfd2c9;border-radius:14px;padding:30px 20px;text-align:center;background:#fcfcfa}
+  .drop b{display:block;margin-bottom:6px}
+  .tip{display:flex;gap:10px;padding:11px 0;border-bottom:1px dashed var(--line);font-size:14px}
+  .tip:last-child{border-bottom:none}
+  .tip i{font-style:normal;font-weight:700;color:var(--lime-dark);min-width:16px}
+
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center}
+  .week .d{border:1px solid var(--line);border-radius:10px;padding:9px 4px;font-size:12.5px}
+  .week .d.done{background:var(--lime);border-color:var(--lime-dark);font-weight:700}
+  .week .d.rest{background:#fafaf7;color:var(--muted)}
+  .bars{display:flex;align-items:flex-end;gap:10px;padding-top:8px}
+  .bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--muted);text-align:center}
+  .bars .b .track{width:100%;height:110px;display:flex;align-items:flex-end;background:#fafaf7;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .bars .b .track span{display:block;width:100%;background:var(--lime);border-radius:6px 6px 0 0}
+
+  ol.list{list-style:none;counter-reset:s;padding:0;margin:0}
+  ol.list li{counter-increment:s;display:grid;grid-template-columns:34px 1fr 58px 82px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+  ol.list li:last-child{border-bottom:none}
+  ol.list li::before{content:counter(s,decimal-leading-zero);font-size:12px;color:var(--muted);letter-spacing:1px}
+  ol.list li.rest{background:#fafaf7;border-radius:8px;padding-left:8px;padding-right:8px}
+  ol.list li.done{color:var(--muted);text-decoration:line-through}
+  .secs{font-size:13px;color:var(--muted);text-align:right}
+  .tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .tabs button{background:#f0f0ec;color:var(--muted);padding:6px 13px;font-size:13px}
+  .tabs button.on{background:#232320;color:#fff}
+  .toast{position:fixed;right:20px;bottom:20px;background:#232320;color:#fff;padding:11px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;z-index:99}
+  .toast.show{opacity:1}
+  /* ===== 課表月曆 ===== */
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal .hd{font-size:11px;color:var(--muted);text-align:center;letter-spacing:1px;padding-bottom:4px}
+  .cal .day{min-height:54px;border:1px solid var(--line);border-radius:9px;padding:6px;font-size:12px;background:#fff;cursor:pointer;position:relative}
+  .cal .day.off{background:#fafaf7;color:#b9bdb5;cursor:default}
+  .cal .day.plan{background:#f6fbe6;border-color:#dbeaa8}
+  .cal .day.done{background:var(--lime);border-color:var(--lime-dark);font-weight:700}
+  .cal .day.today{outline:2px solid #232320;outline-offset:1px}
+  .cal .day .m{position:absolute;right:6px;bottom:4px;font-size:10.5px;color:#4c5a1f;font-weight:600}
+  .cal .day .cm{position:absolute;left:6px;bottom:4px;font-size:10px;color:#5b5f57}
+  /* ===== 留言 ===== */
+  .cmt{border-bottom:1px dashed var(--line);padding:9px 0;font-size:14px}
+  .cmt:last-child{border-bottom:none}
+  .cmt .who{font-size:12px;color:var(--muted);margin-bottom:2px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .chip{font-size:12px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer}
+  .chip.on{background:var(--lime);border-color:var(--lime-dark);font-weight:700}
+  dialog{border:none;border-radius:16px;padding:0;max-width:520px;width:92vw}
+  dialog::backdrop{background:rgba(20,20,18,.5)}
+  .dlg-h{padding:18px 20px 0;display:flex;justify-content:space-between;align-items:center}
+  .dlg-b{padding:8px 20px 20px}
+  footer.pg{color:var(--muted);font-size:12.5px;text-align:center;padding:8px 0 40px;letter-spacing:.6px}
+
+  @media(max-width:900px){
+    .app{grid-template-columns:1fr}
+    .side{position:static;height:auto;flex-direction:row;align-items:center;gap:12px;overflow-x:auto;padding:14px}
+    .side .strap,.side .foot,.side .group{display:none}
+    .nav{flex-direction:row;gap:6px}
+    .nav a{white-space:nowrap}
+    .grid2,.grid3,.grid4{grid-template-columns:1fr}
+    .wrap{padding:18px}
+    h1{font-size:24px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ===== 側邊欄（品牌名與標語是佔位，換成你自己的）===== -->
+  <aside class="side">
+    <div class="brand">base<b>benefit</b> <span class="tag">AI</span></div>
+    <div class="strap">TRAIN · TRACK · GROW</div>
+    <div>
+      <div class="group">你的運動成長空間</div>
+      <nav class="nav">
+        <a href="#/home"      data-page="home">運動首頁</a>
+        <a href="#/videos"    data-page="videos">動作影片</a>
+        <a href="#/assessment" data-page="assessment">能力評估</a>
+        <a href="#/plan"      data-page="plan">訓練計畫</a>
+        <a href="#/progress"  data-page="progress">進步追蹤</a>
+        <a href="#/coach"     data-page="coach">教練工作區</a>
+        <a href="#/settings"  data-page="settings">學員與設定</a>
+      </nav>
+    </div>
+    <div class="foot">
+      <strong>START SMALL, STAY LONG.</strong>
+      一步一步，練出自己的節奏。<br>
+      V1.1 私人試用
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div class="crumb">basenefit / <b id="crumb">運動首頁</b></div>
+      <div class="who"><span id="who-name">williampiao</span><span class="avatar" id="who-ini">W</span></div>
+    </div>
+
+    <div class="wrap">
+
+      <!-- ========== 1. 運動首頁 ========== -->
+      <section class="page" id="page-home">
+        <div class="eyebrow">PERSONAL GROWTH</div>
+        <h1>今天，也往目標靠近一點。</h1>
+        <p class="lead">每天都有一點進度就好。這裡看你這週的安排、今天的動作，還有你累積的成果。</p>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="hrow"><h2>你的每週節奏</h2><span class="pill" id="week-pill">每週 3 天</span></div>
+            <div class="week" id="home-week"></div>
+            <p class="req" style="margin-top:12px">標記為訓練日的日子會有動作清單；其他日子自由恢復。</p>
+          </div>
+          <div class="card">
+            <div class="hrow"><h2>本週數據</h2><button class="btn sm ghost" onclick="go('#/progress')">看詳細</button></div>
+            <div class="grid3" style="gap:10px">
+              <div class="stat" style="padding:12px"><div class="n" id="home-days">0/3</div><div class="l">訓練天數</div></div>
+              <div class="stat" style="padding:12px"><div class="n" id="home-sess">0</div><div class="l">完成次數</div></div>
+              <div class="stat" style="padding:12px"><div class="n" id="home-mins">0</div><div class="l">累積分鐘</div></div>
+            </div>
+            <div style="margin-top:14px"><button class="btn lime" onclick="go('#/plan')">開始今天的訓練</button></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hrow"><h2>今日動作清單</h2><span class="pill" id="home-list-count">10 個動作</span></div>
+          <ol class="list" id="home-today"></ol>
+        </div>
+      </section>
+
+      <!-- ========== 2. 動作影片 ========== -->
+      <section class="page" id="page-videos">
+        <div class="eyebrow">MOVEMENT LIBRARY</div>
+        <h1>上傳一段基礎動作</h1>
+        <p class="lead">影片會綁在你的帳號上，只有你與你的教練看得到。</p>
+        <div class="grid2">
+          <div class="card">
+            <label>動作類型</label>
+            <select id="vid-type">
+              <option>深蹲</option><option>單腳平衡</option><option>側步</option><option>坐站</option><option>揮棒</option><option>其他</option>
+            </select>
+            <label>影片檔</label>
+            <div class="drop">
+              <b>把影片拖進來，或點這裡選檔</b>
+              <div class="req">MP4 / MOV / WebM，單檔 25MB 以內</div>
+              <input type="file" id="vid-file" accept="video/mp4,video/quicktime,video/webm" style="margin-top:12px">
+            </div>
+            <label style="display:flex;gap:8px;align-items:flex-start;margin-top:14px">
+              <input type="checkbox" id="vid-consent" style="width:auto;margin-top:4px">
+              <span>我確認影片中的人同意上傳與使用。</span>
+            </label>
+            <div style="margin-top:12px"><button class="btn lime" onclick="uploadVideo()">上傳</button></div>
+            <p class="req" style="margin-top:10px">目前尚未接上 AI 分析：先累積影片，之後再開放自動評分。</p>
+          </div>
+          <div class="card">
+            <h2 style="margin-bottom:6px">拍攝前，確認三件事</h2>
+            <div class="tip"><i>1</i><div>全身入鏡：從頭到腳都在畫面裡，不要切掉。</div></div>
+            <div class="tip"><i>2</i><div>手機固定：放在穩的地方，同一角度拍，才能前後比較。</div></div>
+            <div class="tip"><i>3</i><div>光線清楚：背景簡單、人不背光。</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="hrow"><h2>動作影片庫</h2><span class="pill" id="vid-count">0 支影片</span></div>
+          <div id="vid-list"></div>
+        </div>
+      </section>
+
+      <!-- ========== 3. 能力評估 ========== -->
+      <section class="page" id="page-assessment">
+        <div class="eyebrow">BUILD YOUR BASELINE</div>
+        <h1>先留下你的第一次評估</h1>
+        <p class="lead">三項簡單測試，記錄你現在的起點。之後每 4 週再測一次，就能看到變化。</p>
+        <div class="grid2">
+          <div class="card">
+            <div class="grid3">
+              <div><label>左腳平衡（秒）</label><input type="number" id="as-l" min="0" step="0.1" placeholder="0"></div>
+              <div><label>右腳平衡（秒）</label><input type="number" id="as-r" min="0" step="0.1" placeholder="0"></div>
+              <div><label>30 秒椅子坐站（次）</label><input type="number" id="as-chair" min="0" placeholder="0"></div>
+            </div>
+            <label>10 次目標傳球命中（次）</label>
+            <input type="number" id="as-pass" min="0" max="10" placeholder="0">
+            <label>測試條件與教練觀察</label>
+            <textarea id="as-note" placeholder="例如：赤腳、客廳地板、下午時段。左腳明顯比右腳不穩。"></textarea>
+            <div style="margin-top:14px"><button class="btn lime" onclick="saveAssessment()">儲存本次評估</button></div>
+          </div>
+          <div class="card">
+            <h2 style="margin-bottom:6px">一致，比數字重要</h2>
+            <div class="tip"><i>·</i><div>同樣的鞋子、同樣的地面、同樣的時段，數字才可比。</div></div>
+            <div class="tip"><i>·</i><div>這不是排名，是「你自己的基準線」。</div></div>
+            <div class="tip"><i>·</i><div>只跟自己比：4 週後再測一次同一組。</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="hrow"><h2>評估紀錄</h2><span class="pill" id="as-count">0 筆</span></div>
+          <div id="as-list"></div>
+        </div>
+      </section>
+
+      <!-- ========== 4. 訓練計畫 ========== -->
+      <section class="page" id="page-plan">
+        <div class="eyebrow">YOUR PERSONAL PLAN</div>
+        <h1>把想練的，變成每天做的。</h1>
+        <p class="lead">棒球基礎、穩定與腳步 — 每週 3 天，每次約 10 分鐘。</p>
+        <div class="grid2">
+          <div class="card">
+            <div class="hrow"><h2>今日動作清單</h2>
+              <div><button class="btn sm ghost" onclick="toast('已重置今天的打勾')" >重置</button>
+              <button class="btn sm lime" onclick="finishSession()">完成這次訓練</button></div>
+            </div>
+            <ol class="list" id="plan-list"></ol>
+          </div>
+          <div>
+            <div class="card">
+              <div class="hrow">
+                <h2>課表月曆</h2>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <button class="btn ghost sm" onclick="shiftMonth(-1)">←</button>
+                  <b id="cal-title" style="font-size:14px">—</b>
+                  <button class="btn ghost sm" onclick="shiftMonth(1)">→</button>
+                </div>
+              </div>
+              <div class="cal" id="cal-grid"></div>
+              <p class="req" style="margin:10px 0 0">綠底＝已完成訓練　淺綠＝排定訓練日　點日期看當天紀錄。</p>
+              <div id="cal-detail" style="margin-top:12px"></div>
+            </div>
+            <div class="card">
+              <h2 style="margin-bottom:10px">你的每週節奏</h2>
+              <div class="week" id="plan-week"></div>
+              <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn ghost sm" onclick="toast('之後可在這裡調整計畫內容')">調整目前計畫</button>
+                <button class="btn ghost sm" onclick="toast('月程檢視之後再開')">查看月程</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="hrow"><h2>教練建議</h2><span class="pill">記錄建議</span></div>
+              <div class="tabs" id="coach-tabs">
+                <button class="on" data-tab="sum">進度摘要</button>
+                <button data-tab="arr">安排建議</button>
+                <button data-tab="key">評估重點</button>
+              </div>
+              <div id="coach-tab-body" style="font-size:14px;color:#3c3f3a"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== 5. 進步追蹤 ========== -->
+      <section class="page" id="page-progress">
+        <div class="eyebrow">PROGRESS</div>
+        <h1>每一次練習，都留下記錄。</h1>
+        <p class="lead">每一次訓練都算一次。累積起來，就會看到自己的曲線。</p>
+        <div class="grid3" style="margin-bottom:18px">
+          <div class="stat"><div class="n" id="pg-sess">0</div><div class="l">累積訓練（次）</div></div>
+          <div class="stat"><div class="n" id="pg-mins">0</div><div class="l">累積時間（分鐘）</div></div>
+          <div class="stat"><div class="n" id="pg-vids">0</div><div class="l">已存影片（支）</div></div>
+        </div>
+        <div class="card">
+          <div class="hrow"><h2>本週運動時間</h2><span class="pill">單位：分鐘</span></div>
+          <div class="bars" id="pg-bars"></div>
+        </div>
+        <div class="card">
+          <div class="hrow"><h2>能力前後比較</h2><span class="pill" id="pg-cmp-pill">還沒有第 2 次評估</span></div>
+          <div id="pg-cmp"></div>
+        </div>
+        <div class="card">
+          <div class="hrow"><h2>訓練紀錄</h2><button class="btn sm" onclick="go('#/plan')">前往訓練</button></div>
+          <div id="pg-log"></div>
+        </div>
+      </section>
+
+      <!-- ========== 6. 教練工作區 ========== -->
+      <section class="page" id="page-coach">
+        <div class="eyebrow">COACH WORKSPACE</div>
+        <h1>看得見的進步，才帶得動。</h1>
+        <p class="lead">這裡管理此帳號底下的學員。外部教練邀請與跨帳號授權之後再開。</p>
+        <div class="card">
+          <div class="hrow"><h2>學員總覽</h2><button class="btn lime sm" onclick="openStudent()">+ 新增學員</button></div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>學員</th><th>負責教練</th><th>目標</th><th>訓練紀錄</th><th>能力評估</th><th>影片筆記</th><th>操作</th></tr></thead>
+              <tbody id="coach-rows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="hrow"><h2 id="coach-plan-title">訓練安排</h2><span class="pill">棒球基礎、穩定與腳步</span></div>
+            <p class="req" style="margin:0 0 12px">每週 3 天 · 每次 10 分鐘 · 基礎動作循環</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn ghost sm" onclick="toast('之後可線上調整學員的計畫')">調整目前計畫</button>
+              <button class="btn ghost sm" onclick="toast('月程檢視之後再開')">查看月程</button>
+            </div>
+          </div>
+          <div class="card">
+            <h2 style="margin-bottom:8px">待觀察的影片</h2>
+            <div id="coach-videos"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== 7. 學員與設定 ========== -->
+      <section class="page" id="page-settings">
+        <div class="eyebrow">ACCOUNT</div>
+        <h1>學員與設定</h1>
+        <p class="lead">你在這個空間裡的身分、學員名單，以及資料保存方式。</p>
+        <div class="grid2">
+          <div class="card">
+            <h2 style="margin-bottom:6px">目前身分</h2>
+            <p class="req" style="margin:0 0 8px">切換你是哪一位教練 —— 留言與紀錄會掛在這個名字上。</p>
+            <div class="chips" id="coach-chips"></div>
+            <div style="margin-top:12px;display:flex;gap:8px;align-items:flex-end">
+              <div style="flex:1"><label style="margin-top:0">新增教練</label><input id="new-coach" placeholder="教練名字，例如 Stanley"></div>
+              <button class="btn ghost" onclick="addCoach()">新增</button>
+            </div>
+          </div>
+          <div class="card">
+            <h2 style="margin-bottom:10px">我的資料</h2>
+            <label>顯示名稱</label><input id="set-name">
+            <label>主要目標</label><input id="set-goal">
+            <div style="margin-top:14px"><button class="btn lime" onclick="saveSettings()">儲存</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2 style="margin-bottom:8px">雲端同步（讓多位學員／教練共用同一份資料）</h2>
+          <p class="req" style="margin:0 0 10px">貼上你部署好的 Google Apps Script 網址，就能把資料存到你的 Google 試算表；沒填的話只存在這台裝置的瀏覽器裡。</p>
+          <label>Apps Script 網址</label>
+          <input id="set-api" placeholder="https://script.google.com/macros/s/..../exec">
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn lime" onclick="saveApi()">儲存網址</button>
+            <button class="btn ghost" onclick="syncPush()">上傳到雲端</button>
+            <button class="btn ghost" onclick="syncPull()">從雲端下載</button>
+          </div>
+          <p class="req" id="api-state" style="margin:10px 0 0"></p>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <h2 style="margin-bottom:10px">本機資料</h2>
+            <p class="req" style="margin:0 0 10px">存在你自己的瀏覽器（不會自動上傳）。要換裝置就用下面的匯出／匯入。</p>
+            <button class="btn ghost sm" onclick="exportData()">匯出資料（JSON）</button>
+            <button class="btn ghost sm" onclick="resetData()">清空重來</button>
+          </div>
+          <div class="card">
+            <h2 style="margin-bottom:10px">教練名單</h2>
+            <div id="coach-list"></div>
+          </div>
+        </div>
+        <footer class="pg">basenefit · 慢慢練，練久一點 ｜ PRIVATE BETA / 2026</footer>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<dialog id="dlg">
+  <div class="dlg-h"><h2 id="dlg-title">新增學員</h2><button class="btn ghost sm" onclick="document.getElementById('dlg').close()">關閉</button></div>
+  <div class="dlg-b" id="dlg-body"></div>
+</dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 資料層（存在瀏覽器本機）============ */
+const KEY = "basefit.v1";
+const TODAY = [
+  ["暖身原地踏步", 60], ["肩繞環", 45], ["扶牆單腳平衡（左）", 30], ["休息", 25],
+  ["扶牆單腳平衡（右）", 30], ["休息", 25], ["左右側步", 45], ["休息", 25],
+  ["椅子坐站", 45], ["休息", 25], ["緩和踏步", 60], ["自然呼吸", 45],
+].map(([name, secs]) => ({name, secs, rest: name === "休息", done: false}));
+
+const seed = () => ({
+  coaches: [{id:"aaron",name:"Aaron"},{id:"william",name:"William"},{id:"stanley",name:"Stanley"}],
+  me: {name: "williampiao", goal: "棒球基礎與協調", coach: "william"},
+  students: [{id: 1, name: "williampiao", goal: "棒球基礎與協調", coach: "william", sessions: 0, assessments: 0, videos: 0}],
+  videos: [], assessments: [], sessions: [], today: structuredClone(TODAY),
+  api: "",
+});
+
+let S = load();
+let CAL = {y: new Date().getFullYear(), m: new Date().getMonth()};   // 月曆正在看的月份
+function load(){
+  const base = seed();
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY));
+    if (!saved) return base;
+    const merged = Object.assign(base, saved);                      // 舊資料自動補上新欄位
+    merged.videos = (merged.videos || []).map(v => ({comments: [], ...v}));
+    merged.students = (merged.students || []).map(s => ({coach: "william", ...s}));
+    if (!merged.coaches || !merged.coaches.length) merged.coaches = base.coaches;
+    return merged;
+  } catch(e){ return base; }
+}
+function coachName(id){ return (S.coaches.find(c => c.id === id) || {}).name || "—"; }
+function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
+function toast(m){ const t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 1900); }
+function go(h){ location.hash = h; }
+
+/* ============ 路由 ============ */
+const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
+                progress:"進步追蹤", coach:"教練工作區", settings:"學員與設定"};
+function route(){
+  const p = (location.hash.replace("#/","") || "home");
+  const page = TITLES[p] ? p : "home";
+  document.querySelectorAll(".page").forEach(el => el.classList.toggle("show", el.id === "page-" + page));
+  document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.page === page));
+  document.getElementById("crumb").textContent = TITLES[page];
+  window.scrollTo({top:0});
+  render();
+}
+window.addEventListener("hashchange", route);
+
+/* ============ 畫面渲染 ============ */
+function render(){
+  const mins = S.sessions.reduce((a,b)=>a+b.mins,0);
+  const days = new Set(S.sessions.map(s=>s.date)).size;
+  document.getElementById("home-days").textContent = `${Math.min(days,3)}/3`;
+  document.getElementById("home-sess").textContent = S.sessions.length;
+  document.getElementById("home-mins").textContent = mins;
+  document.getElementById("who-name").textContent = `${coachName(S.me.coach)}（教練）`;
+  document.getElementById("who-ini").textContent = (coachName(S.me.coach)[0]||"W").toUpperCase();
+
+  // 教練切換與名單（設定頁）
+  const chips = document.getElementById("coach-chips");
+  if (chips) chips.innerHTML = S.coaches.map(c =>
+    `<span class="chip ${c.id===S.me.coach?"on":""}" onclick="setCoach('${c.id}')">${c.name}</span>`).join("");
+  const clist = document.getElementById("coach-list");
+  if (clist) clist.innerHTML = S.coaches.map(c =>
+    `<div class="tip"><i>·</i><div><b>${c.name}</b> — 負責學員 ${S.students.filter(s=>s.coach===c.id).length} 位</div></div>`).join("");
+  const apif = document.getElementById("set-api");
+  if (apif && document.activeElement !== apif) apif.value = S.api || "";
+  const apiState = document.getElementById("api-state");
+  if (apiState) apiState.textContent = S.api ? "已設定雲端網址 ✅" : "尚未設定，資料只存在這台裝置。";
+  document.getElementById("week-pill").textContent = "每週 3 天";
+  document.getElementById("home-list-count").textContent = `${S.today.filter(t=>!t.rest).length} 個動作 · 共 ${S.today.length} 項`;
+  document.getElementById("coach-plan-title").textContent = `${S.me.name} · 訓練安排`;
+
+  // 每週節奏（週一/三/五 訓練）
+  const wk = ["一","二","三","四","五","六","日"].map((d,i)=>{
+    const train = [0,2,4].includes(i);
+    return `<div class="d ${train?"done":"rest"}">週${d}<br><small>${train?"基礎訓練":"自由恢復"}</small></div>`;
+  }).join("");
+  document.getElementById("home-week").innerHTML = wk;
+  document.getElementById("plan-week").innerHTML = wk;
+
+  // 今日清單
+  const listHtml = S.today.map((t,i)=>
+    `<li class="${t.rest?"rest":""} ${t.done?"done":""}">
+       <span>${t.name}</span><span class="secs">${t.secs} 秒</span>
+       <button class="btn ghost sm" onclick="toggleItem(${i})">${t.done?"還原":"完成"}</button>
+     </li>`).join("");
+  document.getElementById("home-today").innerHTML = listHtml;
+  document.getElementById("plan-list").innerHTML = listHtml;
+
+  // 影片庫
+  document.getElementById("vid-count").textContent = `${S.videos.length} 支影片`;
+  document.getElementById("vid-list").innerHTML = S.videos.length ? `
+    <table><thead><tr><th>動作</th><th>檔名</th><th>上傳時間</th><th>狀態</th><th>留言</th><th>操作</th></tr></thead><tbody>
+    ${S.videos.map((v,i)=>`<tr>
+        <td>${v.type}</td><td>${v.name}</td><td>${v.at}</td>
+        <td><span class="pill">${v.pending?"待觀察":"已回饋"}</span></td>
+        <td>${(v.comments||[]).length} 則</td>
+        <td><button class="btn ghost sm" onclick="openComments(${i})">留言</button></td>
+      </tr>`).join("")}
+    </tbody></table>` : `<div class="empty">還沒有影片。上傳第一段基礎動作。</div>`;
+  const pending = S.videos.filter(v=>v.pending);
+  document.getElementById("coach-videos").innerHTML = pending.length
+    ? pending.map((v,i)=>`<div class="tip"><i>·</i><div><b>${v.student}</b> — ${v.type}（${v.name}）
+        <div class="req">留言 ${(v.comments||[]).length} 則 · <a href="#/videos" onclick="setTimeout(()=>openComments(${S.videos.indexOf(v)}),60)">去看與回饋</a></div></div></div>`).join("")
+    : `<p class="req" style="margin:0">目前沒有待觀察影片。</p>`;
+
+  // 評估
+  document.getElementById("as-count").textContent = `${S.assessments.length} 筆`;
+  document.getElementById("as-list").innerHTML = S.assessments.length ? `
+    <table><thead><tr><th>日期</th><th>左腳平衡</th><th>右腳平衡</th><th>坐站</th><th>傳球命中</th><th>備註</th></tr></thead><tbody>
+    ${S.assessments.slice().reverse().map(a=>`<tr><td>${a.date}</td><td>${a.l}s</td><td>${a.r}s</td><td>${a.chair} 次</td><td>${a.pass}/10</td><td>${a.note||"—"}</td></tr>`).join("")}
+    </tbody></table>` : `<div class="empty">還沒有評估紀錄。上面填一次，就有了基準線。</div>`;
+
+  // 進步追蹤
+  document.getElementById("pg-sess").textContent = S.sessions.length;
+  document.getElementById("pg-mins").textContent = mins;
+  document.getElementById("pg-vids").textContent = S.videos.length;
+  const perDay = [0,0,0,0,0,0,0];
+  S.sessions.forEach(s=>{ const d=(new Date(s.date).getDay()+6)%7; perDay[d]+=s.mins; });
+  const max = Math.max(10, ...perDay);
+  document.getElementById("pg-bars").innerHTML = perDay.map((m,i)=>
+    `<div class="b"><div class="track"><span style="height:${m ? Math.max(6, Math.round(m/max*108)) : 0}px"></span></div>
+     <div>週${"一二三四五六日"[i]}<br>${m} 分</div></div>`).join("");
+
+  const first = S.assessments[0], last = S.assessments[S.assessments.length-1];
+  if (S.assessments.length < 2){
+    document.getElementById("pg-cmp-pill").textContent = "還沒有第 2 次評估";
+    document.getElementById("pg-cmp").innerHTML = `<div class="empty">先留下第一次評估，4 週後再測一次，就能看到前後差異。</div>`;
+  } else {
+    const dl = (last.l-first.l).toFixed(1), dr = (last.r-first.r).toFixed(1);
+    const dch = last.chair-first.chair, dp = last.pass-first.pass;
+    document.getElementById("pg-cmp-pill").textContent = `${first.date} → ${last.date}`;
+    document.getElementById("pg-cmp").innerHTML = `
+      <table><thead><tr><th>項目</th><th>第一次</th><th>最近一次</th><th>變化</th></tr></thead><tbody>
+      <tr><td>左腳平衡（秒）</td><td>${first.l}</td><td>${last.l}</td><td>${dl>=0?"+":""}${dl}</td></tr>
+      <tr><td>右腳平衡（秒）</td><td>${first.r}</td><td>${last.r}</td><td>${dr>=0?"+":""}${dr}</td></tr>
+      <tr><td>椅子坐站（次）</td><td>${first.chair}</td><td>${last.chair}</td><td>${dch>=0?"+":""}${dch}</td></tr>
+      <tr><td>傳球命中（次）</td><td>${first.pass}</td><td>${last.pass}</td><td>${dp>=0?"+":""}${dp}</td></tr>
+      </tbody></table>`;
+  }
+  document.getElementById("pg-log").innerHTML = S.sessions.length
+    ? `<table><thead><tr><th>日期</th><th>內容</th><th>時間</th></tr></thead><tbody>
+       ${S.sessions.slice().reverse().map(s=>`<tr><td>${s.date}</td><td>${s.title}</td><td>${s.mins} 分鐘</td></tr>`).join("")}</tbody></table>`
+    : `<div class="empty">還沒有訓練紀錄。完成一次就會出現在這裡。</div>`;
+
+  // 教練工作區表格
+  document.getElementById("coach-rows").innerHTML = S.students.map(s=>`
+    <tr>
+      <td><b>${s.name}</b></td>
+      <td>${coachName(s.coach)}</td>
+      <td>${s.goal}</td>
+      <td>${s.sessions} 次</td>
+      <td>${s.assessments} 次</td>
+      <td>${s.videos} 支</td>
+      <td><button class="btn lime sm" onclick="viewStudent(${s.id})">查看</button></td>
+    </tr>`).join("");
+
+  // 設定
+  if (document.getElementById("set-name") && !document.activeElement.matches("input,textarea")){
+    document.getElementById("set-name").value = S.me.name;
+    document.getElementById("set-goal").value = S.me.goal;
+  }
+  renderCalendar();
+  renderCoachTab();
+  save();
+}
+
+/* ============ 互動 ============ */
+function toggleItem(i){ S.today[i].done = !S.today[i].done; render(); }
+
+function finishSession(){
+  const mins = Math.round(S.today.reduce((a,t)=>a+t.secs,0)/60);
+  S.sessions.push({date:new Date().toISOString().slice(0,10), title:"基礎動作循環", mins});
+  S.students[0].sessions = S.sessions.length;
+  S.today.forEach(t=>t.done = false);
+  save(); render(); toast(`已記錄這次訓練（約 ${mins} 分鐘）`);
+}
+
+function uploadVideo(){
+  const f = document.getElementById("vid-file").files[0];
+  const type = document.getElementById("vid-type").value;
+  if (!f) return toast("先選一個影片檔");
+  if (!document.getElementById("vid-consent").checked) return toast("請先勾選同意");
+  if (f.size > 25*1024*1024) return toast("檔案超過 25MB");
+  S.videos.push({student: S.me.name, type, name: f.name, at: new Date().toLocaleDateString("zh-TW"), pending: true});
+  S.students[0].videos = S.videos.length;
+  document.getElementById("vid-file").value = ""; document.getElementById("vid-consent").checked = false;
+  save(); render(); toast("已加入影片庫（待觀察）");
+}
+
+function saveAssessment(){
+  const g = id => document.getElementById(id).value;
+  if (!g("as-l") || !g("as-r")) return toast("至少填左右腳平衡");
+  S.assessments.push({date:new Date().toLocaleDateString("zh-TW"), l:+g("as-l"), r:+g("as-r"),
+                      chair:+g("as-chair")||0, pass:+g("as-pass")||0, note:g("as-note")});
+  S.students[0].assessments = S.assessments.length;
+  ["as-l","as-r","as-chair","as-pass","as-note"].forEach(id=>document.getElementById(id).value="");
+  save(); render(); toast("已儲存這次評估");
+}
+
+const COACH_TABS = {
+  sum: "已完成 <b>0</b> 次訓練。先求穩定：每週 3 天、每次 10 分鐘，連續 2 週再談加量。",
+  arr: "建議安排：週一基礎、週三穩定、週五腳步。若某天太累，改成自由恢復，不要硬補。",
+  key: "觀察重點：單腳平衡的左右差異、坐站時膝蓋是否內夾、傳球時的軀幹轉動是否順。",
+};
+function renderCoachTab(){
+  const body = document.getElementById("coach-tab-body");
+  if (!body) return;
+  const cur = document.querySelector("#coach-tabs button.on")?.dataset.tab || "sum";
+  body.innerHTML = COACH_TABS[cur].replace("0", S.sessions.length);
+}
+document.getElementById("coach-tabs")?.addEventListener("click", e => {
+  if (e.target.tagName !== "BUTTON") return;
+  document.querySelectorAll("#coach-tabs button").forEach(b=>b.classList.remove("on"));
+  e.target.classList.add("on"); renderCoachTab();
+});
+
+/* ============ 學員對話框 ============ */
+const dlg = document.getElementById("dlg");
+function openStudent(){
+  document.getElementById("dlg-title").textContent = "新增學員";
+  document.getElementById("dlg-body").innerHTML = `
+    <label>學員名稱</label><input id="st-name" placeholder="例如：小明">
+    <label>目標</label><input id="st-goal" placeholder="例如：棒球基礎與協調">
+    <div style="margin-top:16px"><button class="btn lime" onclick="addStudent()">新增</button></div>`;
+  dlg.showModal();
+}
+function addStudent(){
+  const n = document.getElementById("st-name").value.trim();
+  if (!n) return toast("請填名稱");
+  S.students.push({id:Date.now(), name:n, goal:document.getElementById("st-goal").value || "—", sessions:0, assessments:0, videos:0});
+  save(); render(); dlg.close(); toast("已新增學員");
+}
+function viewStudent(id){
+  const s = S.students.find(x=>x.id===id);
+  document.getElementById("dlg-title").textContent = s.name;
+  document.getElementById("dlg-body").innerHTML = `
+    <p style="margin:0 0 10px"><span class="pill">目標</span> ${s.goal}</p>
+    <label style="margin-top:0">負責教練</label>
+    <div class="chips">${S.coaches.map(c =>
+      `<span class="chip ${c.id===s.coach?"on":""}" onclick="assignCoach(${s.id},'${c.id}')">${c.name}</span>`).join("")}</div>
+    <div class="grid3" style="margin-top:14px">
+      <div class="stat" style="padding:12px"><div class="n">${s.sessions}</div><div class="l">訓練次數</div></div>
+      <div class="stat" style="padding:12px"><div class="n">${s.assessments}</div><div class="l">能力評估</div></div>
+      <div class="stat" style="padding:12px"><div class="n">${s.videos}</div><div class="l">影片筆記</div></div>
+    </div>
+    <p class="req" style="margin-top:14px">之後可在這裡看該學員的完整紀錄、指派計畫與影片回饋。</p>`;
+  dlg.showModal();
+}
+
+/* ============ 設定 ============ */
+function saveSettings(){
+  S.me.name = document.getElementById("set-name").value.trim() || S.me.name;
+  S.me.goal = document.getElementById("set-goal").value.trim() || S.me.goal;
+  if (S.students[0]) { S.students[0].name = S.me.name; S.students[0].goal = S.me.goal; }
+  save(); render(); toast("已儲存");
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(S,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "basefit-data.json"; a.click();
+}
+function resetData(){ if (confirm("清空所有資料？")) { S = seed(); save(); render(); toast("已清空"); } }
+
+/* ================= 課表月曆 ================= */
+function shiftMonth(d){
+  CAL.m += d;
+  if (CAL.m > 11){ CAL.m = 0; CAL.y++; }
+  if (CAL.m < 0){ CAL.m = 11; CAL.y--; }
+  render();
+}
+function iso(y,m,d){ return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`; }
+function renderCalendar(){
+  const grid = document.getElementById("cal-grid");
+  if (!grid) return;
+  document.getElementById("cal-title").textContent = `${CAL.y} 年 ${CAL.m+1} 月`;
+  const offset = (new Date(CAL.y, CAL.m, 1).getDay() + 6) % 7;      // 週一當第一欄
+  const days = new Date(CAL.y, CAL.m+1, 0).getDate();
+  const todayIso = new Date().toISOString().slice(0,10);
+  let html = ["一","二","三","四","五","六","日"].map(d=>`<div class="hd">${d}</div>`).join("");
+  for (let i=0;i<offset;i++) html += `<div class="day off"></div>`;
+  for (let d=1; d<=days; d++){
+    const date = iso(CAL.y, CAL.m, d);
+    const weekday = (new Date(CAL.y, CAL.m, d).getDay()+6)%7;
+    const done = S.sessions.filter(s=>s.date===date);
+    const mins = done.reduce((a,b)=>a+b.mins,0);
+    const cls = done.length ? "done" : ([0,2,4].includes(weekday) ? "plan" : "");
+    html += `<div class="day ${cls} ${date===todayIso?"today":""}" onclick="selectDay('${date}')">
+               ${d}${mins?`<span class="m">${mins}分</span>`:""}</div>`;
+  }
+  grid.innerHTML = html;
+}
+function selectDay(date){
+  const box = document.getElementById("cal-detail");
+  if (!box) return;
+  const list = S.sessions.filter(s=>s.date===date);
+  const total = list.reduce((a,b)=>a+b.mins,0);
+  const planned = [0,2,4].includes((new Date(date).getDay()+6)%7);
+  box.innerHTML = list.length
+    ? `<div class="tip"><i>✓</i><div><b>${date}</b> 完成 ${list.length} 次，共 ${total} 分鐘</div></div>
+       ${list.map(s=>`<div class="req" style="margin:6px 0 0 26px">· ${s.title} ${s.mins} 分鐘</div>`).join("")}`
+    : `<div class="req">${date}：沒有訓練紀錄${planned?"（這天是排定訓練日）":""}。</div>`;
+}
+
+/* ================= 影片回饋留言 ================= */
+let CMT = 0;
+function openComments(i){
+  const v = S.videos[i];
+  if (!v) return;
+  v.comments = v.comments || [];
+  CMT = i;
+  document.getElementById("dlg-title").textContent = `影片回饋 · ${v.type}`;
+  document.getElementById("dlg-body").innerHTML = `
+    <p class="req" style="margin:0 0 10px">${v.student} 上傳的 <b>${v.name}</b>（${v.at}）</p>
+    <div id="cmt-list">${v.comments.length ? v.comments.map(c=>`
+      <div class="cmt"><div class="who">${c.who} · ${c.at}</div>${c.text}</div>`).join("")
+      : `<div class="empty">還沒有留言。教練可以在這裡給回饋。</div>`}</div>
+    <label>新增回饋（以 ${coachName(S.me.coach)} 的名義）</label>
+    <textarea id="cmt-input" placeholder="例如：蹲的時候膝蓋不要內夾，腳掌平均出力。"></textarea>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn lime" onclick="addComment()">送出留言</button>
+      <button class="btn ghost" onclick="markReviewed(${i})">標記已回饋</button>
+    </div>`;
+  dlg.showModal();
+}
+function addComment(){
+  const i = CMT, v = S.videos[i];
+  const text = document.getElementById("cmt-input").value.trim();
+  if (!text) return toast("先寫點內容");
+  v.comments = v.comments || [];
+  v.comments.push({who: coachName(S.me.coach),
+    at: new Date().toLocaleString("zh-TW",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}), text});
+  save(); render(); openComments(i); toast("已送出留言");
+}
+function markReviewed(i){
+  S.videos[i].pending = false; save(); render();
+  document.getElementById("dlg").close(); toast("已標記為已回饋");
+}
+
+/* ================= 教練 ================= */
+function setCoach(id){ S.me.coach = id; save(); render(); toast("已切換為 " + coachName(id)); }
+function addCoach(){
+  const name = document.getElementById("new-coach").value.trim();
+  if (!name) return toast("請填名字");
+  S.coaches.push({id: "c" + Date.now(), name});
+  document.getElementById("new-coach").value = "";
+  save(); render(); toast(`已新增教練 ${name}`);
+}
+function assignCoach(studentId, coachId){
+  const s = S.students.find(x=>x.id===studentId);
+  s.coach = coachId; save(); render(); toast("已指派給 " + coachName(coachId));
+}
+
+/* ================= 雲端同步（Google Apps Script）================= */
+function saveApi(){
+  S.api = document.getElementById("set-api").value.trim();
+  save(); render(); toast(S.api ? "已儲存雲端網址" : "已清除雲端網址");
+}
+async function syncPush(){
+  if (!S.api) return toast("先貼上 Apps Script 網址");
+  try {
+    // Apps Script 不回 CORS 標頭，所以用 no-cors 單向送出（送出即成功，讀不到回應）
+    await fetch(S.api, {method:"POST", mode:"no-cors", body: JSON.stringify({action:"save", state:S})});
+    toast("已送出到雲端（到你的試算表看得到）");
+  } catch(e){ toast("連線失敗：" + e.message); }
+}
+function syncPull(){
+  if (!S.api) return toast("先貼上 Apps Script 網址");
+  const cb = "basefitPull" + Date.now();
+  const timer = setTimeout(()=>{ if (window[cb]) { toast("雲端沒有回應（檢查網址與分享權限）"); delete window[cb]; } }, 12000);
+  window[cb] = j => {
+    clearTimeout(timer); delete window[cb];
+    if (j && j.state){ S = Object.assign(seed(), j.state); save(); render(); toast("已從雲端下載"); }
+    else toast("雲端還沒有資料");
+  };
+  const s = document.createElement("script");
+  s.src = `${S.api}?action=load&callback=${cb}`;
+  s.onerror = () => { clearTimeout(timer); toast("連線失敗（確認網址結尾是 /exec）"); };
+  document.body.appendChild(s);
+}
+
+route();
+</script>
+</body>
+</html>

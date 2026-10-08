@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# 編輯器
+.vscode/
+.idea/
+
+# 本機暫存
+*.log
+tmp/
