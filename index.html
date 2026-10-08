@@ -172,6 +172,19 @@
   .photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
   @media(max-width:900px){ .photo-grid{grid-template-columns:1fr} }
 
+  /* ===== 小考 ===== */
+  .q{border-top:1px dashed var(--line);padding:14px 0}
+  .q:first-of-type{border-top:none}
+  .qt{font-size:15px;font-weight:600;line-height:1.7;margin-bottom:8px}
+  .qo{display:grid;gap:6px}
+  .opt{display:block;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:#fff;cursor:pointer;line-height:1.6}
+  .opt:hover{border-color:var(--lime-dark)}
+  .opt.right{background:#eef7d3;border-color:var(--lime-dark);font-weight:700}
+  .opt.wrong{background:#fdecec;border-color:#e0a0a0}
+  .tag-ok{font-size:11px;color:#40611d;background:#eef7d3;border-radius:6px;padding:2px 6px;margin-left:6px;font-weight:700}
+  .tag-no{font-size:11px;color:#8a2f2f;background:#fdecec;border-radius:6px;padding:2px 6px;margin-left:6px;font-weight:700}
+  .why{font-size:13px;color:#3c3f3a;background:#f7f8f3;border-radius:8px;padding:9px 12px;margin-top:8px;line-height:1.75}
+
   dialog{border:none;border-radius:16px;padding:0;max-width:520px;width:92vw}
   dialog::backdrop{background:rgba(20,20,18,.5)}
   .dlg-h{padding:18px 20px 0;display:flex;justify-content:space-between;align-items:center}
@@ -227,6 +240,7 @@
         <a href="#/plan"      data-page="plan"><span class="mi">🗓</span>訓練計畫</a>
         <a href="#/diagrams"  data-page="diagrams"><span class="mi">📐</span>圖解教室</a>
         <a href="#/analysis"  data-page="analysis"><span class="mi">🎬</span>動作解析</a>
+        <a href="#/quiz"      data-page="quiz"><span class="mi">🎯</span>棒球小考</a>
         <a href="#/progress"  data-page="progress"><span class="mi">📈</span>進步追蹤</a>
         <a href="#/coach"     data-page="coach"><span class="mi">🧢</span>教練工作區</a>
         <a href="#/settings"  data-page="settings"><span class="mi">⚙️</span>學員與設定</a>
@@ -400,7 +414,7 @@
       <section class="page" id="page-diagrams">
         <div class="eyebrow">BASEBALL 101</div>
         <h1>看懂，才練得對。</h1>
-        <p class="lead">場地、握法、打擊與守備的基本姿勢、常見戰術 —— 用圖看懂，再上場練。</p>
+        <p class="lead">場地、好球帶、握法、打擊與守備的基本姿勢 —— 用真圖看懂，再上場練。</p>
 
         <div class="card">
           <h2 style="margin-bottom:4px">場地與守備位置</h2>
@@ -525,7 +539,30 @@
         </div>
       </section>
 
-      <!-- ========== 7. 進步追蹤 ========== -->
+      <!-- ========== 7. 棒球小考 ========== -->
+      <section class="page" id="page-quiz">
+        <div class="eyebrow">BASEBALL QUIZ</div>
+        <h1>棒球學堂隨堂小考</h1>
+        <p class="lead">每次從題庫<b>隨機抽 50 題</b>，每題 2 分、滿分 100 分。<b>交卷後才會公布答案與解說。</b></p>
+
+        <div class="card">
+          <div class="hrow"><h2>準備好了嗎？</h2><span class="pill" id="quiz-last">尚未測驗</span></div>
+          <ul class="keys">
+            <li>共 50 題，都是單選題；每題只有一個正確答案。</li>
+            <li>每題 2 分，滿分 100 分；<b>交卷後立即批改並公布答案與解說</b>。</li>
+            <li>可以重複測驗，每次題目與選項順序都不一樣。</li>
+          </ul>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn lime" onclick="startQuiz()">開始測驗（隨機 50 題）</button>
+            <button class="btn ghost" onclick="clearQuiz()">清除上次成績</button>
+          </div>
+          <p class="credit" id="quiz-history"></p>
+        </div>
+
+        <div id="quiz-box"></div>
+      </section>
+
+      <!-- ========== 8. 進步追蹤 ========== -->
       <section class="page" id="page-progress">
         <div class="eyebrow">PROGRESS</div>
         <h1>每一次練習，都留下記錄。</h1>
@@ -688,6 +725,7 @@ const seed = () => ({
   videos: [], assessments: [], sessions: [], today: structuredClone(TODAY),
   focus: "bat",
   media: {},
+  quiz: {history: []},
   api: "",
 });
 
@@ -714,7 +752,7 @@ function go(h){ location.hash = h; }
 
 /* ============ 路由 ============ */
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
-                diagrams:"圖解教室", analysis:"動作解析",
+                diagrams:"圖解教室", analysis:"動作解析", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
@@ -851,6 +889,14 @@ function render(){
     document.getElementById("set-name").value = S.me.name;
     document.getElementById("set-goal").value = S.me.goal;
   }
+  const ql = document.getElementById("quiz-last");
+  if (ql) ql.textContent = (S.quiz && S.quiz.last) ? `上次 ${S.quiz.last.score} 分 · ${S.quiz.last.at}` : "尚未測驗";
+  const qh = document.getElementById("quiz-history");
+  if (qh) {
+    const h = (S.quiz && S.quiz.history) || [];
+    qh.textContent = h.length ? `最近成績：${h.slice(-8).map(x => x.score).join(" → ")}` : "";
+  }
+
   renderCalendar();
   renderMedia();
   renderCoachTab();
@@ -1201,6 +1247,183 @@ function diamond(extra, vb="0 0 220 210", home=[110,190], labels){
       runner(80,160) + arrow(92,156,112,152,"lm") + arrow(136,150,116,154,"lm"),
       "跑者：先停、看對方出手");
 })();
+
+/* ================= 棒球小考：題庫（65 題，每次隨機抽 50 題）=================
+   格式：[題目, [四個選項], 正確答案索引(0-3), 解說] */
+const QUIZ = [
+["棒球比賽中，一隊同時在場上的防守球員有幾人？",["8 人","9 人","10 人","11 人"],1,"標準守備 9 人：投手、捕手、4 名內野手、3 名外野手。"],
+["一局中進攻方最多可以有幾個出局數？",["2 個","3 個","4 個","沒有上限"],1,"三個出局就換局（三上三下）。"],
+["投手丘到本壘板的距離是多少？",["15.54 公尺","16.76 公尺","18.44 公尺","20.12 公尺"],2,"18.44 公尺（60 呎 6 吋）。"],
+["壘與壘之間的距離是多少？",["25.00 公尺","26.50 公尺","27.43 公尺","30.00 公尺"],2,"27.43 公尺（90 呎）。"],
+["好球帶的「寬度」等於什麼？",["本壘板寬度","打者的肩寬","投手的手套寬","沒有固定寬度"],0,"好球帶寬度＝本壘板寬度（17 吋）。"],
+["好球帶的「高度」範圍是？",["腳踝到腰","膝蓋上緣到胸口","腰到肩膀","全身都算"],1,"打者膝蓋上緣到胸口（球衣字母中間線）。"],
+["幾個壞球構成一次保送？",["3 個","4 個","5 個","6 個"],1,"四個壞球保送上一壘。"],
+["幾個好球構成三振？",["2 個","3 個","4 個","5 個"],1,"三個好球三振。"],
+["未滿兩好球時，打出界外球算什麼？",["算一個好球","算一個壞球","不算球數","打者出局"],0,"界外球在未滿兩好球時計一個好球。"],
+["已經兩好球時，再打出界外球會怎樣？",["三振出局","繼續打，球數不變","保送上一壘","算安打"],1,"兩好球後的界外球不增加好球數，繼續纏鬥。"],
+["打者被觸身球擊中（未揮棒）時？",["保送上一壘","算出局","重新打擊","記一個好球"],0,"觸身球直接保送上一壘。"],
+["打擊率（AVG）怎麼算？",["安打數 ÷ 打數","安打數 ÷ 打席","得分 ÷ 打數","全壘打 ÷ 打數"],0,"安打數除以打數。"],
+["防禦率（ERA）怎麼算？",["自責分 × 9 ÷ 投球局數","失分 ÷ 出賽場數","自責分 ÷ 打數","三振 ÷ 投球局數"],0,"自責分 × 9 ÷ 投球局數。"],
+["打點（RBI）指的是什麼？",["打者打回來、讓隊友得分的次數","打者自己得分的次數","打者上壘的次數","打者擊出安打的次數"],0,"打者靠自己的打擊讓跑者（含自己全壘打）得分的紀錄。"],
+["「打席（PA）」與「打數（AB）」的差別是？",["打數不含保送、犧牲打與觸身球","兩者完全相同","打席不含安打","打數包含保送"],0,"保送、犧牲打、觸身球算打席但不算打數。"],
+["壘打數（TB）怎麼算？",["一壘安打 1、二壘安打 2、三壘安打 3、全壘打 4 的加總","打數 × 安打數","安打數","得分"],0,"依安打壘數加總。"],
+["守備位置號碼中，「游擊手」是幾號？",["4 號","5 號","6 號","7 號"],2,"2 捕、3 一壘、4 二壘、5 三壘、6 游擊、7 左、8 中、9 右。"],
+["守備位置號碼中，「二壘手」是幾號？",["2 號","3 號","4 號","5 號"],2,"二壘手是 4 號。"],
+["守備位置號碼中，「左外野手」是幾號？",["6 號","7 號","8 號","9 號"],1,"左外野是 7 號。"],
+["「6-4-3」代表什麼守備？",["游擊手→二壘手→一壘手的雙殺","捕手→一壘手→三壘手","投手→本壘→一壘","三壘手→二壘手→一壘手"],0,"游擊手接球傳二壘、二壘手轉傳一壘的雙殺。"],
+["「犧牲飛球」是指什麼？",["打者被接殺，但三壘跑者回本壘得分","打者安全上壘","打者一次打回三分","打者打出界外球"],0,"打者用出局換分數，記為犧牲飛球、有打點。"],
+["「內野高飛必死球」（Infield Fly）在什麼情況宣告？",["無人出局或一出局、且一壘與二壘有人（或滿壘）時","兩出局滿壘時","任何內野飛球","界外飛球"],0,"為避免守備故意漏接製造雙殺，裁判會宣告打者出局。"],
+["打者被三振但捕手沒接到球，打者可以？",["在一壘沒人或兩出局時可以跑向一壘","一律算三振出局，不能跑","一律直接上一壘","重新打擊一次"],0,"這就是「不死三振」；一壘有跑者且未滿兩出局時，打者直接出局。"],
+["投手犯規（Balk）時，壘上跑者？",["各推進一個壘","各推進兩個壘","回到原壘","該跑者出局"],0,"投手犯規時跑者各前進一壘。"],
+["「觸殺」與「封殺」的差別是？",["封殺只要持球踩壘，不必碰觸跑者","觸殺不必碰觸跑者","兩者完全一樣","封殺是用球丟跑者"],0,"封殺是強迫進壘時踩壘即可；觸殺必須用持球的手套碰觸跑者。"],
+["故意四壞球（敬遠）通常為了？",["避開強打者或製造守備機會（例如抓雙殺）","節省投手體力","讓打者上二壘","增加三振數"],0,"常見於一壘空著時，直接保送強打抓下一棒。"],
+["「完全比賽」（Perfect Game）的定義是？",["投手投滿全場且沒有任何打者上壘","整場無安打但可有保送","整場無失分","連續三振 27 人"],0,"27 上 27 下，無安打、無保送、無失誤上壘。"],
+["「無安打比賽」（No-hitter）是？",["整場沒有被擊出任何安打（可能有保送）","必須同時是完全比賽","整場無失分","整場無保送"],0,"只要沒被擊出安打就算，保送或失誤上壘不影響。"],
+["「三冠王」指的是哪三項第一？",["打擊率、全壘打、打點","勝投、防禦率、三振","安打、盜壘、得分","三振、保送、失分"],0,"打者三冠王＝打擊率、全壘打、打點。"],
+["暴投（Wild Pitch）與捕逸（Passed Ball）的差別？",["暴投是投手投得太偏，捕逸是捕手該接住卻沒接住","兩者完全一樣","捕逸是投手的責任","暴投是打者的責任"],0,"責任歸屬不同：一個記投手，一個記捕手。"],
+["一壘有跑者、打者打出內野滾地球，守備最常見的第一個選擇是？",["傳二壘製造封殺","傳本壘","傳一壘","傳三壘"],0,"先抓最近的封殺跑者，再轉傳一壘形成雙殺。"],
+["三壘有人、一出局，打者打出三壘方向滾地球，守備最可能？",["傳本壘擋下這一分","傳一壘","傳二壘","不處理"],0,"先看本壘能否擋分，再考慮一壘。"],
+["世界少棒聯盟（LLB）的比賽通常打幾局？",["6 局","7 局","8 局","9 局"],0,"少棒多為 6 局，青少棒 7 局。"],
+["職業棒球比賽正規局數是？",["6 局","7 局","8 局","9 局"],3,"職業賽正規 9 局。"],
+["延長賽通常在什麼情況下進行？",["正規局數結束時平手","一定打滿 12 局","下雨時","兩隊都同意時"],0,"平手才進入延長賽（部分聯盟採突破僵局制）。"],
+["「指定打擊」（DH）的作用是？",["代替投手打擊","代替捕手守備","增加一名外野手","專門負責盜壘"],0,"讓投手專心投球，由指定打擊代替其打擊。"],
+["投手要拿到「勝投」的基本條件是？",["先發投滿 5 局且退場時球隊領先並保持到終場","只要球隊贏球就算","投滿 3 局就夠","投最後一局"],0,"先發需投滿 5 局，且球隊領先保持到比賽結束。"],
+["「救援成功」常見的條件之一是？",["領先 3 分以內投完最後一局","平手時上場","落後時上場","只投一顆球"],0,"在接近的比數下守住最後一局。"],
+["「自責分」指的是？",["因投手責任造成的失分（不含隊友失誤造成的失分）","所有失分","打者的得分","失誤造成的得分"],0,"自責分不計入隊友失誤造成的失分。"],
+["打者的打擊區在場上有幾個？",["左右各一，共兩個","只有一個","三個","四個"],0,"本壘板兩側各一個，供左打與右打使用。"],
+["守備時「正面對球」的主要目的是？",["讓身體擋住球、降低失誤","跑得比較快","畫面好看","讓裁判看清楚"],0,"正面迎球能讓球在身體前方，失誤時也能擋下。"],
+["傳球時「傳平不傳高」的理由是？",["平球速度快、隊友也好接","高球比較準","平球不會被攔截","高球比較省力"],0,"胸前高度的平傳最快也最好處理。"],
+["投球的力量主要來自哪裡？",["下半身與軀幹的帶動","只有手臂","只有手腕","只有手指"],0,"後腳推、胯部轉，力量由下往上傳遞。"],
+["打擊時「髖先動」的意思是？",["下半身先轉，手最後才帶出來","手先拉出去","頭先轉","腳先跳起來"],0,"由下而上的發力順序，是打擊力量的核心。"],
+["練習「毛巾甩動」的主要目的？",["體會手腕與手臂的甩動感與尾勁","練握力","練跑步","只是暖身"],0,"沒有球也能練出手臂的甩動路徑。"],
+["在鏡子前空揮的最大好處是？",["看得到自己的動作，可以定格修正","練體力","練速度","練跑壘"],0,"鏡子讓你即時檢查姿勢。"],
+["跑壘繞壘時應該？",["壓低身體，從壘包外側切入","跑最大的圓弧","直接跳過壘包","慢慢跑"],0,"壓低重心、內側切入才能縮短時間。"],
+["界外球被野手在空中接住，判決是？",["打者被接殺出局","算安打","算界外球","重新打擊"],0,"界外飛球被接殺一樣算出局（跑者可推進）。"],
+["球數是 2 好 2 壞時，投手再投出一個壞球會變成？",["3 好 2 壞","保送","三振","滿球數"],0,"變 3 壞 2 好，再一顆壞球就保送。"],
+["「滿球數」是指？",["3 好球 3 壞球","2 好 2 壞","3 好 0 壞","0 好 3 壞"],0,"滿球數時投打對決最緊張。"],
+["「滿壘」是指？",["一、二、三壘都有跑者","只有一壘有跑者","二、三壘有人","無人上壘"],0,"滿壘時任何保送都會擠回一分。"],
+["打者站得離本壘板越近，比較難打的是？",["內角球","外角球","正中球","高球"],0,"內角球會壓迫到身體，容易被擠壓。"],
+["觸擊（Bunt）常見的目的是？",["推進跑者或偷點上壘","追求全壘打","增加三振","製造保送"],0,"犧牲觸擊用出局換推進；偷點則爭取上壘。"],
+["「打帶跑」（Hit and Run）是？",["跑者先起跑，打者一定要碰到球","打者先打全壘打","跑者等打者安打才跑","打者只選球不打"],0,"跑者先動製造壓力，打者負責掩護。"],
+["盜壘成功的定義是？",["投球時跑者安全前進一個壘且未被觸殺","打者打出安打","投手犯規","獲得保送"],0,"必須在沒有被觸殺的情況下安全上壘。"],
+["「牽制」（Pick-off）的目的？",["防止跑者離壘過大或盜壘","讓打者出局","增加球數","讓捕手休息"],0,"投手或捕手突然傳向壘包抓跑者。"],
+["下列哪一項「不是」捕手的主要工作？",["上場投球","配球與接球","阻殺盜壘","引導投手與守備"],0,"捕手負責接球、配球、阻殺與指揮，不負責投球。"],
+["裁判做出「Safe」的手勢代表？",["安全上壘／未出局","出局","好球","壞球"],0,"雙手平舉張開＝安全。"],
+["投手投球時，軸心腳必須？",["踩在投手板上","完全離地","站在外野","面向一壘"],0,"投球前軸心腳要與投手板接觸。"],
+["單局三名打者連續出局，通常稱為？",["三上三下","完全比賽","無安打比賽","三殺"],0,"三上三下是單局的說法。"],
+["打者未揮棒卻被判定三好球，稱為？",["見逃三振","揮空三振","不死三振","保送"],0,"站著不動被三振＝見逃三振。"],
+["兩好球後，投手投引誘球的主要目的是？",["讓打者揮空或站著被判好球","讓打者保送","節省球數","讓跑者推進"],0,"兩好球後用變化球或壞球邊緣引誘打者出棒。"],
+["打者擊出全壘打，壘上有兩名跑者，一共得幾分？",["3 分","2 分","1 分","4 分"],0,"全壘打得分＝打者＋壘上跑者，共 3 分（三分全壘打）。"],
+["一壘有跑者、打者打出二壘安打，跑者通常能？",["從一壘跑回本壘得分","只能到二壘","出局","留在原地"],0,"二壘安打通常足以讓一壘跑者回本壘。"],
+["「投手板」位於哪裡？",["投手丘上、投手丘中央","本壘板旁","一壘旁邊","外野草坪"],0,"投手必須踩在投手板上投球。"],
+];
+
+let QNOW = null, QPICK = [];
+
+function shuffle(a){
+  const b = a.slice();
+  for (let i = b.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function makeQuestion(item){
+  const [q, opts, c, why] = item;
+  const order = shuffle(opts.map((_, i) => i));
+  return {q, opts: order.map(i => opts[i]), c: order.indexOf(c), why};
+}
+
+function startQuiz(){
+  QNOW = shuffle(QUIZ).slice(0, 50).map(makeQuestion);
+  renderQuiz();
+  toast("已出題：50 題，每題 2 分");
+  window.scrollTo({top: 0});
+}
+
+function renderQuiz(){
+  const box = document.getElementById("quiz-box");
+  if (!box || !QNOW) return;
+  box.innerHTML = `<div class="card">
+    <div class="hrow"><h2>作答中</h2><span class="pill" id="quiz-progress">0 / ${QNOW.length} 已作答</span></div>
+    <p class="req">全部寫完再按最下面的「交卷並公布答案」。</p>
+    ${QNOW.map((item, i) => `
+      <div class="q" id="q-${i}">
+        <div class="qt"><b>${i + 1}.</b> ${item.q}</div>
+        <div class="qo">${item.opts.map((o, j) =>
+          `<label class="opt"><input type="radio" name="q${i}" value="${j}" onchange="quizProgress()">　${"ABCD"[j]}. ${o}</label>`).join("")}</div>
+      </div>`).join("")}
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn lime" onclick="gradeQuiz()">交卷並公布答案</button>
+      <button class="btn ghost" onclick="startQuiz()">重新出題</button>
+    </div></div>`;
+}
+
+function chosen(i){
+  const el = document.querySelector(`input[name="q${i}"]:checked`);
+  return el ? Number(el.value) : -1;
+}
+
+function quizProgress(){
+  if (!QNOW) return;
+  const done = QNOW.filter((_, i) => chosen(i) >= 0).length;
+  const p = document.getElementById("quiz-progress");
+  if (p) p.textContent = `${done} / ${QNOW.length} 已作答`;
+}
+
+function gradeQuiz(){
+  if (!QNOW) return;
+  QPICK = QNOW.map((_, i) => chosen(i));
+  const blanks = QPICK.filter(v => v < 0).length;
+  if (blanks && !confirm(`還有 ${blanks} 題沒作答，未作答以答錯計。要直接交卷嗎？`)) return;
+  let score = 0;
+  const wrong = [];
+  QNOW.forEach((item, i) => { if (QPICK[i] === item.c) score += 2; else wrong.push(i); });
+  const at = new Date().toLocaleString("zh-TW", {month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit"});
+  S.quiz = S.quiz || {history: []};
+  S.quiz.last = {score, at, total: QNOW.length};
+  S.quiz.history = (S.quiz.history || []).concat([{score, at}]).slice(-20);
+  save();
+  renderQuizResult(score, wrong);
+  render();
+  toast(`成績 ${score} 分`);
+  window.scrollTo({top: 0});
+}
+
+function renderQuizResult(score, wrong){
+  const box = document.getElementById("quiz-box");
+  if (!box) return;
+  const label = score >= 90 ? "很棒！" : score >= 70 ? "不錯，再熟一點" : "再練一下";
+  box.innerHTML = `<div class="card">
+    <div class="hrow"><h2>成績：${score} / 100</h2><span class="pill">${label}</span></div>
+    <p class="req">答對 ${score / 2} 題、答錯 ${wrong.length} 題（未作答以答錯計）。下面是每一題的答案與解說。</p>
+    ${QNOW.map((item, i) => {
+      const c = QPICK[i], ok = c === item.c;
+      return `<div class="q">
+        <div class="qt"><b>${i + 1}.</b> ${item.q}${ok ? '<span class="tag-ok">答對</span>' : '<span class="tag-no">答錯</span>'}</div>
+        <div class="qo">${item.opts.map((o, j) => {
+          const cls = j === item.c ? "right" : (j === c ? "wrong" : "");
+          const mark = j === item.c ? "✔ 正確答案" : (j === c ? "✘ 你的答案" : "");
+          return `<div class="opt ${cls}">${"ABCD"[j]}. ${o}${mark ? `　<b>${mark}</b>` : ""}</div>`;
+        }).join("")}</div>
+        <div class="why"><b>解說：</b>${item.why}</div>
+      </div>`;
+    }).join("")}
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn lime" onclick="startQuiz()">再考一次（重新抽題）</button>
+      <button class="btn ghost" onclick="location.hash='#/progress'">看進步追蹤</button>
+    </div></div>`;
+}
+
+function clearQuiz(){
+  S.quiz = {history: []};
+  save(); render();
+  const box = document.getElementById("quiz-box");
+  if (box) box.innerHTML = "";
+  QNOW = null;
+  toast("已清除成績");
+}
 
 /* ================= 圖片／影片槽（可自己上傳替換）================= */
 const SLOTS = {
