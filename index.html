@@ -129,7 +129,7 @@
 
   @media(max-width:900px){
     .app{grid-template-columns:1fr}
-    .side{position:sticky;top:0;z-index:50;height:auto;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;box-shadow:0 3px 16px rgba(0,0,0,.3)}
+    .side{position:sticky;top:0;z-index:80;height:auto;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;box-shadow:0 3px 16px rgba(0,0,0,.3)}
     .side .strap,.side .foot,.side .group{display:none}
     .side .brand{font-size:19px}
     .menu-btn{display:flex;align-items:center;gap:9px;background:var(--lime);color:#1b1b19;border:none;font-weight:800;font-size:15.5px;letter-spacing:.5px;padding:12px 18px;border-radius:13px;min-height:48px;box-shadow:0 3px 0 var(--lime-dark);cursor:pointer}
@@ -181,8 +181,8 @@
       一步一步，練出自己的節奏。<br>
       V1.2 私人試用
     </div>
+    <div class="scrim" id="scrim" onclick="toggleMenu(false)"></div>
   </aside>
-  <div class="scrim" id="scrim" onclick="toggleMenu(false)"></div>
 
   <main>
     <div class="topbar">
