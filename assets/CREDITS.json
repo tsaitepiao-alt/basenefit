@@ -1,0 +1,82 @@
+[
+  {
+    "file": "grip-4seam.jpg",
+    "use": "四縫線握法",
+    "source": "File:Four-seam fastball 1.JPG",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "author": "Toto-artist (talk)",
+    "page": "https://commons.wikimedia.org/wiki/File%3AFour-seam_fastball_1.JPG",
+    "bytes": 237045
+  },
+  {
+    "file": "grip-2seam.jpg",
+    "use": "二縫線握法",
+    "source": "File:Two-seam fastball 1.JPG",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "author": "Toto-artist (talk)",
+    "page": "https://commons.wikimedia.org/wiki/File%3ATwo-seam_fastball_1.JPG",
+    "bytes": 227621
+  },
+  {
+    "file": "bat-stance.jpg",
+    "use": "打擊站姿",
+    "source": "File:Batting Stance Guy 2011.jpg",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0",
+    "author": "MissChatter",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABatting_Stance_Guy_2011.jpg",
+    "bytes": 353026
+  },
+  {
+    "file": "bat-ortiz.jpg",
+    "use": "打擊站位（示範）",
+    "source": "File:David-ortiz-batters-box.JPG",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0",
+    "author": "SecondPrint Productions on Flickr",
+    "page": "https://commons.wikimedia.org/wiki/File%3ADavid-ortiz-batters-box.JPG",
+    "bytes": 441900
+  },
+  {
+    "file": "pitch-motion.jpg",
+    "use": "投球動作",
+    "source": "File:Pitching motion.jpg",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "author": "Letartean",
+    "page": "https://commons.wikimedia.org/wiki/File%3APitching_motion.jpg",
+    "bytes": 315574
+  },
+  {
+    "file": "pitch-windup.jpg",
+    "use": "投球動作分解",
+    "source": "File:Baseball pitching motion 2004.jpg",
+    "license": "CC BY-SA 3.0",
+    "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "author": "?",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABaseball_pitching_motion_2004.jpg",
+    "bytes": 61076
+  },
+  {
+    "file": "catcher.jpg",
+    "use": "捕手蹲捕",
+    "source": "File:Baseball catcher.jpg",
+    "license": "CC BY-SA 3.0",
+    "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "author": "?",
+    "page": "https://commons.wikimedia.org/wiki/File%3ABaseball_catcher.jpg",
+    "bytes": 74383
+  },
+  {
+    "file": "field-play.jpg",
+    "use": "守備動作",
+    "source": "File:America East Baseball Championship (14075493988).jpg",
+    "license": "CC BY 2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0",
+    "author": "Bröder Media Group",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAmerica_East_Baseball_Championship_%2814075493988%29.jpg",
+    "bytes": 319070
+  }
+]

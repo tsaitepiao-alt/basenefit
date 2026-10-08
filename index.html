@@ -155,6 +155,23 @@
     .frame{flex:0 0 104px}
   }
 
+  /* ===== 圖片／上傳槽 ===== */
+  .mediabox,.medibox{margin:0 0 10px}
+  .photo{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f2f3ee}
+  .photo img{width:100%;height:auto;display:block}
+  .photo .rm{position:absolute;top:8px;right:8px;background:rgba(20,20,18,.78);color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer}
+  .photo .cap{font-size:11px;color:#5b5f57;background:#fff;padding:7px 9px;line-height:1.6}
+  .uplink{color:var(--lime-dark);font-weight:700;cursor:pointer;text-decoration:underline}
+  .uplink input{display:none}
+  .uprole{display:flex;align-items:center;justify-content:center;min-height:120px;border:2px dashed #cfd2c8;border-radius:12px;background:#fafbf6;color:#71756f;font-size:13px;text-align:center;padding:16px;cursor:pointer;line-height:1.6}
+  .uprole:hover{border-color:var(--lime-dark);color:#3c3f3a}
+  .uprole input{display:none}
+  .yt{position:relative;padding-top:56.25%;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  .yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .credit{font-size:11px;color:#8b8f86;line-height:1.8;margin-top:8px}
+  .photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(max-width:900px){ .photo-grid{grid-template-columns:1fr} }
+
   dialog{border:none;border-radius:16px;padding:0;max-width:520px;width:92vw}
   dialog::backdrop{background:rgba(20,20,18,.5)}
   .dlg-h{padding:18px 20px 0;display:flex;justify-content:space-between;align-items:center}
@@ -387,7 +404,7 @@
 
         <div class="card">
           <h2 style="margin-bottom:4px">場地與守備位置</h2>
-          <p class="req" style="margin:0 0 12px">1 投手　2 捕手　3 一壘手　4 二壘手　5 三壘手　6 游擊手　7 左外野　8 中外野　9 右外野</p>
+          <p class="req" style="margin:0 0 12px">1 投手　2 捕手　3 一壘手　4 二壘手　5 三壘手　6 游擊手　7 左外野　8 中外野　9 右外野。圖上有<b>本壘板、左右打擊區、一壘／二壘／三壘壘包</b>。</p>
           <div id="dia-field"></div>
         </div>
 
@@ -398,21 +415,31 @@
         </div>
 
         <div class="card">
-          <h2 style="margin-bottom:4px">握法圖解</h2>
-          <p class="req" style="margin:0 0 12px">手指放在縫線上，球才會有尾勁；握太深會變成「推球」。</p>
-          <div class="dia-grid3" id="dia-grips"></div>
+          <h2 style="margin-bottom:4px">握法圖解（真實照片）</h2>
+          <p class="req" style="margin:0 0 12px">手指放在縫線上，球才會有尾勁；握太深會變成「推球」。下面每張都可以「換成你的照片」。</p>
+          <div class="dia-grid3">
+            <div class="dia"><h3>四縫線</h3><div class="medibox" id="mb-grip4"></div>
+              <p class="req">食指與中指橫跨縫線、垂直下壓 → 球最直、最有尾勁。</p></div>
+            <div class="dia"><h3>二縫線</h3><div class="medibox" id="mb-grip2"></div>
+              <p class="req">兩指順著縫線、壓在縫上 → 球會往兩側跑（伸卡）。</p></div>
+            <div class="dia"><h3>變速球</h3><div class="medibox" id="mb-gripc"></div>
+              <p class="req">三指扣球，動作要跟直球一樣，差別只在握法 → 騙打者的節奏。（還沒有照片，可自己上傳）</p></div>
+          </div>
+          <p class="credit" id="media-usage"></p>
         </div>
 
         <div class="card">
-          <h2 style="margin-bottom:4px">基本動作圖解</h2>
-          <p class="req" style="margin:0 0 12px">打擊、守備、投球的基本姿勢分解。</p>
-          <div class="dia-grid" id="dia-basic"></div>
-        </div>
-
-        <div class="card">
-          <h2 style="margin-bottom:4px">常見戰術</h2>
-          <p class="req" style="margin:0 0 12px">跑者與球的動線用綠色箭頭表示。</p>
-          <div class="dia-grid" id="dia-tactics"></div>
+          <h2 style="margin-bottom:4px">基本動作與守備（真實照片）</h2>
+          <p class="req" style="margin:0 0 12px">打擊站位、投球、捕手與守備的實照示範；沒有的照片可以自己上傳。</p>
+          <div class="photo-grid">
+            <div><div class="medibox" id="mb-bat"></div><p class="req">打擊站位：雙腳略寬於肩、膝微彎、重心在兩腳中間。</p></div>
+            <div><div class="medibox" id="mb-pitchp"></div><p class="req">投球動作：抬腿、跨步、發力、出手一氣呵成。</p></div>
+            <div><div class="medibox" id="mb-pitcher"></div><p class="req">投球連續動作：注意後腳推進與手臂的路徑。</p></div>
+            <div><div class="medibox" id="mb-catchp"></div><p class="req">捕手蹲捕：低位穩定、手套放在好球帶邊緣。</p></div>
+            <div><div class="medibox" id="mb-fielder"></div><p class="req">守備動作：膝蓋彎、身體壓低、正面對球。</p></div>
+            <div><div class="medibox" id="mb-ready"></div><p class="req">守備預備姿勢：手套放在鼻子前方、腳跟微抬。</p></div>
+            <div><div class="medibox" id="mb-ground"></div><p class="req">接滾地球：手套貼地、用兩隻手收球。</p></div>
+          </div>
         </div>
 
         <div class="grid2">
@@ -446,10 +473,12 @@
         <h1>把職業級動作，拆成看得懂的步驟。</h1>
         <p class="lead">投、打、守三大動作分期 —— 每一格是一個「該做到的樣子」，練的時候一格一格對。</p>
 
-        <div class="disc">這些分解圖是<b>本站自己畫的示意圖</b>，動作分期與要點採用公開的動作力學共通原則，<b>沒有使用任何職棒球員的照片或影片</b>（尊重肖像權與著作權）。若要放真實球員畫面，請用 YouTube 官方頻道嵌入或取得授權。</div>
+        <div class="disc"><b>為什麼不放職棒球員的照片？</b>因為照片本身有著作權，<b>把臉打馬賽克或 P 圖並不能解除</b>，而且公開展示還可能涉及肖像權。合法做法有三種：<b>① 貼官方 YouTube 影片</b>（上面每張卡片都能貼）<b>② 使用開放授權的照片</b>（本站已用 Wikimedia Commons 的 CC 授權照片並標註來源）<b>③ 上傳你自己的照片</b>（圖解教室每張圖都能「＋ 換成你的照片」）。</div>
 
         <div class="card">
           <div class="hrow"><h2>投球：六階段分解</h2><span class="pill">PITCHING</span></div>
+          <div class="medibox" id="mb-ytPitch"></div>
+          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作）；下面是本站自繪的動作分期示意圖，兩者對照著看。</p>
           <div class="seq" id="seq-pitch"></div>
           <ul class="keys">
             <li><b>力量來自下半身</b>：不是手臂用力，是「後腳推、胯部轉」帶動上半身。</li>
@@ -461,6 +490,8 @@
 
         <div class="card">
           <div class="hrow"><h2>打擊：五階段分解</h2><span class="pill">HITTING</span></div>
+          <div class="medibox" id="mb-ytHit"></div>
+          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作）；下面是本站自繪的動作分期示意圖。</p>
           <div class="seq" id="seq-hit"></div>
           <ul class="keys">
             <li><b>髖先動、手最後</b>：用身體轉，不是用手拉。</li>
@@ -472,6 +503,8 @@
 
         <div class="card">
           <div class="hrow"><h2>守備：四階段分解</h2><span class="pill">FIELDING</span></div>
+          <div class="medibox" id="mb-ytField"></div>
+          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作）；下面是本站自繪的動作分期示意圖。</p>
           <div class="seq" id="seq-field"></div>
           <ul class="keys">
             <li><b>先踏第一步</b>：球一被打到，腳比手先動。</li>
@@ -654,6 +687,7 @@ const seed = () => ({
   students: [{id: 1, name: "williampiao", goal: "棒球基礎與協調", coach: "william", sessions: 0, assessments: 0, videos: 0}],
   videos: [], assessments: [], sessions: [], today: structuredClone(TODAY),
   focus: "bat",
+  media: {},
   api: "",
 });
 
@@ -818,6 +852,7 @@ function render(){
     document.getElementById("set-goal").value = S.me.goal;
   }
   renderCalendar();
+  renderMedia();
   renderCoachTab();
   save();
 }
@@ -1036,7 +1071,7 @@ function diamond(extra, vb="0 0 220 210", home=[110,190], labels){
   const el = document.getElementById("dia-field");
   if (!el) return;
   // [x, y, 號碼, 名稱, 標籤x, 標籤y]
-  const P = [[216,210,"1","投手",216,240], [210,302,"2","捕手",210,332], [318,198,"3","一壘手",318,226],
+  const P = [[216,210,"1","投手",216,240], [210,318,"2","捕手",210,348], [318,198,"3","一壘手",318,226],
              [258,152,"4","二壘手",258,180], [162,152,"6","游擊手",162,180], [102,198,"5","三壘手",102,226],
              [96,64,"7","左外野",96,92], [210,40,"8","中外野",210,68], [324,64,"9","右外野",324,92]];
   let extra = "";
@@ -1045,16 +1080,24 @@ function diamond(extra, vb="0 0 220 210", home=[110,190], labels){
     extra += `<text class="txb" x="${x}" y="${y+5}" text-anchor="middle" font-size="13">${n}</text>`;
     extra += `<text class="tx" x="${lx}" y="${ly}" text-anchor="middle" font-size="12">${name}</text>`;
   });
-  el.innerHTML = `<svg class="chart" viewBox="0 0 430 350">
+  el.innerHTML = `<svg class="chart" viewBox="0 0 430 372">
     <path class="ln2" d="M 210,292 L 40,122"/><path class="ln2" d="M 210,292 L 380,122"/>
     <path class="ln2" d="M 74,122 A 206 206 0 0 1 346,122"/>
     <path class="ln2" d="M 210,292 L 210,72"/>
-    <rect class="home" x="203" y="285" width="14" height="14" transform="rotate(45 210 292)"/>
-    <text class="tx" x="160" y="296" text-anchor="middle" font-size="11.5">本壘</text>
+    <!-- 壘包 -->
     <rect class="home" x="311" y="191" width="14" height="14" transform="rotate(45 318 198)"/>
+    <text class="tx" x="348" y="212" text-anchor="middle" font-size="11">一壘壘包</text>
     <rect class="home" x="203" y="145" width="14" height="14" transform="rotate(45 210 152)"/>
-    <text class="tx" x="210" y="132" text-anchor="middle" font-size="11.5">二壘壘包</text>
+    <text class="tx" x="210" y="132" text-anchor="middle" font-size="11">二壘壘包</text>
     <rect class="home" x="95" y="191" width="14" height="14" transform="rotate(45 102 198)"/>
+    <text class="tx" x="70" y="212" text-anchor="middle" font-size="11">三壘壘包</text>
+    <!-- 本壘板與打擊區 -->
+    <rect class="home" x="203" y="285" width="14" height="14" transform="rotate(45 210 292)"/>
+    <text class="tx" x="150" y="298" text-anchor="end" font-size="11">本壘板</text>
+    <rect class="home" x="156" y="272" width="38" height="40" rx="3" stroke-dasharray="4 3" fill="none"/>
+    <text class="tx" x="175" y="266" text-anchor="middle" font-size="10.5">右打擊區</text>
+    <rect class="home" x="226" y="272" width="38" height="40" rx="3" stroke-dasharray="4 3" fill="none"/>
+    <text class="tx" x="245" y="266" text-anchor="middle" font-size="10.5">左打擊區</text>
     ${extra}
   </svg>`;
 })();
@@ -1075,9 +1118,6 @@ function diamond(extra, vb="0 0 220 210", home=[110,190], labels){
       ${grid}
       <text class="tx" x="95" y="20" text-anchor="middle">高位</text>
       <text class="tx" x="95" y="168" text-anchor="middle">低位</text>
-      <text class="tx" x="92" y="16" text-anchor="middle"></text>
-      <text class="tx" x="18" y="106" text-anchor="middle" transform="rotate(-90 18 106)">內角</text>
-      <text class="tx" x="182" y="106" text-anchor="middle" transform="rotate(90 182 106)">外角</text>
       <text class="tx" x="100" y="192" text-anchor="middle" font-size="10.5">1～3 偏高　7～9 偏低</text>
     </svg></div>`;
   const zone2 = `<div class="dia"><h3>內角、外角與站位</h3><p class="req">打者站的位置決定內外角；越想打內角，站位就要離本壘板近一點。</p>
@@ -1161,6 +1201,102 @@ function diamond(extra, vb="0 0 220 210", home=[110,190], labels){
       runner(80,160) + arrow(92,156,112,152,"lm") + arrow(136,150,116,154,"lm"),
       "跑者：先停、看對方出手");
 })();
+
+/* ================= 圖片／影片槽（可自己上傳替換）================= */
+const SLOTS = {
+  grip4:  {def:"assets/grip-4seam.jpg", alt:"四縫線握法照片",
+           by:`<a href="https://commons.wikimedia.org/wiki/File%3AFour-seam_fastball_1.JPG" target="_blank" rel="noopener">Toto-artist</a>／Wikimedia Commons · CC BY-SA 3.0`},
+  grip2:  {def:"assets/grip-2seam.jpg", alt:"二縫線握法照片",
+           by:`<a href="https://commons.wikimedia.org/wiki/File%3ATwo-seam_fastball_1.JPG" target="_blank" rel="noopener">Toto-artist</a>／Wikimedia Commons · CC BY-SA 3.0`},
+  gripc:  {label:"＋ 上傳變速球握法照片"},
+  bat:    {def:"assets/bat-ortiz.jpg",  alt:"打擊站位實例照片",
+           by:`<a href="https://commons.wikimedia.org/wiki/File%3ADavid-ortiz-batters-box.JPG" target="_blank" rel="noopener">SecondPrint Productions</a>／Wikimedia Commons · CC BY 2.0`},
+  pitchp: {def:"assets/pitch-motion.jpg", alt:"投球動作照片",
+           by:`<a href="https://commons.wikimedia.org/wiki/File%3APitching_motion.jpg" target="_blank" rel="noopener">Letartean</a>／Wikimedia Commons · CC BY 3.0`},
+  pitcher:{def:"assets/pitch-windup.jpg", alt:"投球連續動作照片",
+           by:`<a href="https://commons.wikimedia.org/wiki/File%3ABaseball_pitching_motion_2004.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 3.0`},
+  catchp: {def:"assets/catcher.jpg",    alt:"捕手蹲捕照片",
+           by:`<a href="https://commons.wikimedia.org/wiki/File%3ABaseball_catcher.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 3.0`},
+  fielder:{def:"assets/field-play.jpg", alt:"守備動作照片",
+           by:`<a href="https://commons.wikimedia.org/wiki/File%3AAmerica_East_Baseball_Championship_%2814075493988%29.jpg" target="_blank" rel="noopener">Bröder Media Group</a>／Wikimedia Commons · CC BY 2.0`},
+  ready:  {label:"＋ 上傳守備預備姿勢照片"},
+  ground: {label:"＋ 上傳接滾地球照片"},
+  ytPitch:{type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）"},
+  ytHit:  {type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）"},
+  ytField:{type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）"},
+};
+
+function mediaHTML(key){
+  const cfg = SLOTS[key], custom = (S.media || {})[key];
+  if (custom) return `<div class="photo"><img src="${custom}" alt="${cfg.alt || "自訂圖片"}">
+      <button class="rm" onclick="removeMedia('${key}')">移除</button>
+      <div class="cap">已使用你自己的圖片${cfg.def ? `　<a href="#" onclick="removeMedia('${key}');return false">還原成預設</a>` : ""}</div></div>`;
+  if (cfg.def) return `<div class="photo"><img src="${cfg.def}" alt="${cfg.alt || ""}">
+      <div class="cap">${cfg.by || ""}　<label class="uplink">＋ 換成你的照片<input type="file" accept="image/*" onchange="uploadMedia('${key}', this)"></label></div></div>`;
+  return `<label class="uprole">${cfg.label || "＋ 上傳圖片"}<input type="file" accept="image/*" onchange="uploadMedia('${key}', this)"></label>`;
+}
+
+function ytHTML(key){
+  const cfg = SLOTS[key], v = (S.media || {})[key];
+  if (v) return `<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${v}" title="YouTube 影片" loading="lazy" allowfullscreen></iframe></div>
+    <p class="req" style="margin:8px 0 0">已嵌入影片　<button class="btn ghost sm" onclick="removeMedia('${key}')">移除影片</button></p>`;
+  return `<div class="uprole" onclick="askYt('${key}')">${cfg.label || "＋ 貼 YouTube 影片連結"}</div>`;
+}
+
+function ytId(u){
+  const m = String(u).match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+  if (m) return m[1];
+  return /^[A-Za-z0-9_-]{11}$/.test(String(u).trim()) ? String(u).trim() : "";
+}
+
+function askYt(key){
+  const url = prompt("貼上 YouTube 影片網址（用官方頻道或已授權的影片最安全）");
+  if (!url) return;
+  const id = ytId(url);
+  if (!id) return toast("看不出影片 ID，請貼完整網址");
+  S.media = S.media || {}; S.media[key] = id; save(); render(); toast("已嵌入影片");
+}
+
+async function uploadMedia(key, input){
+  const f = input && input.files && input.files[0];
+  if (!f) return;
+  const dataUrl = await new Promise(res => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.readAsDataURL(f);
+  });
+  const img = await new Promise(res => {
+    const i = new Image();
+    i.onload = () => res(i);
+    i.src = dataUrl;
+  });
+  const max = 1000, scale = Math.min(1, max / (img.width || max));
+  const c = document.createElement("canvas");
+  c.width = Math.round(img.width * scale);
+  c.height = Math.round(img.height * scale);
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  const out = c.toDataURL("image/jpeg", 0.78);
+  S.media = S.media || {};
+  const used = JSON.stringify(S.media).length;
+  if (used + out.length > 4.6 * 1024 * 1024) return toast("瀏覽器本機空間快滿了，先移除一些圖片");
+  S.media[key] = out; save(); render();
+  toast(`已換成你的照片（約 ${Math.round(out.length / 1024)} KB）`);
+}
+
+function removeMedia(key){
+  if (S.media) delete S.media[key];
+  save(); render(); toast("已還原成預設圖");
+}
+
+function renderMedia(){
+  Object.keys(SLOTS).forEach(k => {
+    const el = document.getElementById("mb-" + k);
+    if (!el) return;
+    el.innerHTML = SLOTS[k].type === "yt" ? ytHTML(k) : mediaHTML(k);
+  });
+  const u = document.getElementById("media-usage");
+  if (u) u.textContent = `你自己的圖片用量：約 ${Math.round(JSON.stringify(S.media || {}).length / 1024)} KB（瀏覽器上限約 5 MB，圖片會自動縮到 1000px）`;
+}
 
 /* ================= 手機版選單抽屜 ================= */
 function toggleMenu(force){
