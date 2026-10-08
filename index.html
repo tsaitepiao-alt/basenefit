@@ -118,6 +118,43 @@
   .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
   .chip{font-size:12px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer}
   .chip.on{background:var(--lime);border-color:var(--lime-dark);font-weight:700}
+  .cat{font-size:10.5px;font-weight:700;color:#5a6b22;background:#eef7d3;border-radius:5px;padding:2px 6px;margin-right:6px;vertical-align:1px}
+  /* ===== 圖解教室 / 動作解析 ===== */
+  .dia{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+  .dia h3{margin:0 0 4px;font-size:15.5px}
+  .dia .req{margin:0 0 10px}
+  .dia-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .dia-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  svg.chart{width:100%;height:auto;display:block}
+  svg.chart .ln{stroke:#232320;stroke-width:2.2;fill:none;stroke-linecap:round}
+  svg.chart .seam{stroke:#232320;stroke-width:3.6;fill:none;stroke-linecap:round}
+  svg.chart .ln2{stroke:#8b8f86;stroke-width:1.6;fill:none;stroke-dasharray:5 4}
+  svg.chart .lm{stroke:var(--lime-dark);stroke-width:3;fill:none;stroke-linecap:round}
+  svg.chart .ar{fill:var(--lime-dark)}
+  svg.chart .tx{font:600 11px/1 -apple-system,"PingFang TC",sans-serif;fill:#3c3f3a}
+  svg.chart .txb{font:700 12px/1 -apple-system,"PingFang TC",sans-serif;fill:#141412}
+  svg.chart .dot{fill:#232320}
+  svg.chart .home{fill:#fff;stroke:#232320;stroke-width:2.2}
+  .seq{display:grid;grid-template-columns:repeat(auto-fit,minmax(106px,1fr));gap:10px;padding:4px 2px 10px}
+  .frame{border:1px solid var(--line);border-radius:12px;background:#fbfbf8;padding:8px 6px 6px;text-align:center}
+  .frame .cap{font-size:13px;font-weight:700;margin-top:6px}
+  .frame .cue{font-size:11.5px;color:#5b5f57;line-height:1.55;margin-top:3px}
+  svg.fig{width:100%;height:auto;display:block}
+  svg.fig circle,svg.fig line{stroke:#232320;stroke-width:3;fill:none;stroke-linecap:round}
+  svg.fig .spine{stroke-width:4.4}
+  svg.fig .jt{fill:#232320;stroke:none}
+  svg.fig .mn{stroke:var(--lime-dark);stroke-width:2.6;stroke-dasharray:5 4}
+  svg.fig .mna{fill:var(--lime-dark);stroke:none}
+  svg.fig .ar{fill:var(--lime-dark)}
+  svg.fig .ground{stroke:#d8dad3;stroke-width:2}
+  svg.fig .ball{fill:var(--lime-dark);stroke:none}
+  .keys{margin:10px 0 0;padding-left:18px;font-size:13.5px;color:#3c3f3a;line-height:1.9}
+  .disc{background:#f6f7f2;border-left:3px solid var(--lime-dark);border-radius:8px;padding:10px 12px;font-size:12.5px;color:#5b5f57;line-height:1.7}
+  @media(max-width:900px){
+    .dia-grid,.dia-grid3{grid-template-columns:1fr}
+    .frame{flex:0 0 104px}
+  }
+
   dialog{border:none;border-radius:16px;padding:0;max-width:520px;width:92vw}
   dialog::backdrop{background:rgba(20,20,18,.5)}
   .dlg-h{padding:18px 20px 0;display:flex;justify-content:space-between;align-items:center}
@@ -171,6 +208,8 @@
         <a href="#/videos"    data-page="videos"><span class="mi">🎥</span>動作影片</a>
         <a href="#/assessment" data-page="assessment"><span class="mi">📋</span>能力評估</a>
         <a href="#/plan"      data-page="plan"><span class="mi">🗓</span>訓練計畫</a>
+        <a href="#/diagrams"  data-page="diagrams"><span class="mi">📐</span>圖解教室</a>
+        <a href="#/analysis"  data-page="analysis"><span class="mi">🎬</span>動作解析</a>
         <a href="#/progress"  data-page="progress"><span class="mi">📈</span>進步追蹤</a>
         <a href="#/coach"     data-page="coach"><span class="mi">🧢</span>教練工作區</a>
         <a href="#/settings"  data-page="settings"><span class="mi">⚙️</span>學員與設定</a>
@@ -293,13 +332,16 @@
       <section class="page" id="page-plan">
         <div class="eyebrow">YOUR PERSONAL PLAN</div>
         <h1>把想練的，變成每天做的。</h1>
-        <p class="lead">棒球基礎、穩定與腳步 — 每週 3 天，每次約 10 分鐘。</p>
+        <p class="lead">棒球基礎動作、腳步、核心與緩和 —— 每週 3 天，每次 10～12 分鐘，主題每天不同。</p>
         <div class="grid2">
           <div class="card">
             <div class="hrow"><h2>今日動作清單</h2>
-              <div><button class="btn sm ghost" onclick="toast('已重置今天的打勾')" >重置</button>
+              <div><button class="btn sm ghost" onclick="newMenu()">換一份菜單</button>
+              <button class="btn sm ghost" onclick="toast('已重置今天的打勾')">重置</button>
               <button class="btn sm lime" onclick="finishSession()">完成這次訓練</button></div>
             </div>
+            <p class="req" style="margin:0 0 8px">今天的主題：<b id="focus-title">打擊日</b>　—　每週一／三／五各練一個主題，動作會輪替。</p>
+            <div class="chips" id="focus-chips" style="margin-bottom:10px"></div>
             <ol class="list" id="plan-list"></ol>
           </div>
           <div>
@@ -337,7 +379,120 @@
         </div>
       </section>
 
-      <!-- ========== 5. 進步追蹤 ========== -->
+      <!-- ========== 5. 圖解教室 ========== -->
+      <section class="page" id="page-diagrams">
+        <div class="eyebrow">BASEBALL 101</div>
+        <h1>看懂，才練得對。</h1>
+        <p class="lead">場地、握法、打擊與守備的基本姿勢、常見戰術 —— 用圖看懂，再上場練。</p>
+
+        <div class="card">
+          <h2 style="margin-bottom:4px">場地與守備位置</h2>
+          <p class="req" style="margin:0 0 12px">1 投手　2 捕手　3 一壘手　4 二壘手　5 三壘手　6 游擊手　7 左外野　8 中外野　9 右外野</p>
+          <div id="dia-field"></div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin-bottom:4px">好球帶與九宮格</h2>
+          <p class="req" style="margin:0 0 12px">打者站的位置決定「內外角」，好球帶分九格 —— 練習時要想的是「我要打哪一格」。</p>
+          <div class="dia-grid" id="dia-zone"></div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin-bottom:4px">握法圖解</h2>
+          <p class="req" style="margin:0 0 12px">手指放在縫線上，球才會有尾勁；握太深會變成「推球」。</p>
+          <div class="dia-grid3" id="dia-grips"></div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin-bottom:4px">基本動作圖解</h2>
+          <p class="req" style="margin:0 0 12px">打擊、守備、投球的基本姿勢分解。</p>
+          <div class="dia-grid" id="dia-basic"></div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin-bottom:4px">常見戰術</h2>
+          <p class="req" style="margin:0 0 12px">跑者與球的動線用綠色箭頭表示。</p>
+          <div class="dia-grid" id="dia-tactics"></div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <h2 style="margin-bottom:8px">跑壘與補位的基本原則</h2>
+            <ul class="keys">
+              <li><b>打出去就跑</b>：不是「看看會不會接到」，先衝兩步再判斷。</li>
+              <li><b>繞壘要壓低</b>：一壘壘包外側切入，不要跑出圓弧。</li>
+              <li><b>球往哪邊，就往哪邊補位</b>：外野安打 → 二壘手去二壘、游擊手去轉傳位置。</li>
+              <li><b>有人上壘就喊</b>：出局數、壘上跑者一定要喊出來。</li>
+              <li><b>被夾殺先停</b>：站住讓對方傳球，失誤就有機會。</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h2 style="margin-bottom:8px">術語小辭典</h2>
+            <ul class="keys">
+              <li><b>好球帶</b>：本壘板兩側與膝蓋到胸口之間。</li>
+              <li><b>犧牲觸擊</b>：故意出局推進跑者。</li>
+              <li><b>打帶跑</b>：跑者先跑，打者想辦法碰到球。</li>
+              <li><b>雙殺</b>：一次守備製造兩個出局（如 6-4-3）。</li>
+              <li><b>轉傳（Cut-off）</b>：外野回傳先給中間的隊友，再轉本壘。</li>
+              <li><b>守備佈陣</b>：依打者習性調整守位。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== 6. 動作解析 ========== -->
+      <section class="page" id="page-analysis">
+        <div class="eyebrow">PRO FORM BREAKDOWN</div>
+        <h1>把職業級動作，拆成看得懂的步驟。</h1>
+        <p class="lead">投、打、守三大動作分期 —— 每一格是一個「該做到的樣子」，練的時候一格一格對。</p>
+
+        <div class="disc">這些分解圖是<b>本站自己畫的示意圖</b>，動作分期與要點採用公開的動作力學共通原則，<b>沒有使用任何職棒球員的照片或影片</b>（尊重肖像權與著作權）。若要放真實球員畫面，請用 YouTube 官方頻道嵌入或取得授權。</div>
+
+        <div class="card">
+          <div class="hrow"><h2>投球：六階段分解</h2><span class="pill">PITCHING</span></div>
+          <div class="seq" id="seq-pitch"></div>
+          <ul class="keys">
+            <li><b>力量來自下半身</b>：不是手臂用力，是「後腳推、胯部轉」帶動上半身。</li>
+            <li><b>出手點固定</b>：每次都在同一個位置放球，控球才會穩。</li>
+            <li><b>收尾要完整</b>：隨勢做完再站起來，避免手肘硬撐。</li>
+            <li><b>不要急</b>：抬腿時重心留在後腳，先穩住再往前。</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="hrow"><h2>打擊：五階段分解</h2><span class="pill">HITTING</span></div>
+          <div class="seq" id="seq-hit"></div>
+          <ul class="keys">
+            <li><b>髖先動、手最後</b>：用身體轉，不是用手拉。</li>
+            <li><b>眼睛跟到最後</b>：頭不要跟著球轉開，視線留在擊球點。</li>
+            <li><b>擊球點在前腳內側</b>：太晚打會被擠壓、太早打會拉到界外。</li>
+            <li><b>收棒別斷</b>：延伸做完，棒子繞到背後。</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="hrow"><h2>守備：四階段分解</h2><span class="pill">FIELDING</span></div>
+          <div class="seq" id="seq-field"></div>
+          <ul class="keys">
+            <li><b>先踏第一步</b>：球一被打到，腳比手先動。</li>
+            <li><b>正面接、手握緊</b>：手套放在鼻子前方，用兩隻手收球。</li>
+            <li><b>接完就墊步</b>：右腳先踩、身體朝傳球方向再出手。</li>
+            <li><b>傳平不傳高</b>：胸口高度的平球最快也最好接。</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2 style="margin-bottom:8px">怎麼自己練（用手機就夠）</h2>
+          <ul class="keys">
+            <li><b>鏡子前空揮</b>：慢動作做分解，一邊看鏡子對照上面的圖。</li>
+            <li><b>毛巾甩動</b>：手上有「甩」的感覺，投球才有尾勁。</li>
+            <li><b>定格練習</b>：在每一格停 3 秒，感受身體的位置，再串起來。</li>
+            <li><b>拍影片對照</b>：上傳到「動作影片」，請教練逐格看。</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ========== 7. 進步追蹤 ========== -->
       <section class="page" id="page-progress">
         <div class="eyebrow">PROGRESS</div>
         <h1>每一次練習，都留下記錄。</h1>
@@ -453,21 +608,57 @@
 <script>
 /* ============ 資料層（存在瀏覽器本機）============ */
 const KEY = "basefit.v1";
-const TODAY = [
-  ["暖身原地踏步", 60], ["肩繞環", 45], ["扶牆單腳平衡（左）", 30], ["休息", 25],
-  ["扶牆單腳平衡（右）", 30], ["休息", 25], ["左右側步", 45], ["休息", 25],
-  ["椅子坐站", 45], ["休息", 25], ["緩和踏步", 60], ["自然呼吸", 45],
-].map(([name, secs]) => ({name, secs, rest: name === "休息", done: false}));
+/* ============ 動作庫（依分類，教練可自由擴充）============ */
+const LIB = {
+  warm: {label:"熱身", items:[["暖身原地踏步",60],["動態開合跳",45],["髖繞環（左右）",40],["肩繞環",45],["手腕與腳踝繞環",30],["小碎步熱身",40]]},
+  foot: {label:"腳步", items:[["側並步",45],["交叉步",45],["前後碎步",40],["守備預備姿勢停留",40],["第一步啟動（左右各 5 次）",45],["繞壘跑姿練習",45]]},
+  arm:  {label:"上肢／肩", items:[["毛巾甩動（鏡子前）",45],["彈力帶肩外旋",45],["牆壁傳球定格",45],["過頭伸展",40],["手腕加壓（甩毛巾收尾）",40]]},
+  bat:  {label:"打擊", items:[["鏡子前空揮 20 下",50],["毛巾揮棒（聽風聲）",45],["單手揮棒（前手）",40],["單手揮棒（後手）",40],["節奏揮棒（慢→快）",50],["握棒放鬆練習",30],["打擊站姿定格",40]]},
+  pitch:{label:"投球", items:[["鏡子前投球分解（不拿球）",50],["四縫線握法練習",40],["單腳投球平衡",40],["轉體投擲（輕球）",45],["投球收尾定格",40],["看鏡子對照出手點",45]]},
+  def:  {label:"守備", items:[["牆壁接滾地球手型",45],["低姿勢接球",45],["轉傳墊步",45],["接高飛球手型",40],["雙殺腳步練習",45],["正面接球定格",40]]},
+  core: {label:"核心", items:[["棒式 30 秒",40],["死蟲",45],["橋式",45],["側棒式（左右）",40],["鳥狗式",45]]},
+  cool: {label:"緩和", items:[["緩和踏步",60],["大腿後側伸展",40],["胸口開展",40],["自然呼吸",45],["肩頸伸展",40]]},
+};
+
+/* 每週訓練日的主題（週一／三／五） */
+const FOCUS = [
+  {id:"bat",   name:"打擊日", week:"打擊＋腳步", mix:[["warm",2],["bat",3],["foot",2],["core",1],["cool",2]]},
+  {id:"pitch", name:"投球日", week:"投球＋上肢", mix:[["warm",2],["arm",3],["pitch",2],["core",1],["cool",2]]},
+  {id:"def",   name:"守備日", week:"守備＋腳步", mix:[["warm",2],["foot",3],["def",2],["core",1],["cool",2]]},
+  {id:"mix",   name:"綜合日", week:"全部混合",   mix:[["warm",2],["foot",2],["bat",2],["def",2],["cool",2]]},
+  {id:"cond",  name:"體能日", week:"核心＋體能", mix:[["warm",2],["core",3],["foot",2],["arm",1],["cool",2]]},
+];
+let PICK = "bat";                                    // 目前選的今日主題
+
+function buildToday(focusId){
+  const f = FOCUS.find(x => x.id === focusId) || FOCUS[0];
+  const picked = [];
+  f.mix.forEach(([cat, n]) => {
+    LIB[cat].items.slice().sort(() => Math.random() - 0.5).slice(0, n)
+      .forEach(([name, secs]) => picked.push({name, secs, rest:false, cat:LIB[cat].label, done:false}));
+  });
+  const out = [];
+  picked.forEach((it, i) => {
+    out.push(it);
+    if (i < picked.length - 1 && it.cat !== "緩和") out.push({name:"休息", secs:20, rest:true, cat:"休息", done:false});
+  });
+  return out;
+}
+function focusName(id){ const f = FOCUS.find(x=>x.id===id); return f ? f.name : "訓練"; }
+
+const TODAY = buildToday("bat");
 
 const seed = () => ({
   coaches: [{id:"aaron",name:"Aaron"},{id:"william",name:"William"},{id:"stanley",name:"Stanley"}],
   me: {name: "williampiao", goal: "棒球基礎與協調", coach: "william"},
   students: [{id: 1, name: "williampiao", goal: "棒球基礎與協調", coach: "william", sessions: 0, assessments: 0, videos: 0}],
   videos: [], assessments: [], sessions: [], today: structuredClone(TODAY),
+  focus: "bat",
   api: "",
 });
 
 let S = load();
+PICK = S.focus || "bat";                                            // 記住上次選的主題
 let CAL = {y: new Date().getFullYear(), m: new Date().getMonth()};   // 月曆正在看的月份
 function load(){
   const base = seed();
@@ -478,6 +669,7 @@ function load(){
     merged.videos = (merged.videos || []).map(v => ({comments: [], ...v}));
     merged.students = (merged.students || []).map(s => ({coach: "william", ...s}));
     if (!merged.coaches || !merged.coaches.length) merged.coaches = base.coaches;
+    merged.today = (merged.today || base.today).map(t => ({cat: t.rest ? "休息" : "訓練", ...t}));
     return merged;
   } catch(e){ return base; }
 }
@@ -488,6 +680,7 @@ function go(h){ location.hash = h; }
 
 /* ============ 路由 ============ */
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
+                diagrams:"圖解教室", analysis:"動作解析",
                 progress:"進步追蹤", coach:"教練工作區", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
@@ -526,18 +719,26 @@ function render(){
   document.getElementById("home-list-count").textContent = `${S.today.filter(t=>!t.rest).length} 個動作 · 共 ${S.today.length} 項`;
   document.getElementById("coach-plan-title").textContent = `${S.me.name} · 訓練安排`;
 
-  // 每週節奏（週一/三/五 訓練）
+  // 每週節奏（週一／三／五 各自主題）
   const wk = ["一","二","三","四","五","六","日"].map((d,i)=>{
     const train = [0,2,4].includes(i);
-    return `<div class="d ${train?"done":"rest"}">週${d}<br><small>${train?"基礎訓練":"自由恢復"}</small></div>`;
+    const label = train ? FOCUS[[0,1,2][[0,2,4].indexOf(i)]].name : "自由恢復";
+    return `<div class="d ${train?"done":"rest"}">週${d}<br><small>${label}</small></div>`;
   }).join("");
   document.getElementById("home-week").innerHTML = wk;
   document.getElementById("plan-week").innerHTML = wk;
 
+  // 今日主題 chips
+  const fx = document.getElementById("focus-chips");
+  if (fx) fx.innerHTML = FOCUS.map(f =>
+    `<span class="chip ${f.id===PICK?"on":""}" onclick="setFocus('${f.id}')">${f.name}</span>`).join("");
+  const ft = document.getElementById("focus-title");
+  if (ft) ft.textContent = focusName(PICK);
+
   // 今日清單
   const listHtml = S.today.map((t,i)=>
     `<li class="${t.rest?"rest":""} ${t.done?"done":""}">
-       <span>${t.name}</span><span class="secs">${t.secs} 秒</span>
+       <span>${t.rest ? "" : `<b class="cat">${t.cat||""}</b>`}${t.name}</span><span class="secs">${t.secs} 秒</span>
        <button class="btn ghost sm" onclick="toggleItem(${i})">${t.done?"還原":"完成"}</button>
      </li>`).join("");
   document.getElementById("home-today").innerHTML = listHtml;
@@ -623,10 +824,15 @@ function render(){
 
 /* ============ 互動 ============ */
 function toggleItem(i){ S.today[i].done = !S.today[i].done; render(); }
+function setFocus(id){                                   // 換今日主題並重新出菜單
+  PICK = id; S.focus = id; S.today = buildToday(id); save(); render();
+  toast("今天改成：" + focusName(id));
+}
+function newMenu(){ S.today = buildToday(PICK); save(); render(); toast("菜單換好了（" + focusName(PICK) + "）"); }
 
 function finishSession(){
   const mins = Math.round(S.today.reduce((a,t)=>a+t.secs,0)/60);
-  S.sessions.push({date:new Date().toISOString().slice(0,10), title:"基礎動作循環", mins});
+  S.sessions.push({date:new Date().toISOString().slice(0,10), title:focusName(PICK) + "循環", mins});
   S.students[0].sessions = S.sessions.length;
   S.today.forEach(t=>t.done = false);
   save(); render(); toast(`已記錄這次訓練（約 ${mins} 分鐘）`);
@@ -717,6 +923,244 @@ function exportData(){
   a.href = URL.createObjectURL(blob); a.download = "basenefit-data.json"; a.click();
 }
 function resetData(){ if (confirm("清空所有資料？")) { S = seed(); save(); render(); toast("已清空"); } }
+
+/* ================= 圖解教室：所有圖都是本站自繪 SVG ================= */
+const S_ = (n) => String(n);
+
+function stickSVG(p, label, motion, ball){
+  const seg = (a,b,cls) => `<line class="${cls||""}" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
+  const jt = (a) => a ? `<circle class="jt" cx="${a[0]}" cy="${a[1]}" r="2.8"/>` : "";
+  let s = `<svg class="fig" viewBox="0 0 140 175" role="img" aria-label="${label}">`;
+  s += `<line class="ground" x1="6" y1="162" x2="134" y2="162"/>`;
+  s += `<circle cx="${p.head[0]}" cy="${p.head[1]}" r="9"/>`;
+  s += seg(p.neck, p.pelvis, "spine");
+  p.arms.forEach(a => { s += seg(p.neck, a[0]) + seg(a[0], a[1]) + jt(a[0]) + jt(a[1]); });
+  p.legs.forEach(l => { s += seg(p.pelvis, l[0]) + seg(l[0], l[1]) + jt(l[0]) + jt(l[1]); });
+  if (p.bat) s += `<line x1="${p.bat[0][0]}" y1="${p.bat[0][1]}" x2="${p.bat[1][0]}" y2="${p.bat[1][1]}" stroke-width="5.5" stroke="#8a6a3a" stroke-linecap="round"/>`;
+  const b = ball || p.ball;
+  if (b) s += `<circle class="ball" cx="${b[0]}" cy="${b[1]}" r="6.5"/>`;
+  if (motion) s += arrow(motion[0], motion[1], motion[2], motion[3], "mn");
+  return s + `</svg>`;
+}
+
+function frameSVG(p, cap, cue, label, motion, ball){
+  return `<div class="frame">${stickSVG(p, label, motion, ball)}<div class="cap">${cap}</div><div class="cue">${cue}</div></div>`;
+}
+
+/* 每一格的動作方向箭頭 [x1,y1,x2,y2] 與球的位置（null = 不出現） */
+const MOTION = {
+  pitch: [[100,82,106,54], [80,122,102,150], [88,32,94,8], [118,28,136,22], [96,60,66,100], null],
+  hit:   [null, [58,88,76,94], [86,50,116,48], [102,56,124,38], [62,38,42,22]],
+  field: [null, [92,142,118,148], [86,78,80,100], [92,18,118,20]],
+};
+const BALLS = {
+  pitch: [null, null, [80,8], [120,32], null, null],
+  hit:   [null, [130,54], [124,50], null, null],
+  field: [null, [106,142], [78,104], [96,16]],
+};
+
+/* ---- 投球六階段 ---- */
+const PITCH = [
+  {cap:"① 抬腿", cue:"重心留在後腳", p:{head:[62,26],neck:[62,40],pelvis:[62,78],
+     arms:[[[54,58],[52,42]],[[72,56],[78,40]]], legs:[[[56,110],[66,134]],[[82,86],[92,68]]]}},
+  {cap:"② 跨步", cue:"前腳往目標跨", p:{head:[66,30],neck:[66,44],pelvis:[64,82],
+     arms:[[[48,62],[34,44]],[[78,50],[62,24]]], legs:[[[78,112],[94,148]],[[52,110],[44,150]]]}},
+  {cap:"③ 發力", cue:"後腳推、胯轉", p:{head:[68,26],neck:[68,40],pelvis:[66,80],
+     arms:[[[82,22],[78,4]],[[42,52],[30,40]]], legs:[[[76,112],[90,150]],[[54,114],[46,152]]]}},
+  {cap:"④ 出手", cue:"出手點固定在前上方", p:{head:[76,34],neck:[74,48],pelvis:[64,86],
+     arms:[[[88,40],[114,32]],[[54,60],[42,70]]], legs:[[[78,116],[92,152]],[[52,118],[44,154]]], ball:[120,30]}},
+  {cap:"⑤ 隨勢", cue:"手臂繞過身體", p:{head:[84,52],neck:[80,62],pelvis:[66,92],
+     arms:[[[94,62],[70,98]],[[52,66],[46,80]]], legs:[[[78,124],[90,154]],[[54,116],[36,96]]]}},
+  {cap:"⑥ 完成", cue:"站穩再看捕手", p:{head:[80,46],neck:[78,58],pelvis:[68,92],
+     arms:[[[92,60],[74,104]],[[58,64],[52,86]]], legs:[[[78,122],[90,154]],[[50,112],[40,148]]]}},
+];
+
+/* ---- 打擊五階段 ---- */
+const HIT = [
+  {cap:"① 預備", cue:"膝微彎、棒在肩膀", p:{head:[60,28],neck:[60,42],pelvis:[60,84],
+     arms:[[[52,56],[62,36]],[[56,58],[64,40]]], legs:[[[48,116],[42,152]],[[76,116],[86,152]]], bat:[[62,36],[78,12]]}},
+  {cap:"② 啟動", cue:"髖先轉、手還留著", p:{head:[56,30],neck:[56,44],pelvis:[62,84],
+     arms:[[[48,58],[54,40]],[[52,60],[58,42]]], legs:[[[46,116],[40,152]],[[78,116],[88,152]]], bat:[[56,40],[72,14]]}},
+  {cap:"③ 擊球", cue:"擊球點在前腳內側", p:{head:[60,32],neck:[60,46],pelvis:[64,86],
+     arms:[[[68,56],[86,52]],[[72,58],[88,54]]], legs:[[[50,118],[42,154]],[[78,118],[88,154]]], bat:[[88,52],[118,50]], ball:[124,50]}},
+  {cap:"④ 延伸", cue:"順著球的方向推出去", p:{head:[64,34],neck:[64,48],pelvis:[66,88],
+     arms:[[[74,58],[98,58]],[[78,60],[100,60]]], legs:[[[50,118],[42,154]],[[78,118],[88,154]]], bat:[[100,58],[116,40]]}},
+  {cap:"⑤ 收棒", cue:"繞到背後、眼睛還在原點", p:{head:[70,34],neck:[68,48],pelvis:[62,88],
+     arms:[[[76,60],[54,44]],[[76,64],[56,48]]], legs:[[[50,118],[42,154]],[[78,118],[88,154]]], bat:[[54,44],[34,26]]}},
+];
+
+/* ---- 守備四階段 ---- */
+const FIELD = [
+  {cap:"① 預備", cue:"膝蓋彎、手套在鼻子前", p:{head:[60,32],neck:[60,46],pelvis:[62,86],
+     arms:[[[52,60],[50,76]],[[70,60],[76,74]]], legs:[[[46,114],[50,154]],[[78,114],[74,154]]]}},
+  {cap:"② 啟動", cue:"球一被打到，腳先動", p:{head:[64,32],neck:[62,46],pelvis:[64,86],
+     arms:[[[54,60],[46,76]],[[72,60],[80,50]]], legs:[[[78,112],[94,140]],[[50,114],[44,154]]]}},
+  {cap:"③ 接球", cue:"正面接、兩手收", p:{head:[62,44],neck:[60,56],pelvis:[60,92],
+     arms:[[[54,74],[70,98]],[[70,72],[76,90]]], legs:[[[48,122],[46,158]],[[74,122],[78,158]]], ball:[78,104]}},
+  {cap:"④ 轉傳", cue:"墊步、胸口高度平傳", p:{head:[66,32],neck:[66,46],pelvis:[66,88],
+     arms:[[[80,40],[88,20]],[[56,60],[50,76]]], legs:[[[54,120],[60,158]],[[78,116],[92,142]]]}},
+];
+
+// 畫出三組分解圖
+[["seq-pitch", PITCH, "投球分解", "pitch"], ["seq-hit", HIT, "打擊分解", "hit"], ["seq-field", FIELD, "守備分解", "field"]]
+  .forEach(([id, list, label, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = list.map((f, i) => frameSVG(f.p, f.cap, f.cue, `${label}第 ${i+1} 格`, MOTION[key][i], BALLS[key][i])).join("");
+  });
+
+/* ---- 圖示小工具 ---- */
+function arrow(x1,y1,x2,y2,cls){
+  const ang = Math.atan2(y2-y1, x2-x1), a = 9;
+  const p1 = [x2 - a*Math.cos(ang - 0.42), y2 - a*Math.sin(ang - 0.42)];
+  const p2 = [x2 - a*Math.cos(ang + 0.42), y2 - a*Math.sin(ang + 0.42)];
+  return `<line class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>
+          <polygon class="ar" points="${x2},${y2} ${p1[0]},${p1[1]} ${p2[0]},${p2[1]}"/>`;
+}
+function diamond(extra, vb="0 0 220 210", home=[110,190], labels){
+  const B1=[170,130], B2=[110,70], B3=[50,130];
+  let s = `<svg class="chart" viewBox="${vb}">`;
+  s += `<path class="ln2" d="M ${home[0]},${home[1]} L 22,52"/>`;   // 左界外線
+  s += `<path class="ln2" d="M ${home[0]},${home[1]} L 198,52"/>`;  // 右界外線
+  s += `<path class="ln2" d="M 34,150 A 150 150 0 0 1 186,150"/>`;   // 外野弧
+  [[B1,"一"], [B2,"二"], [B3,"三"]].forEach(([b]) => {
+    s += `<rect class="home" x="${b[0]-7}" y="${b[1]-7}" width="14" height="14" transform="rotate(45 ${b[0]} ${b[1]})"/>`;
+    s += `<circle class="dot" cx="${b[0]}" cy="${b[1]}" r="3.4"/>`;
+  });
+  s += `<polygon class="home" points="${home[0]},${home[1]-9} ${home[0]+9},${home[1]} ${home[0]},${home[1]+9} ${home[0]-9},${home[1]}"/>`;
+  s += extra;
+  return s + `</svg>`;
+}
+
+/* ---- 場地與守位 ---- */
+(function fieldDiagram(){
+  const el = document.getElementById("dia-field");
+  if (!el) return;
+  // [x, y, 號碼, 名稱, 標籤x, 標籤y]
+  const P = [[216,210,"1","投手",216,240], [210,302,"2","捕手",210,332], [318,198,"3","一壘手",318,226],
+             [258,152,"4","二壘手",258,180], [162,152,"6","游擊手",162,180], [102,198,"5","三壘手",102,226],
+             [96,64,"7","左外野",96,92], [210,40,"8","中外野",210,68], [324,64,"9","右外野",324,92]];
+  let extra = "";
+  P.forEach(([x,y,n,name,lx,ly]) => {
+    extra += `<circle cx="${x}" cy="${y}" r="13" fill="#fff" stroke="#232320" stroke-width="2.4"/>`;
+    extra += `<text class="txb" x="${x}" y="${y+5}" text-anchor="middle" font-size="13">${n}</text>`;
+    extra += `<text class="tx" x="${lx}" y="${ly}" text-anchor="middle" font-size="12">${name}</text>`;
+  });
+  el.innerHTML = `<svg class="chart" viewBox="0 0 430 350">
+    <path class="ln2" d="M 210,292 L 40,122"/><path class="ln2" d="M 210,292 L 380,122"/>
+    <path class="ln2" d="M 74,122 A 206 206 0 0 1 346,122"/>
+    <path class="ln2" d="M 210,292 L 210,72"/>
+    <rect class="home" x="203" y="285" width="14" height="14" transform="rotate(45 210 292)"/>
+    <text class="tx" x="160" y="296" text-anchor="middle" font-size="11.5">本壘</text>
+    <rect class="home" x="311" y="191" width="14" height="14" transform="rotate(45 318 198)"/>
+    <rect class="home" x="203" y="145" width="14" height="14" transform="rotate(45 210 152)"/>
+    <text class="tx" x="210" y="132" text-anchor="middle" font-size="11.5">二壘壘包</text>
+    <rect class="home" x="95" y="191" width="14" height="14" transform="rotate(45 102 198)"/>
+    ${extra}
+  </svg>`;
+})();
+
+/* ---- 好球帶與九宮格 ---- */
+(function zoneDiagram(){
+  const el = document.getElementById("dia-zone");
+  if (!el) return;
+  let grid = "";
+  const x0=46, y0=26, w=44, h=40;
+  for (let r=0;r<3;r++) for (let c=0;c<3;c++){
+    const n = r*3+c+1;
+    grid += `<rect class="home" x="${x0+c*w}" y="${y0+r*h}" width="${w}" height="${h}" rx="3"/>`;
+    grid += `<text class="tx" x="${x0+c*w+w/2}" y="${y0+r*h+h/2+4}" text-anchor="middle">${n}</text>`;
+  }
+  const zone1 = `<div class="dia"><h3>好球帶九宮格（捕手視角）</h3><p class="req">高度＝膝蓋上緣到胸口；寬度＝本壘板。</p>
+    <svg class="chart" viewBox="0 0 200 200">
+      ${grid}
+      <text class="tx" x="95" y="20" text-anchor="middle">高位</text>
+      <text class="tx" x="95" y="168" text-anchor="middle">低位</text>
+      <text class="tx" x="92" y="16" text-anchor="middle"></text>
+      <text class="tx" x="18" y="106" text-anchor="middle" transform="rotate(-90 18 106)">內角</text>
+      <text class="tx" x="182" y="106" text-anchor="middle" transform="rotate(90 182 106)">外角</text>
+      <text class="tx" x="100" y="192" text-anchor="middle" font-size="10.5">1～3 偏高　7～9 偏低</text>
+    </svg></div>`;
+  const zone2 = `<div class="dia"><h3>內角、外角與站位</h3><p class="req">打者站的位置決定內外角；越想打內角，站位就要離本壘板近一點。</p>
+    <svg class="chart" viewBox="0 0 220 175">
+      <rect class="home" x="96" y="58" width="28" height="54" rx="3"/>
+      <text class="tx" x="110" y="132" text-anchor="middle">本壘板</text>
+      <rect class="home" x="28" y="50" width="46" height="68" rx="4" stroke-dasharray="4 3"/>
+      <text class="tx" x="51" y="140" text-anchor="middle">右打者站位</text>
+      <rect class="home" x="146" y="50" width="46" height="68" rx="4" stroke-dasharray="4 3"/>
+      <text class="tx" x="169" y="140" text-anchor="middle">左打者站位</text>
+      ${arrow(78,86,92,86,"lm")}
+      <text class="tx" x="85" y="44" text-anchor="middle">內角</text>
+      ${arrow(124,86,138,86,"lm")}
+      <text class="tx" x="144" y="44" text-anchor="middle">外角</text>
+      <text class="tx" x="110" y="22" text-anchor="middle" font-size="10.5">箭頭指向本壘板兩側的好球帶邊緣</text>
+    </svg></div>`;
+  el.innerHTML = zone1 + zone2;
+})();
+
+/* ---- 握法 ---- */
+(function gripDiagram(){
+  const el = document.getElementById("dia-grips");
+  if (!el) return;
+  const ball = (seams, fingers, note) => `<svg class="chart" viewBox="0 0 180 150">
+    <circle cx="90" cy="72" r="46" fill="#fff" stroke="#232320" stroke-width="2.4"/>
+    ${seams}
+    ${fingers}
+    <text class="tx" x="90" y="142" text-anchor="middle">${note}</text>
+  </svg>`;
+  const seam4 = `<path class="seam" d="M 62,30 A 60 60 0 0 1 118,30"/>
+    <path class="seam" d="M 58,112 A 60 60 0 0 0 122,112"/>`;
+  const f4 = `<ellipse cx="80" cy="66" rx="6" ry="13" fill="#232320" opacity=".82"/>
+    <ellipse cx="95" cy="66" rx="6" ry="13" fill="#232320" opacity=".82"/>
+    <ellipse cx="109" cy="72" rx="6" ry="13" fill="#232320" opacity=".5"/>`;
+  const seam2 = `<path class="seam" d="M 66,26 A 50 50 0 0 1 114,116"/>`;
+  const f2 = `<ellipse cx="82" cy="64" rx="6" ry="13" fill="#232320" opacity=".82"/>
+    <ellipse cx="97" cy="64" rx="6" ry="13" fill="#232320" opacity=".82"/>
+    <ellipse cx="60" cy="86" rx="16" ry="6" fill="#232320" opacity=".28"/>`;
+  const seamC = `<path class="seam" d="M 62,30 A 60 60 0 0 1 118,30"/><path class="seam" d="M 58,112 A 60 60 0 0 0 122,112"/>`;
+  const fC = `<circle cx="84" cy="66" r="13" fill="#232320" opacity=".85"/>
+    <circle cx="101" cy="66" r="13" fill="#232320" opacity=".85"/>
+    <circle cx="118" cy="72" r="13" fill="#232320" opacity=".4"/>`;
+  el.innerHTML =
+    `<div class="dia"><h3>四縫線</h3>${ball(seam4, f4, "兩指跨過縫線，垂直下壓")}<p class="req" style="margin-top:8px">食指與中指橫跨縫線 → 球最直、最有尾勁。</p></div>` +
+    `<div class="dia"><h3>二縫線</h3>${ball(seam2, f2, "兩指順著縫線，壓在縫上")}<p class="req" style="margin-top:8px">沿著縫線施力 → 球會往兩側跑（伸卡）。</p></div>` +
+    `<div class="dia"><h3>變速球</h3>${ball(seamC, fC, "三指扣球，像投直球一樣的動作")}<p class="req" style="margin-top:8px">動作要跟直球一樣，差別只在握法 → 騙打者的節奏。</p></div>`;
+})();
+
+/* ---- 基本動作 ---- */
+(function basicDiagram(){
+  const el = document.getElementById("dia-basic");
+  if (!el) return;
+  const card = (t, note, pose, cue) => `<div class="dia"><h3>${t}</h3><p class="req">${note}</p>
+    ${stickSVG(pose, t)}<p class="req" style="text-align:center">${cue}</p></div>`;
+  el.innerHTML =
+    card("打擊基本站姿", "雙腳略寬於肩、膝蓋微彎、棒子在肩膀後方", HIT[0].p, "重心平均、眼睛平視投手") +
+    card("守備預備姿勢", "膝蓋彎、身體壓低、手套放在鼻子前方", FIELD[0].p, "腳跟微微抬起，隨時能啟動") +
+    card("投球基本姿勢", "後腳踩穩、抬腿時膝蓋對準捕手", PITCH[0].p, "重心留在後腳，不要提早往前傾") +
+    card("接滾地球", "正面對球、手套貼地、用兩隻手收球", FIELD[2].p, "接在身體前方，才是好接球點");
+})();
+
+/* ---- 戰術 ---- */
+(function tacticsDiagram(){
+  const el = document.getElementById("dia-tactics");
+  if (!el) return;
+  const card = (t, note, inner, cap) => `<div class="dia"><h3>${t}</h3><p class="req">${note}</p>${diamond(inner)}
+    <p class="req" style="margin:8px 0 0">${cap}</p></div>`;
+  const runner = (x,y) => `<circle class="dot" cx="${x}" cy="${y}" r="6"/>`;
+  el.innerHTML =
+    card("犧牲觸擊", "打者輕碰讓球滾向三壘側，跑者趁機前進",
+      runner(170,130) + arrow(174,122,196,100,"lm") + `<path class="lm" d="M 104,182 L 72,158"/>`,
+      "跑者：一壘 → 二壘　打者：把球放在界內") +
+    card("打帶跑", "跑者先起跑，打者一定要碰到球（否則容易被抓到）",
+      runner(170,130) + arrow(174,122,196,100,"lm") + arrow(116,180,146,168,"lm"),
+      "跑者：先起跑　打者：球進來就揮") +
+    card("雙殺 6-4-3", "游擊手接球傳二壘、二壘手再傳一壘",
+      `<circle class="dot" cx="150" cy="146" r="5"/>` + arrow(154,142,164,136,"lm") + arrow(176,132,196,122,"lm") +
+      arrow(160,140,100,140,"lm"),
+      "6（游擊）→ 4（二壘）→ 3（一壘）") +
+    card("夾殺", "跑者被前後夾住 → 先站住逼對方傳球，出現失誤就有機會",
+      runner(80,160) + arrow(92,156,112,152,"lm") + arrow(136,150,116,154,"lm"),
+      "跑者：先停、看對方出手");
+})();
 
 /* ================= 手機版選單抽屜 ================= */
 function toggleMenu(force){
