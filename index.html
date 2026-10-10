@@ -239,6 +239,7 @@
         <a href="#/assessment" data-page="assessment"><span class="mi">📋</span>能力評估</a>
         <a href="#/plan"      data-page="plan"><span class="mi">🗓</span>訓練計畫</a>
         <a href="#/diagrams"  data-page="diagrams"><span class="mi">📐</span>圖解教室</a>
+        <a href="#/field3d"   data-page="field3d"><span class="mi">⚾</span>3D 互動學習</a>
         <a href="#/analysis"  data-page="analysis"><span class="mi">🎬</span>動作解析</a>
         <a href="#/quiz"      data-page="quiz"><span class="mi">🎯</span>棒球小考</a>
         <a href="#/progress"  data-page="progress"><span class="mi">📈</span>進步追蹤</a>
@@ -638,6 +639,25 @@
       </section>
 
       <!-- ========== 雲端安裝說明 ========== -->
+      <!-- ========== 3D 互動學習 ========== -->
+      <section class="page" id="page-field3d">
+        <div class="eyebrow">3D INTERACTIVE</div>
+        <h1>3D 互動學習</h1>
+        <p class="lead">用手指就能轉動、放大。標準棒球場（壘間 27.43 m、投手板到本壘 18.44 m、中外野 121.92 m、警戒區 4.6 m）＋棒球、球棒，以及<b>五種守位手套</b>（內野／外野／投手／捕手／一壘）。每個項目都標真實尺寸。</p>
+        <div class="card" style="padding:10px">
+          <iframe id="f3d" src="assets/baseball3d.html" title="棒球 3D 互動學習" loading="lazy"
+                  style="width:100%;height:min(78vh,780px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button class="btn lime" onclick="document.getElementById('f3d').src='assets/baseball3d.html?model=field&view=iso'">棒球場</button>
+            <button class="btn ghost" onclick="document.getElementById('f3d').src='assets/baseball3d.html?model=ball&view=iso'">棒球</button>
+            <button class="btn ghost" onclick="document.getElementById('f3d').src='assets/baseball3d.html?model=bat&view=iso'">球棒</button>
+            <button class="btn ghost" onclick="document.getElementById('f3d').src='assets/baseball3d.html?model=glove_inf&view=iso'">內野手套</button>
+            <button class="btn ghost" onclick="window.open('assets/baseball3d.html','_blank')">全螢幕開啟</button>
+          </div>
+          <p class="req" style="margin-top:8px">畫面右下可切換視角（立體／俯視／正面／特寫）；手套模式會多一排守位按鈕。</p>
+        </div>
+      </section>
+
       <section class="page" id="page-install">
         <div class="eyebrow">CLOUD SETUP</div>
         <h1>雲端同步安裝（約 3 分鐘）</h1>
@@ -1002,7 +1022,7 @@ function go(h){ location.hash = h; }
 
 /* ============ 路由 ============ */
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
-                diagrams:"圖解教室", analysis:"動作解析", quiz:"棒球小考",
+                diagrams:"圖解教室", field3d:"3D 互動學習", analysis:"動作解析", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", install:"雲端安裝", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
