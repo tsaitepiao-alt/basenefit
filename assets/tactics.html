@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-Hant"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>basenefit｜棒球 3D 互動學習 — 標準規格</title>
+<title>basenefit｜棒球戰術小遊戲</title>
 <style>
  html,body{margin:0;height:100%;background:#0d1017;overflow:hidden;
    font-family:-apple-system,"PingFang TC","Heiti TC",sans-serif;color:#e9eaee}
@@ -44,10 +44,11 @@
  <span style="color:#9aa2b1">滑鼠拖曳旋轉、滾輪縮放；數字為真實規格</span></div>
 <div id="spec" class="panel"><h4 id="sh">規格</h4><div id="sb"></div></div>
 <button id="specBtn" class="panel" style="display:none;top:12px;right:12px;padding:9px 13px;font-size:13px;cursor:pointer">規格 ▾</button>
-<div id="c" class="panel">
+<div id="c" class="panel" style="display:none">
  <button id="m1" class="on">棒球場</button><button id="m2">棒球</button>
  <button id="m3">球棒</button><button id="m4">手套</button><button id="m5">自動旋轉</button><button id="m6">📐 數據</button>
 </div>
+<div class="panel" style="top:12px;left:50%;transform:translateX(-50%);padding:9px 16px;font-size:14px;font-weight:800;color:#fff;white-space:nowrap">⚔ 棒球戰術小遊戲</div>
 <div id="finfo" class="panel" style="display:none;left:12px;bottom:112px;flex-direction:column;align-items:stretch;max-width:330px;cursor:default"></div>
 <div id="gpanel" class="panel" style="display:none;left:50%;transform:translateX(-50%);bottom:112px;flex-direction:column;align-items:stretch;max-width:560px;width:calc(100% - 24px);gap:6px">
  <div id="gscore" style="font-size:13px;color:#cfe3f5"></div>
@@ -1114,10 +1115,10 @@
 </script>
 <script>
 const q = new URLSearchParams(location.search);
-const SHOT = q.get('shot')==='1', MODEL = q.get('model')||'field', VIEW = q.get('view')||'iso';
+const SHOT = q.get('shot')==='1', MODEL = 'field', VIEW = q.get('view')||'top';
 const EMBED = q.get('embed')==='1';
 if (SHOT) ['t','spec','c','c2'].forEach(id=>document.getElementById(id).style.display='none');
-if (EMBED) { document.getElementById('t').style.display='none'; document.getElementById('spec').style.display='none'; }
+document.getElementById('t').style.display='none'; document.getElementById('spec').style.display='none';
 
 const W = innerWidth, H = innerHeight;
 let renderer;
@@ -2087,7 +2088,7 @@ fieldClickInit();
 const m6=document.getElementById('m6');
 if(m6) m6.onclick=()=>{ const on=!(FIELD_LAB_GROUP&&FIELD_LAB_GROUP.visible); fieldLabelSprites(on); m6.classList.toggle('on', on); };
 if(MODEL!=='field'){ const fi=document.getElementById('finfo'); if(fi) fi.style.display='none'; }
-if(q.get('game')==='1') setTimeout(()=>{ gameInit3D(); gameStart(); }, 400);
+setTimeout(()=>{ gameInit3D(); gameStart(); }, 500);
 
 if(q.get('debug')==='1'){
   const dbg=document.createElement('div'); dbg.id='dbg'; dbg.style.cssText='position:fixed;left:0;top:0;z-index:99;color:#fff;font:12px monospace;background:#000';

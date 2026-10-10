@@ -240,6 +240,7 @@
         <a href="#/plan"      data-page="plan"><span class="mi">🗓</span>訓練計畫</a>
         <a href="#/diagrams"  data-page="diagrams"><span class="mi">📐</span>圖解教室</a>
         <a href="#/field3d"   data-page="field3d"><span class="mi">⚾</span>3D 互動學習</a>
+        <a href="#/tactics"   data-page="tactics"><span class="mi">⚔</span>戰術小遊戲</a>
         <a href="#/analysis"  data-page="analysis"><span class="mi">🎬</span>動作解析</a>
         <a href="#/quiz"      data-page="quiz"><span class="mi">🎯</span>棒球小考</a>
         <a href="#/progress"  data-page="progress"><span class="mi">📈</span>進步追蹤</a>
@@ -643,7 +644,7 @@
       <section class="page" id="page-field3d">
         <div class="eyebrow">3D INTERACTIVE</div>
         <h1>3D 互動學習</h1>
-        <p class="lead">用手指就能轉動、放大。標準棒球場（壘間 27.43 m、投手板到本壘 18.44 m、中外野 121.92 m、警戒區 4.6 m）＋棒球、球棒，以及<b>五種守位手套</b>（內野／外野／投手／捕手／一壘）。每個項目都標真實尺寸。</p>
+        <p class="lead">用手指就能轉動、放大。標準棒球場（壘間 27.43 m、投手板到本壘 18.44 m、中外野 121.92 m、警戒區 4.6 m）＋棒球、球棒，以及<b>五種守位手套</b>（內野／外野／投手／捕手／一壘）。<b>點球場上的元素</b>就會跑出該項目的尺寸說明（平時不顯示文字，畫面乾淨）。</p>
         <div class="card" style="padding:10px">
           <iframe id="f3d" src="assets/baseball3d.html?embed=1" title="棒球 3D 互動學習" loading="lazy"
                   style="width:100%;height:min(78vh,780px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
@@ -652,6 +653,22 @@
             <button class="btn ghost" onclick="window.open('assets/baseball3d.html','_blank')">全螢幕開啟（可切換全部模型）</button>
           </div>
           <p class="req" style="margin-top:8px">畫布左下切換模型（棒球場／棒球／球棒／手套→再選內野・外野・投手・捕手・一壘），右下切換視角（立體／俯視／正面／特寫），右上「規格」可展開尺寸表。</p>
+        </div>
+      </section>
+
+      <!-- ========== 棒球戰術小遊戲 ========== -->
+      <section class="page" id="page-tactics">
+        <div class="eyebrow">TACTICS GAME</div>
+        <h1>棒球戰術小遊戲</h1>
+        <p class="lead">每個打席選一個戰術（強攻／打帶跑／盜壘／犧牲觸擊／強迫取分），用機率模型跑出結果，直接在 3D 球場上演。共 3 局，第 2 局是「關鍵一分」局面。</p>
+        <div class="card" style="padding:10px">
+          <iframe id="fgame" src="assets/tactics.html" title="棒球戰術小遊戲" loading="lazy"
+                  style="width:100%;height:min(80vh,820px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button class="btn lime" onclick="document.getElementById('fgame').src='assets/tactics.html'">重新開始</button>
+            <button class="btn ghost" onclick="window.open('assets/tactics.html','_blank')">全螢幕開啟</button>
+          </div>
+          <p class="req" style="margin-top:8px">每選一次戰術，畫面會同時顯示各選項的「期望得分」與「得分率」，並告訴你模擬後的最佳選擇。最後會結算你的表現。</p>
         </div>
       </section>
 
@@ -1019,7 +1036,7 @@ function go(h){ location.hash = h; }
 
 /* ============ 路由 ============ */
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
-                diagrams:"圖解教室", field3d:"3D 互動學習", analysis:"動作解析", quiz:"棒球小考",
+                diagrams:"圖解教室", field3d:"3D 互動學習", tactics:"戰術小遊戲", analysis:"動作解析", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", install:"雲端安裝", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
