@@ -645,16 +645,13 @@
         <h1>3D 互動學習</h1>
         <p class="lead">用手指就能轉動、放大。標準棒球場（壘間 27.43 m、投手板到本壘 18.44 m、中外野 121.92 m、警戒區 4.6 m）＋棒球、球棒，以及<b>五種守位手套</b>（內野／外野／投手／捕手／一壘）。每個項目都標真實尺寸。</p>
         <div class="card" style="padding:10px">
-          <iframe id="f3d" src="assets/baseball3d.html" title="棒球 3D 互動學習" loading="lazy"
+          <iframe id="f3d" src="assets/baseball3d.html?embed=1" title="棒球 3D 互動學習" loading="lazy"
                   style="width:100%;height:min(78vh,780px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <button class="btn lime" onclick="document.getElementById('f3d').src='assets/baseball3d.html?model=field&view=iso'">棒球場</button>
-            <button class="btn ghost" onclick="document.getElementById('f3d').src='assets/baseball3d.html?model=ball&view=iso'">棒球</button>
-            <button class="btn ghost" onclick="document.getElementById('f3d').src='assets/baseball3d.html?model=bat&view=iso'">球棒</button>
-            <button class="btn ghost" onclick="document.getElementById('f3d').src='assets/baseball3d.html?model=glove_inf&view=iso'">內野手套</button>
-            <button class="btn ghost" onclick="window.open('assets/baseball3d.html','_blank')">全螢幕開啟</button>
+            <button class="btn lime" onclick="document.getElementById('f3d').src='assets/baseball3d.html?embed=1&model=field&view=iso'">重新載入球場</button>
+            <button class="btn ghost" onclick="window.open('assets/baseball3d.html','_blank')">全螢幕開啟（可切換全部模型）</button>
           </div>
-          <p class="req" style="margin-top:8px">畫面右下可切換視角（立體／俯視／正面／特寫）；手套模式會多一排守位按鈕。</p>
+          <p class="req" style="margin-top:8px">畫布左下切換模型（棒球場／棒球／球棒／手套→再選內野・外野・投手・捕手・一壘），右下切換視角（立體／俯視／正面／特寫），右上「規格」可展開尺寸表。</p>
         </div>
       </section>
 
