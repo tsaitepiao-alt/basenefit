@@ -241,6 +241,7 @@
         <a href="#/diagrams"  data-page="diagrams"><span class="mi">📐</span>圖解教室</a>
         <a href="#/field3d"   data-page="field3d"><span class="mi">⚾</span>3D 互動學習</a>
         <a href="#/tactics"   data-page="tactics"><span class="mi">⚔</span>戰術小遊戲</a>
+        <a href="#/pitch"     data-page="pitch"><span class="mi">🎯</span>投球動作解析</a>
         <a href="#/analysis"  data-page="analysis"><span class="mi">🎬</span>動作解析</a>
         <a href="#/quiz"      data-page="quiz"><span class="mi">🎯</span>棒球小考</a>
         <a href="#/progress"  data-page="progress"><span class="mi">📈</span>進步追蹤</a>
@@ -672,6 +673,22 @@
         </div>
       </section>
 
+      <!-- ========== 投球動作 3D 解析 ========== -->
+      <section class="page" id="page-pitch">
+        <div class="eyebrow">PITCHING LAB</div>
+        <h1>投球動作 3D 解析</h1>
+        <p class="lead">把投球動作拆成 9 個分期（準備→抬腿→平衡點→跨步→前腳落地→加速→出手→隨揮→收尾），用時間軸逐格看、慢動作播放，還能同時顯示<b>殘影（連續動作）</b>與<b>標註線</b>（質心 COM、肩線／髖線＝肩髖分離角度）。可切換「抬腿 / 不抬腿 / 對照」。</p>
+        <div class="card" style="padding:10px">
+          <iframe id="fpitch" src="assets/pitch3d.html" title="投球動作 3D 解析" loading="lazy"
+                  style="width:100%;height:min(80vh,820px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button class="btn lime" onclick="document.getElementById('fpitch').src='assets/pitch3d.html'">重新載入</button>
+            <button class="btn ghost" onclick="window.open('assets/pitch3d.html','_blank')">全螢幕開啟</button>
+          </div>
+          <p class="req" style="margin-top:8px">操作：拖曳＝旋轉、滾輪＝縮放；下方時間軸可逐格拖動，右下可開關「殘影」與「標註線」。畫面右上會同步顯示該分期的重點與數據（肩髖分離角度、COM 高度、跨步距離）。<br>※ 動作為示意，非專業訓練建議；每人身體條件不同，實際調整請找教練。</p>
+        </div>
+      </section>
+
       <section class="page" id="page-install">
         <div class="eyebrow">CLOUD SETUP</div>
         <h1>雲端同步安裝（約 3 分鐘）</h1>
@@ -1036,7 +1053,7 @@ function go(h){ location.hash = h; }
 
 /* ============ 路由 ============ */
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
-                diagrams:"圖解教室", field3d:"3D 互動學習", tactics:"戰術小遊戲", analysis:"動作解析", quiz:"棒球小考",
+                diagrams:"圖解教室", field3d:"3D 互動學習", tactics:"戰術小遊戲", pitch:"投球動作解析", analysis:"動作解析", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", install:"雲端安裝", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
