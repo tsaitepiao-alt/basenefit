@@ -1,2 +1,1 @@
-# 部署完 Apps Script 後，把「網頁應用程式」網址（結尾要是 /exec）貼在下面這一行（覆蓋這行註解即可）。
-# 只要這一行有正確網址，所有學員手機、教練電腦都會自動連線，不必逐台設定。
+https://unnecessary-eds-pens-need.trycloudflare.com
