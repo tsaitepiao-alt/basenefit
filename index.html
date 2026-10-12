@@ -634,6 +634,12 @@
             <div id="coach-quiz"></div>
           </div>
           <div class="card">
+            <div class="hrow"><h2>☁ 各學員成績（雲端）</h2>
+              <button class="btn sm ghost" onclick="syncAll(false)">↻ 重新整理</button></div>
+            <p class="req" style="margin:0 0 10px">學員在自己手機考完會自動上傳。下面是雲端上每位學員的最新成績。</p>
+            <div id="coach-scores"></div>
+          </div>
+          <div class="card">
             <h2 style="margin-bottom:8px">待觀察的影片</h2>
             <div id="coach-videos"></div>
           </div>
@@ -1217,6 +1223,7 @@ function render(){
   renderMedia();
   renderQuizStats();
   renderCoachTab();
+  renderCoachScores();
   save();
 }
 
@@ -2375,6 +2382,37 @@ function syncAll(silent){
   sc.src = url + "?action=all&callback=" + cb;
   sc.onerror = () => { clearTimeout(timer); if (!silent) toast("連線失敗（確認網址結尾是 /exec）"); };
   document.body.appendChild(sc);
+}
+
+/* 教練端：雲端各學員成績表 */
+function renderCoachScores(){
+  const box = document.getElementById("coach-scores");
+  if (!box) return;
+  if (!AGG){ box.innerHTML = `<p class="req">按上面「☁ 從雲端彙整」載入所有學員的成績。</p>`; return; }
+  const keys = Object.keys(AGG);
+  if (!keys.length){ box.innerHTML = `<p class="req">雲端還沒有學員資料。</p>`; return; }
+  const rows = keys.map(k => {
+    const st = AGG[k] || {}, q = st.quiz || {}, his = q.history || [];
+    const last = his.length ? his[his.length - 1] : {};
+    const wrong = Object.keys(q.stats || {}).reduce((a, id) => a + (Number((q.stats[id] || {}).wrong) || 0), 0);
+    return { name: (st.me && st.me.name) || k, score: (last.score === undefined ? null : last.score),
+             at: last.at || st.at || "—", n: his.length, wrong: wrong,
+             trend: his.slice(-6).map(h => h.score).join(" → ") };
+  }).filter(r => r.n > 0 || r.wrong > 0)
+    .sort((a, b) => (b.score === null ? -1 : b.score) - (a.score === null ? -1 : a.score));
+  if (!rows.length){ box.innerHTML = `<p class="req">雲端上目前沒有小考紀錄。</p>`; return; }
+  const scored = rows.filter(r => r.score !== null);
+  const avg = scored.length ? Math.round(scored.reduce((a, r) => a + r.score, 0) / scored.length) : 0;
+  box.innerHTML = `
+    <p class="req" style="margin:0 0 8px"><b>${rows.length}</b> 位學員　·　平均 <b>${avg}</b> 分（依最新成績排序）</p>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px">
+      <tr style="color:#8fa3b8;text-align:left"><th style="padding:6px 4px">學員</th><th>最新</th><th>考過</th><th>累計答錯</th><th>最近成績</th></tr>
+      ${rows.map(r => `<tr style="border-top:1px solid rgba(255,255,255,.08)">
+        <td style="padding:7px 4px"><b>${r.name}</b></td>
+        <td style="padding:7px 4px;color:${r.score >= 90 ? "#7ee787" : r.score >= 70 ? "#ffd166" : "#ff8a80"};font-weight:800">${r.score === null ? "—" : r.score + " 分"}</td>
+        <td>${r.n} 次</td><td>${r.wrong} 題</td>
+        <td style="color:#9fb3c8">${r.trend || "—"}</td></tr>`).join("")}
+    </table></div>`;
 }
 
 function aggRows(){
