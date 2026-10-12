@@ -2302,7 +2302,7 @@ async function loadCloudFile(){
     const r = await fetch("assets/cloud.txt", {cache:"no-store"});
     if (!r.ok) return;
     const t = (await r.text()).trim();
-    if (/^https:\/\/script\.google\.com\//.test(t) && t !== CLOUDFILE){ CLOUDFILE = t; render(); autoSync(); }
+    if (/^https:\/\/[a-z0-9.-]+\//i.test(t) && t !== CLOUDFILE){ CLOUDFILE = t; render(); autoSync(); }
   }catch(e){}
 }
 function hasCloud(){ return !!cloudUrl(); }
