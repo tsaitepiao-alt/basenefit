@@ -1982,6 +1982,23 @@ function gradeQuiz(){
   render();
   toast(`成績 ${score} 分`);
   window.scrollTo({top: 0});
+  autoPushAfterQuiz(score);
+}
+
+/* 交卷後自動上傳雲端（沒設雲端就不做事）。第一次會問一次代號（建議姓名或座號）。 */
+function autoPushAfterQuiz(score){
+  if (!hasCloud()) return;
+  const k = String(S.syncCode || (S.me && S.me.name) || "").trim();
+  if (!k){
+    const v = prompt("交卷完成！請輸入你的姓名或座號（教練才看得到你的成績；建議用座號即可）：", "");
+    if (!v || !v.trim()) return;
+    S.syncCode = v.trim().slice(0, 20);
+    S.me = S.me || {}; S.me.name = S.syncCode;
+    save();
+  }
+  syncPush(true);
+  const ql = document.getElementById("quiz-last");
+  if (ql) ql.textContent = `上次 ${score} 分 · 已上傳（${syncKey()}）`;
 }
 
 function renderQuizResult(score, wrong){
@@ -2275,9 +2292,19 @@ function assignCoach(studentId, coachId){
 // 也可以在「學員與設定」頁用不同網址覆蓋它。
 const DEFAULT_CLOUD = "";
 
+let CLOUDFILE = "";            // 從 assets/cloud.txt 讀到的共用後端網址（部署後全站共用）
 let AGG = null;                                   // 教練端從雲端彙整回來的資料
 
-function cloudUrl(){ return (S.api || DEFAULT_CLOUD || "").trim(); }
+function cloudUrl(){ return (S.api || CLOUDFILE || DEFAULT_CLOUD || "").trim(); }
+/* 部署完成後只要把 Web App 網址寫進 assets/cloud.txt，所有裝置就自動連線（不用逐台設定） */
+async function loadCloudFile(){
+  try{
+    const r = await fetch("assets/cloud.txt", {cache:"no-store"});
+    if (!r.ok) return;
+    const t = (await r.text()).trim();
+    if (/^https:\/\/script\.google\.com\//.test(t) && t !== CLOUDFILE){ CLOUDFILE = t; render(); autoSync(); }
+  }catch(e){}
+}
 function hasCloud(){ return !!cloudUrl(); }
 function syncKey(){ return String(S.syncCode || (S.me && S.me.name) || "default").trim() || "default"; }
 
@@ -2369,6 +2396,7 @@ function aggRows(){
 /* 新裝置（本機沒資料）自動把雲端資料抓下來 */
 function autoSync(){
   if (!hasCloud()) return;
+  if (location.hash === "#/coach") syncAll(true);   // 進教練頁自動彙整雲端
   const empty = !(S.sessions || []).length && !(S.videos || []).length && !(S.assessments || []).length;
   if (empty) syncPull(true);
 }
@@ -2388,6 +2416,7 @@ function fallbackCopy(el, done){
 }
 
 route();
+loadCloudFile();
 autoSync();
 </script>
 </body>
