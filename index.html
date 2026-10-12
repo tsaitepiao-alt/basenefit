@@ -242,6 +242,7 @@
         <a href="#/field3d"   data-page="field3d"><span class="mi">⚾</span>3D 互動學習</a>
         <a href="#/tactics"   data-page="tactics"><span class="mi">⚔</span>戰術小遊戲</a>
         <a href="#/pitch"     data-page="pitch"><span class="mi">🎯</span>投球動作解析</a>
+        <a href="#/hitting"   data-page="hitting"><span class="mi">🏏</span>打擊動作解析</a>
         <a href="#/analysis"  data-page="analysis"><span class="mi">🎬</span>動作解析</a>
         <a href="#/quiz"      data-page="quiz"><span class="mi">🎯</span>棒球小考</a>
         <a href="#/progress"  data-page="progress"><span class="mi">📈</span>進步追蹤</a>
@@ -695,6 +696,22 @@
         </div>
       </section>
 
+      <!-- ========== 打擊：球棒軌跡 3D ========== -->
+      <section class="page" id="page-hitting">
+        <div class="eyebrow">HITTING LAB</div>
+        <h1>打擊：球棒軌跡 3D 解析</h1>
+        <p class="lead">球棒軌跡決定你的擊球。三種常見路徑直接比較：<b>✗ 棒頭下墜</b>、<b>✗ 手部下砍</b>、<b>✓ 提早進平面</b>（ON PLANE EARLY）。用時間軸逐格看，紅色軌跡點是錯誤路徑、綠色是正確路徑，畫面會即時算出<b>「球棒與來球同平面」的時間比例</b>。</p>
+        <div class="card" style="padding:10px">
+          <iframe id="fhit" src="assets/hitting.html" title="打擊球棒軌跡 3D" loading="lazy"
+                  style="width:100%;height:min(80vh,820px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button class="btn lime" onclick="document.getElementById('fhit').src='assets/hitting.html'">重新載入</button>
+            <button class="btn ghost" onclick="window.open('assets/hitting.html','_blank')">全螢幕開啟</button>
+          </div>
+          <p class="req" style="margin-top:8px">操作：拖曳＝旋轉、滾輪＝縮放；下方時間軸逐格拖動；左下可切換三種路徑或「三種對照」（紅／綠軌跡點並排比較）。<br>實測數字（示意模型）：棒頭下墜 <b>11%</b>、手部下砍 <b>33%</b>、提早進平面 <b>48%</b>——球棒留在來球平面的時間差了三倍以上。</p>
+        </div>
+      </section>
+
       <section class="page" id="page-install">
         <div class="eyebrow">CLOUD SETUP</div>
         <h1>雲端同步安裝（約 3 分鐘）</h1>
@@ -1059,7 +1076,7 @@ function go(h){ location.hash = h; }
 
 /* ============ 路由 ============ */
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
-                diagrams:"圖解教室", field3d:"3D 互動學習", tactics:"戰術小遊戲", pitch:"投球動作解析", analysis:"動作解析", quiz:"棒球小考",
+                diagrams:"圖解教室", field3d:"3D 互動學習", tactics:"戰術小遊戲", pitch:"投球動作解析", hitting:"打擊動作解析", analysis:"動作解析", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", install:"雲端安裝", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
