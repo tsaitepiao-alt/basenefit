@@ -272,78 +272,75 @@
         <div class="eyebrow">PERSONAL GROWTH</div>
         <h1>今天，也往目標靠近一點。</h1>
         <p class="lead">每天都有一點進度就好。這裡看你這週的安排、今天的動作，還有你累積的成果。</p>
-        <!-- ========== 本壘板＋旋轉棒球 動畫（純 CSS/SVG，無外部依賴）========== -->
+                <!-- ========== 本壘板木框＋框內旋轉壘球 動畫（純 CSS/SVG，無外部依賴）========== -->
         <style>
         .hero-anim{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-          gap:0;margin:22px 0 26px;padding:20px 0 8px;overflow:hidden;border-radius:22px;
-          background:radial-gradient(120% 90% at 50% 8%,#f3f8e8 0%,#eef3e2 42%,rgba(238,243,226,0) 100%)}
-        .hero-anim .bb-stage{position:relative;width:184px;height:236px;display:flex;
-          flex-direction:column;align-items:center;justify-content:flex-end}
-        .hero-anim .bb-ball{position:absolute;top:0;left:50%;width:132px;height:132px;
-          margin-left:-66px;animation:bbBob 3.4s ease-in-out infinite;
-          filter:drop-shadow(0 10px 14px rgba(60,50,30,.16))}
-        .hero-anim .bb-ball .bb-seams{animation:bbSpin 2.6s linear infinite}
-        .hero-anim .bb-plate{position:relative;width:132px;height:161px;
-          filter:drop-shadow(0 10px 16px rgba(60,50,30,.18))}
-        .hero-anim .bb-shadow{position:absolute;bottom:6px;left:50%;width:74px;height:16px;margin-left:-37px;
-          border-radius:50%;background:radial-gradient(closest-side,rgba(70,60,40,.34),rgba(70,60,40,0));
-          animation:bbShadow 3.4s ease-in-out infinite}
-        .hero-anim .bb-cap{margin-top:10px;font-size:12.5px;letter-spacing:.14em;color:#7d8a63;
-          text-transform:uppercase;font-weight:600}
-        @keyframes bbSpin{from{transform:translateX(0)}to{transform:translateX(-120px)}}
-        @keyframes bbBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-11px)}}
-        @keyframes bbShadow{0%,100%{transform:scale(1);opacity:.34}50%{transform:scale(.82);opacity:.2}}
+          max-width:224px;margin:10px auto 14px;padding:6px 0 0;border-radius:18px;
+          background:radial-gradient(112% 86% at 50% 14%,#f5f9ec 0%,#eef3e2 52%,rgba(238,243,226,0) 100%)}
+        .hero-anim .bb-stage{position:relative;width:132px;height:134px}
+        .hero-anim .bb-ball{position:absolute;left:50%;top:66px;width:84px;height:84px;margin:-42px 0 0 -42px;
+          animation:bbBob 3.6s ease-in-out infinite;z-index:1}
+        .hero-anim .bb-ball .bb-seams{animation:bbSpin 2.4s linear infinite}
+        .hero-anim .bb-frame{position:absolute;left:0;top:0;width:132px;height:132px;z-index:2;
+          filter:drop-shadow(0 6px 10px rgba(70,50,20,.24))}
+        .hero-anim .bb-support{position:absolute;left:50%;top:92px;width:1.5px;height:22px;margin-left:-.75px;
+          background:linear-gradient(to bottom,rgba(130,110,60,.4),rgba(130,110,60,0));z-index:0}
+        .hero-anim .bb-shadow{position:absolute;left:50%;top:112px;width:44px;height:10px;margin-left:-22px;
+          border-radius:50%;background:radial-gradient(closest-side,rgba(80,60,25,.32),rgba(80,60,25,0));
+          animation:bbShadow 3.6s ease-in-out infinite;z-index:0}
+        .hero-anim .bb-cap{margin-top:7px;font-size:11.5px;letter-spacing:.16em;color:#6f7d55;
+          text-transform:uppercase;font-weight:700}
+        @keyframes bbSpin{from{transform:translateX(0)}to{transform:translateX(-116px)}}
+        @keyframes bbBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        @keyframes bbShadow{0%,100%{transform:scale(1);opacity:.32}50%{transform:scale(.86);opacity:.2}}
         @media (prefers-reduced-motion: reduce){
           .hero-anim .bb-ball,.hero-anim .bb-ball .bb-seams,.hero-anim .bb-shadow{animation:none}
         }
         @media (min-width:720px){
-          .hero-anim .bb-stage{width:212px;height:268px}
-          .hero-anim .bb-ball{width:152px;height:152px;margin-left:-76px}
-          .hero-anim .bb-plate{width:152px;height:185px}
+          .hero-anim .bb-stage{width:168px;height:170px}
+          .hero-anim .bb-ball{top:84px;width:108px;height:108px;margin:-54px 0 0 -54px}
+          .hero-anim .bb-frame{width:168px;height:168px}
+          .hero-anim .bb-support{top:118px}
+          .hero-anim .bb-shadow{top:142px}
+          .hero-anim .bb-cap{font-size:12.5px}
         }
         </style>
         <div class="hero-anim">
           <div class="bb-stage">
-            <svg class="bb-ball" viewBox="0 0 120 120" aria-hidden="true">
-        <defs>
-          <radialGradient id="bbShade" cx="34%" cy="28%" r="78%">
-            <stop offset="0%"   stop-color="#ffffff"/>
-            <stop offset="58%"  stop-color="#f4f1e8"/>
-            <stop offset="86%"  stop-color="#ddd7c8"/>
-            <stop offset="100%" stop-color="#c3bcaa"/>
-          </radialGradient>
-          <clipPath id="bbClip"><circle cx="60" cy="60" r="58"/></clipPath>
-        </defs>
-        <circle cx="60" cy="60" r="58" fill="url(#bbShade)"/>
-        <g clip-path="url(#bbClip)" opacity=".92">
-          <g class="bb-seams">
-            <g transform="translate(0,0)">
-        <path d="M0,60C30,8 90,8 120,60M0,60C30,112 90,112 120,60" fill="none" stroke="#b23a2f" stroke-width="2.6" stroke-linecap="round" opacity=".85"/>
-        <path d="M0.0,51.5L7.5,56.5M8.3,40.9L15.0,46.9M17.5,32.2L23.2,39.2M27.4,25.3L31.9,33.2M38.0,20.4L41.1,28.9M48.9,17.5L50.5,26.3M60.0,16.5L60.0,25.5M71.1,17.5L69.5,26.3M82.0,20.4L78.9,28.9M92.6,25.3L88.1,33.2M102.5,32.2L96.8,39.2M111.7,40.9L105.0,46.9M120.0,51.5L112.5,56.5M7.5,63.5L0.0,68.5M15.0,73.1L8.3,79.1M23.2,80.8L17.5,87.8M31.9,86.8L27.4,94.7M41.1,91.1L38.0,99.6M50.5,93.7L48.9,102.5M60.0,94.5L60.0,103.5M69.5,93.7L71.1,102.5M78.9,91.1L82.0,99.6M88.1,86.8L92.6,94.7M96.8,80.8L102.5,87.8M105.0,73.1L111.7,79.1M112.5,63.5L120.0,68.5" fill="none" stroke="#c0392b" stroke-width="2.4" stroke-linecap="round" opacity=".95"/>
-      </g>
-            <g transform="translate(120,0)">
-        <path d="M0,60C30,8 90,8 120,60M0,60C30,112 90,112 120,60" fill="none" stroke="#b23a2f" stroke-width="2.6" stroke-linecap="round" opacity=".85"/>
-        <path d="M0.0,51.5L7.5,56.5M8.3,40.9L15.0,46.9M17.5,32.2L23.2,39.2M27.4,25.3L31.9,33.2M38.0,20.4L41.1,28.9M48.9,17.5L50.5,26.3M60.0,16.5L60.0,25.5M71.1,17.5L69.5,26.3M82.0,20.4L78.9,28.9M92.6,25.3L88.1,33.2M102.5,32.2L96.8,39.2M111.7,40.9L105.0,46.9M120.0,51.5L112.5,56.5M7.5,63.5L0.0,68.5M15.0,73.1L8.3,79.1M23.2,80.8L17.5,87.8M31.9,86.8L27.4,94.7M41.1,91.1L38.0,99.6M50.5,93.7L48.9,102.5M60.0,94.5L60.0,103.5M69.5,93.7L71.1,102.5M78.9,91.1L82.0,99.6M88.1,86.8L92.6,94.7M96.8,80.8L102.5,87.8M105.0,73.1L111.7,79.1M112.5,63.5L120.0,68.5" fill="none" stroke="#c0392b" stroke-width="2.4" stroke-linecap="round" opacity=".95"/>
-      </g>
-          </g>
-        </g>
-        <ellipse cx="41" cy="34" rx="17" ry="11" fill="#ffffff" opacity=".5" transform="rotate(-24 41 34)"/>
-        <circle cx="60" cy="60" r="58" fill="none" stroke="#b9b2a0" stroke-width="1.5" opacity=".7"/>
-      </svg>
+            <div class="bb-support"></div>
             <div class="bb-shadow"></div>
-            <svg class="bb-plate" viewBox="0 0 120 146" aria-hidden="true">
-        <defs>
-          <linearGradient id="bbPlate" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#ffffff"/>
-            <stop offset="100%" stop-color="#ece7dc"/>
-          </linearGradient>
-        </defs>
-        <path d="M2,2 H118 V60 L60,144 L2,60 Z" fill="url(#bbPlate)" stroke="#cfc7b6" stroke-width="2.5" stroke-linejoin="round"/>
-        <path d="M6,6 H114 V59 L60,140 L6,59 Z" fill="none" stroke="#ffffff" stroke-width="2" opacity=".9"/>
-      </svg>
+            <svg class="bb-ball" viewBox="0 0 116 116" aria-hidden="true">
+            <defs>
+              <radialGradient id="bbSoft" cx="35%" cy="27%" r="80%">
+                <stop offset="0%" stop-color="#fffbd4"/><stop offset="42%" stop-color="#ffe45c"/>
+                <stop offset="84%" stop-color="#eec200"/><stop offset="100%" stop-color="#c29700"/>
+              </radialGradient>
+              <clipPath id="bbBallClip"><circle cx="58" cy="58" r="58"/></clipPath>
+            </defs>
+            <circle cx="58" cy="58" r="58" fill="url(#bbSoft)"/>
+            <g clip-path="url(#bbBallClip)" opacity=".92"><g class="bb-seams"><g transform="translate(0,0)"><path d="M0,58C29,8 87,8 116,58M0,58C29,108 87,108 116,58" fill="none" stroke="#c23b2a" stroke-width="2.4" stroke-linecap="round" opacity=".85"/><path d="M0.1,49.8L7.1,54.6M8.1,39.5L14.4,45.2M17.0,31.1L22.3,37.7M26.6,24.5L30.8,31.8M36.7,19.7L39.7,27.7M47.3,16.9L48.8,25.2M58.0,15.9L58.0,24.4M68.7,16.9L67.2,25.2M79.3,19.7L76.3,27.7M89.4,24.5L85.2,31.8M99.0,31.1L93.7,37.7M107.9,39.5L101.6,45.2M115.9,49.8L108.9,54.6M7.1,61.4L0.1,66.2M14.4,70.8L8.1,76.5M22.3,78.3L17.0,84.9M30.8,84.2L26.6,91.5M39.7,88.3L36.7,96.3M48.8,90.8L47.3,99.1M58.0,91.6L58.0,100.1M67.2,90.8L68.7,99.1M76.3,88.3L79.3,96.3M85.2,84.2L89.4,91.5M93.7,78.3L99.0,84.9M101.6,70.8L107.9,76.5M108.9,61.4L115.9,66.2" fill="none" stroke="#ad2718" stroke-width="2.3" stroke-linecap="round"/></g><g transform="translate(116.0,0)"><path d="M0,58C29,8 87,8 116,58M0,58C29,108 87,108 116,58" fill="none" stroke="#c23b2a" stroke-width="2.4" stroke-linecap="round" opacity=".85"/><path d="M0.1,49.8L7.1,54.6M8.1,39.5L14.4,45.2M17.0,31.1L22.3,37.7M26.6,24.5L30.8,31.8M36.7,19.7L39.7,27.7M47.3,16.9L48.8,25.2M58.0,15.9L58.0,24.4M68.7,16.9L67.2,25.2M79.3,19.7L76.3,27.7M89.4,24.5L85.2,31.8M99.0,31.1L93.7,37.7M107.9,39.5L101.6,45.2M115.9,49.8L108.9,54.6M7.1,61.4L0.1,66.2M14.4,70.8L8.1,76.5M22.3,78.3L17.0,84.9M30.8,84.2L26.6,91.5M39.7,88.3L36.7,96.3M48.8,90.8L47.3,99.1M58.0,91.6L58.0,100.1M67.2,90.8L68.7,99.1M76.3,88.3L79.3,96.3M85.2,84.2L89.4,91.5M93.7,78.3L99.0,84.9M101.6,70.8L107.9,76.5M108.9,61.4L115.9,66.2" fill="none" stroke="#ad2718" stroke-width="2.3" stroke-linecap="round"/></g></g></g>
+            <ellipse cx="37" cy="31" rx="17" ry="10"
+                     fill="#ffffff" opacity=".5" transform="rotate(-24 37 31)"/>
+            <circle cx="58" cy="58" r="57" fill="none" stroke="#a8850a" stroke-width="1.6" opacity=".5"/>
+          </svg>
+            <svg class="bb-frame" viewBox="-8 -8 196 196" aria-hidden="true">
+            <defs>
+              <linearGradient id="bbWood" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#cb9a5f"/><stop offset="45%" stop-color="#a9723c"/>
+                <stop offset="100%" stop-color="#7a5025"/>
+              </linearGradient>
+              <clipPath id="bbBarClip0"><path d="M0.0,0.0 L180.0,0.0 L158.0,22.0 L22.0,22.0 Z"/></clipPath><clipPath id="bbBarClip1"><path d="M180.0,0.0 L180.0,90.0 L158.0,82.0 L158.0,22.0 Z"/></clipPath><clipPath id="bbBarClip2"><path d="M0.0,90.0 L0.0,0.0 L22.0,22.0 L22.0,82.0 Z"/></clipPath><clipPath id="bbBarClip3"><path d="M180.0,90.0 L90.0,180.0 L90.0,158.0 L158.0,82.0 Z"/></clipPath><clipPath id="bbBarClip4"><path d="M90.0,180.0 L0.0,90.0 L22.0,82.0 L90.0,158.0 Z"/></clipPath>
+            </defs>
+            <path d="M0.0,0.0 L180.0,0.0 L180.0,90.0 L90.0,180.0 L0.0,90.0 Z M22.0,22.0 L158.0,22.0 L158.0,82.0 L90.0,158.0 L22.0,82.0 Z" fill="url(#bbWood)" fill-rule="evenodd" stroke="#5f3d1c" stroke-width="1.5"/>
+            <g clip-path="url(#bbBarClip0)"><path d="M6.2,6.2 L173.8,6.2M11.0,11.0 L169.0,11.0M15.8,15.8 L164.2,15.8" stroke="#6b4520" stroke-width="1.1" fill="none" opacity=".4"/></g><g clip-path="url(#bbBarClip1)"><path d="M173.8,6.2 L173.8,87.8M169.0,11.0 L169.0,86.0M164.2,15.8 L164.2,84.2" stroke="#6b4520" stroke-width="1.1" fill="none" opacity=".4"/></g><g clip-path="url(#bbBarClip2)"><path d="M6.2,87.8 L6.2,6.2M11.0,86.0 L11.0,11.0M15.8,84.2 L15.8,15.8" stroke="#6b4520" stroke-width="1.1" fill="none" opacity=".4"/></g><g clip-path="url(#bbBarClip3)"><path d="M173.8,87.8 L90.0,173.8M169.0,86.0 L90.0,169.0M164.2,84.2 L90.0,164.2" stroke="#6b4520" stroke-width="1.1" fill="none" opacity=".4"/></g><g clip-path="url(#bbBarClip4)"><path d="M90.0,173.8 L6.2,87.8M90.0,169.0 L11.0,86.0M90.0,164.2 L15.8,84.2" stroke="#6b4520" stroke-width="1.1" fill="none" opacity=".4"/></g>
+            <path d="M0,0 L22.0,22.0M180,0 L158.0,22.0M180,90 L158.0,82.0M90,180 L90.0,158.0M0,90 L22.0,82.0" stroke="#5a3a1a" stroke-width="1.2" opacity=".5" fill="none"/>
+            <path d="M22.0,22.0 L158.0,22.0 L158.0,82.0 L90.0,158.0 L22.0,82.0 Z" fill="none" stroke="#452c12" stroke-width="2.2" opacity=".4"/>
+            <path d="M22.0,22.0 L158.0,22.0 L158.0,82.0 L90.0,158.0 L22.0,82.0 Z" fill="none" stroke="#f6efdf" stroke-width="1" opacity=".25"/>
+          </svg>
           </div>
           <div class="bb-cap">PLAY BALL</div>
         </div>
+                
 
         <div class="card" style="padding:0;overflow:hidden">
           <a href="assets/trial-banner.jpg" target="_blank" rel="noopener">
