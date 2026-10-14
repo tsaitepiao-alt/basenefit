@@ -272,7 +272,7 @@
         <div class="eyebrow">PERSONAL GROWTH</div>
         <h1>今天，也往目標靠近一點。</h1>
         <p class="lead">每天都有一點進度就好。這裡看你這週的安排、今天的動作，還有你累積的成果。</p>
-                                <!-- ========== 本壘板木框＋框內旋轉壘球＋兩側打擊區（純 CSS/SVG，無外部依賴）========== -->
+                                        <!-- ========== 本壘板木框＋框內旋轉壘球＋兩側打擊區（純 CSS/SVG，無外部依賴）========== -->
         <style>
         .hero-anim{position:relative;display:flex;flex-direction:column;align-items:center;
           max-width:340px;margin:10px auto 14px;padding:4px 0 0;border-radius:18px;
@@ -284,26 +284,30 @@
         .hero-anim .bb-ball .bb-seams{animation:bbSpin 2.4s linear infinite}
         .hero-anim .bb-cap{margin-top:6px;font-size:11.5px;letter-spacing:.16em;color:#6f7d55;
           text-transform:uppercase;font-weight:700}
-        /* basenefit 英文字動畫：逐字彈出 + 光暈週期掃過 */
+        /* basenefit 英文字動畫：一個字一個字跑出來（逐字彈升）+ 光暈週期掃過 */
         .hero-anim .bb-word{position:relative;overflow:hidden;display:flex;flex-wrap:nowrap;
-          margin:0 0 4px;font-weight:800;font-size:30px;letter-spacing:-.015em;line-height:1.05;
+          margin:2px 0 8px;font-weight:800;font-size:44px;letter-spacing:-.02em;line-height:1.08;
           color:var(--ink,#141412);font-family:inherit}
-        .hero-anim .bb-word span{display:inline-block;animation:bbPop .5s cubic-bezier(.2,.85,.3,1) backwards}
-        .hero-anim .bb-word span:nth-child(1){animation-delay:.06s}
-        .hero-anim .bb-word span:nth-child(2){animation-delay:.12s}
-        .hero-anim .bb-word span:nth-child(3){animation-delay:.18s}
-        .hero-anim .bb-word span:nth-child(4){animation-delay:.24s}
-        .hero-anim .bb-word span:nth-child(5){animation-delay:.30s}
-        .hero-anim .bb-word span:nth-child(6){animation-delay:.36s}
-        .hero-anim .bb-word span:nth-child(7){animation-delay:.42s}
-        .hero-anim .bb-word span:nth-child(8){animation-delay:.48s}
-        .hero-anim .bb-word span:nth-child(9){animation-delay:.54s}
+        .hero-anim .bb-word span{display:inline-block;will-change:transform,opacity;
+          animation:bbLetter .6s cubic-bezier(.34,1.56,.64,1) backwards}
+        .hero-anim .bb-word span:nth-child(1){animation-delay:.05s}
+        .hero-anim .bb-word span:nth-child(2){animation-delay:.19s}
+        .hero-anim .bb-word span:nth-child(3){animation-delay:.33s}
+        .hero-anim .bb-word span:nth-child(4){animation-delay:.47s}
+        .hero-anim .bb-word span:nth-child(5){animation-delay:.61s}
+        .hero-anim .bb-word span:nth-child(6){animation-delay:.75s}
+        .hero-anim .bb-word span:nth-child(7){animation-delay:.89s}
+        .hero-anim .bb-word span:nth-child(8){animation-delay:1.03s}
+        .hero-anim .bb-word span:nth-child(9){animation-delay:1.17s}
         .hero-anim .bb-word .bb-l{color:var(--lime-dark,#a9cc35)}
-        .hero-anim .bb-word::after{content:"";position:absolute;top:-6%;left:-30%;width:26%;height:112%;
-          background:linear-gradient(100deg,transparent 0%,rgba(255,255,255,.8) 50%,transparent 100%);
-          animation:bbShine 4.8s ease-in-out .9s infinite;pointer-events:none}
-        @keyframes bbPop{from{opacity:0;transform:translateY(13px) scale(.94)}to{opacity:1;transform:none}}
-        @keyframes bbShine{0%{left:-30%}55%,100%{left:112%}}
+        .hero-anim .bb-word::after{content:"";position:absolute;top:-6%;left:-40%;width:24%;height:112%;
+          background:linear-gradient(100deg,transparent 0%,rgba(255,255,255,.85) 50%,transparent 100%);
+          animation:bbShine 5.2s ease-in-out 2.1s infinite;pointer-events:none}
+        @keyframes bbLetter{
+          0%{opacity:0;transform:translateY(26px) scale(.55)}
+          62%{opacity:1;transform:translateY(-4px) scale(1.07)}
+          100%{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes bbShine{0%{left:-40%}52%,100%{left:114%}}
         @keyframes bbSpin{from{transform:translateX(0)}to{transform:translateX(-94px)}}
         @keyframes bbBob{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - 5px))}}
         @media (prefers-reduced-motion: reduce){
@@ -313,7 +317,7 @@
         @media (min-width:720px){
           .hero-anim{max-width:420px}
           .hero-anim .bb-stage{max-width:392px}
-          .hero-anim .bb-word{font-size:38px}
+          .hero-anim .bb-word{font-size:60px}
           .hero-anim .bb-cap{font-size:12.5px}
         }
         </style>
