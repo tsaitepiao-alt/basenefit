@@ -190,6 +190,47 @@ function beltShape(extra){ var b=belt(extra), s=new THREE.Shape(); s.moveTo(b[0]
   var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.28,9,10), M(0xe8c33a,0.7));
   pole.position.set(p[0]*1.04, 4.5, p[1]*1.04); add(pole,'foul',0); });
 
+// ⑧b 依 Archweb CAD 圖補齊：本壘後擋球網、打擊區、教練區、練習圈、本壘土圈
+(function(){
+  // 本壘土圈 R=4 m
+  var hc=new THREE.Mesh(new THREE.CircleGeometry(4.0,48), M(0xc9b596,0.98));
+  hc.rotation.x=-Math.PI/2; add(hc,'infield',0.08);
+  // 打擊區 1.22 × 1.83 m（左右各一，白色框）
+  [1,-1].forEach(function(s){
+    var m=new THREE.Mesh(new THREE.PlaneGeometry(1.22,1.83), M(0xffffff,0.85));
+    m.rotation.x=-Math.PI/2; m.position.set(s*0.98, 0.10, 0.0); add(m,'plate',0);
+  });
+  // 捕手區 1.37 × 2.44 m
+  var cb=new THREE.Mesh(new THREE.PlaneGeometry(1.37,2.44), M(0xffffff,0.85));
+  cb.rotation.x=-Math.PI/2; cb.position.set(0, 0.10, -1.6); add(cb,'plate',0);
+  // 教練區 3.2 × 1.8 m（一、三壘側界外，配合壘線轉 45°）— 對應 CAD「Box del suggeritore」
+  [1,-1].forEach(function(s){
+    var m=new THREE.Mesh(new THREE.PlaneGeometry(3.2,1.8), M(0xffffff,0.8));
+    m.rotation.x=-Math.PI/2; m.rotation.z=s*Math.PI/4;
+    m.position.set(s*(B45+7.5), 0.09, B45+7.5); add(m,'plate',0);
+  });
+  // 練習圈 R=0.75 m（一、三壘側界外）
+  [1,-1].forEach(function(s){
+    var m=new THREE.Mesh(new THREE.RingGeometry(0.72,0.78,32), M(0xffffff,0.85));
+    m.rotation.x=-Math.PI/2; m.position.set(s*9.2, 0.10, -8.4); add(m,'stand',0);
+  });
+  // 本壘後方擋球網（弧線，R=18 m，高 1.2 m）
+  var seg=40, v=[], idx=[];
+  for(var i=0;i<=seg;i++){
+    var a=Math.PI*1.25+Math.PI*0.5*i/seg, r=18, px=Math.sin(a)*r, pz=Math.cos(a)*r;
+    v.push(px,0,pz, px,1.2,pz);
+  }
+  for(var j=0;j<seg;j++){ var q=j*2; idx.push(q,q+1,q+2, q+1,q+3,q+2); }
+  var bg=new THREE.BufferGeometry(); bg.setAttribute('position', new THREE.Float32BufferAttribute(v,3));
+  bg.setIndex(idx); bg.computeVertexNormals();
+  add(new THREE.Mesh(bg, M(0xdfdcd6,0.9)), 'stand', 0);
+  // 一、三壘側休息區（dugout，低矮方塊）
+  [1,-1].forEach(function(s){
+    var d=new THREE.Mesh(new THREE.BoxGeometry(1.6,1.5,7), M(0xdfdcd6,0.92));
+    d.position.set(s*(B45+11), 0.75, B45+11); d.rotation.y=s*Math.PI/4; G.add(d);
+  });
+})();
+
 // ⑨ 相機環繞控制
 var tgt=new THREE.Vector3(0,2,50), yaw=0, pitch=0.62, dist=430, AUTO=false;
 function updCam(){
