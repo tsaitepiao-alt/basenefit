@@ -42,6 +42,9 @@
   .nav a{display:flex;align-items:center;gap:10px;color:#d8d5cb;text-decoration:none;padding:9px 11px;border-radius:10px;font-size:14.5px}
   .nav a:hover{background:#2a2a26;color:#fff}
   .nav a.on{background:var(--lime);color:#1b1b19;font-weight:700}
+  .nav a.sub{padding-left:34px;font-size:13.5px;position:relative;opacity:.94}
+  .nav a.sub::before{content:"└";position:absolute;left:15px;color:#6f6f66;font-size:12px}
+  .nav a.sub .mi{font-size:13px}
   .side .foot{margin-top:auto;font-size:11.5px;color:#77776e;line-height:1.8}
   .side .foot strong{color:#d8d5cb;font-weight:600;display:block;letter-spacing:1.6px;font-size:11px}
 
@@ -225,6 +228,8 @@
     .nav a{font-size:17.5px;padding:15px 14px;border-radius:13px;gap:12px;white-space:nowrap;color:#fff;font-weight:600;letter-spacing:.2px;background:#26261f;border:1px solid rgba(255,255,255,.07);-webkit-font-smoothing:antialiased}
     .nav a .mi{font-size:19px;line-height:1}
     .nav a.on{background:var(--lime);border-color:var(--lime-dark);color:#141412;font-weight:800}
+    .nav a.sub{font-size:15.5px;padding:12px 14px 12px 34px;background:#1f1f1a}
+    .nav a.sub::before{left:16px;font-size:13px;color:#7c7c70}
     .menu-close{display:flex;position:absolute;top:16px;right:16px;width:44px;height:44px;align-items:center;justify-content:center;background:#3a3a33;color:#fff;border:none;border-radius:13px;font-size:17px;cursor:pointer}
     .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;opacity:0;pointer-events:none;transition:opacity .26s}
     .scrim.open{opacity:1;pointer-events:auto}
@@ -255,7 +260,7 @@
         <a href="#/plan"      data-page="plan"><span class="mi">🗓</span>訓練計畫</a>
         <a href="#/diagrams"  data-page="diagrams"><span class="mi">📐</span>圖解教室</a>
         <a href="#/field3d"   data-page="field3d"><span class="mi">⚾</span>3D 互動學習</a>
-        <a href="#/tactics"   data-page="tactics"><span class="mi">⚔</span>戰術小遊戲</a>
+        <a href="#/tactics"   data-page="tactics" class="sub"><span class="mi">⚔</span>戰術小遊戲</a>
         <a href="#/pitch"     data-page="pitch"><span class="mi">🎯</span>投球動作解析</a>
         <a href="#/hitting"   data-page="hitting"><span class="mi">🏏</span>打擊動作解析</a>
         <a href="#/analysis"  data-page="analysis"><span class="mi">🎬</span>動作解析</a>
@@ -410,12 +415,7 @@
           </div>
         </div>
 
-        <div class="grid2">
-          <div class="card">
-            <div class="hrow"><h2>你的每週節奏</h2><span class="pill" id="week-pill">每週 3 天</span></div>
-            <div class="week" id="home-week"></div>
-            <p class="req" style="margin-top:12px">標記為訓練日的日子會有動作清單；其他日子自由恢復。</p>
-          </div>
+        <div>
           <div class="card">
             <div class="hrow"><h2>本週數據</h2><button class="btn sm ghost" onclick="go('#/progress')">看詳細</button></div>
             <div class="grid3" style="gap:10px">
@@ -542,8 +542,9 @@
               <div id="cal-detail" style="margin-top:12px"></div>
             </div>
             <div class="card">
-              <h2 style="margin-bottom:10px">你的每週節奏</h2>
+              <div class="hrow"><h2>你的每週節奏</h2><span class="pill" id="week-pill">每週 3 天</span></div>
               <div class="week" id="plan-week"></div>
+              <p class="req" style="margin-top:12px">標記為訓練日的日子會有動作清單；其他日子自由恢復。</p>
               <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
                 <button class="btn ghost sm" onclick="toast('之後可在這裡調整計畫內容')">調整目前計畫</button>
                 <button class="btn ghost sm" onclick="toast('月程檢視之後再開')">查看月程</button>
@@ -796,6 +797,7 @@
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
             <button class="btn lime" onclick="document.getElementById('f3d').src='assets/baseball3d.html?embed=1&model=field&view=iso'">重新載入球場</button>
             <button class="btn ghost" onclick="window.open('assets/baseball3d.html','_blank')">全螢幕開啟（可切換全部模型）</button>
+            <button class="btn ghost" onclick="go('#/tactics')">⚔ 玩戰術小遊戲</button>
           </div>
           <p class="req" style="margin-top:8px">畫布左下切換模型（棒球場／棒球／球棒／手套→再選內野・外野・投手・捕手・一壘），右下切換視角（立體／俯視／正面／特寫），右上「規格」可展開尺寸表。</p>
         </div>
@@ -1248,7 +1250,7 @@ function render(){
   if (apif && document.activeElement !== apif) apif.value = S.api || "";
   const apiState = document.getElementById("api-state");
   if (apiState) apiState.textContent = S.api ? "已設定雲端網址 ✅" : "尚未設定，資料只存在這台裝置。";
-  document.getElementById("week-pill").textContent = "每週 3 天";
+  const _wp = document.getElementById("week-pill"); if (_wp) _wp.textContent = "每週 3 天";
   document.getElementById("home-list-count").textContent = `${S.today.filter(t=>!t.rest).length} 個動作 · 共 ${S.today.length} 項`;
   document.getElementById("coach-plan-title").textContent = `${S.me.name} · 訓練安排`;
 
@@ -1258,7 +1260,7 @@ function render(){
     const label = train ? FOCUS[[0,1,2][[0,2,4].indexOf(i)]].name : "自由恢復";
     return `<div class="d ${train?"done":"rest"}">週${d}<br><small>${label}</small></div>`;
   }).join("");
-  document.getElementById("home-week").innerHTML = wk;
+  const _hw = document.getElementById("home-week"); if (_hw) _hw.innerHTML = wk;
   document.getElementById("plan-week").innerHTML = wk;
 
   // 今日主題 chips
