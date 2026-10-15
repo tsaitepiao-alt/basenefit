@@ -58,7 +58,13 @@
  var WALL_TOP=8000;
  function trimTall(mesh,thr){
    var g=mesh.geometry,p=g.attributes.position; if(!p) return;
-   var a=p.array,keep=[];
+   var a=p.array;
+   if(!thr){                                     // 自動：取牆高的 55% 為門檻（不受單位影響）
+     var mn=1e9,mx=-1e9;
+     for(var q=1;q<a.length;q+=3){ if(a[q]<mn)mn=a[q]; if(a[q]>mx)mx=a[q]; }
+     thr=mn+(mx-mn)*0.55;
+   }
+   var keep=[];
    for(var i=0;i+8<a.length;i+=9){ if(Math.max(a[i+1],a[i+4],a[i+7])<=thr) keep.push(i); }
    if(keep.length*9===a.length) return;
    var out=new Float32Array(keep.length*9);
@@ -107,7 +113,7 @@
      if(nm==='Foul poles') poles=o;
    });
    for(var i=0;i<remove.length;i++) if(remove[i].parent) remove[i].parent.remove(remove[i]);
-   if(wall){ try{ trimTall(wall,WALL_TOP); }catch(e){} }
+   if(wall){ try{ trimTall(wall,null); }catch(e){} }
    // 先置中（依可見內容）
    var size=null,box=null,dirZ=1;
    try{

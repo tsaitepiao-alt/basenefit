@@ -68,7 +68,13 @@
  var WALL_TOP=8000;
  function trimTall(mesh,thr){
    var g=mesh.geometry,p=g.attributes.position; if(!p) return;
-   var a=p.array,keep=[];
+   var a=p.array;
+   if(!thr){                                     // 自動：取牆高的 55% 為門檻（不受單位影響）
+     var mn=1e9,mx=-1e9;
+     for(var q=1;q<a.length;q+=3){ if(a[q]<mn)mn=a[q]; if(a[q]>mx)mx=a[q]; }
+     thr=mn+(mx-mn)*0.55;
+   }
+   var keep=[];
    for(var i=0;i+8<a.length;i+=9){ if(Math.max(a[i+1],a[i+4],a[i+7])<=thr) keep.push(i); }
    if(keep.length*9===a.length) return;
    var out=new Float32Array(keep.length*9);
@@ -117,7 +123,7 @@
      if(nm==='Foul poles') poles=o;
    });
    for(var i=0;i<remove.length;i++) if(remove[i].parent) remove[i].parent.remove(remove[i]);
-   if(wall){ try{ trimTall(wall,WALL_TOP); }catch(e){} }
+   if(wall){ try{ trimTall(wall,null); }catch(e){} }
    // 先置中（依可見內容）
    var size=null,box=null,dirZ=1;
    try{
@@ -1629,7 +1635,8 @@ function buildField(){
     new THREE.GLTFLoader().load('baseball_stadium.glb', function(gl){
       const m0=gl.scene, S=1000;                    // 模型單位公尺 → 本頁公釐
       m0.scale.setScalar(S);
-      // 執行時方位：外野在 -Z（與本頁球場一致）→ 不需旋轉，只把本壘平移回原點
+      // 不旋轉（執行時外野已在 -Z）
+      // 模型本壘實測（投手板 z=-40m，本壘距投手板 18.44m → 本壘 z≈-21.6m）；轉向後為 +21.6m → 平移回原點
       m0.position.set(0, 1500, 21600);
       m0.traverse(o=>{ if(o.isMesh){ o.castShadow=false; o.frustumCulled=true; } });
       m0.name='codexField'; g.add(m0);
