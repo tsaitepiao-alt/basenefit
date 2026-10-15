@@ -61,7 +61,91 @@
 <div id="c2" class="panel">
  <button id="v1" class="on">立體</button><button id="v2">俯視</button><button id="v3">正面</button><button id="v5">特寫</button>
 </div>
-<script>/**
+<script>
+/* basenefit 球場後處理：移除細條／加大型計分板／置中。不影響任何既有數據與操作 */
+(function(){
+ function boot(){ if(!window.THREE){ setTimeout(boot,60); return; } try{
+ var WALL_TOP=8000;
+ function trimTall(mesh,thr){
+   var g=mesh.geometry,p=g.attributes.position; if(!p) return;
+   var a=p.array,keep=[];
+   for(var i=0;i+8<a.length;i+=9){ if(Math.max(a[i+1],a[i+4],a[i+7])<=thr) keep.push(i); }
+   if(keep.length*9===a.length) return;
+   var out=new Float32Array(keep.length*9);
+   for(var k=0;k<keep.length;k++){ var s=keep[k],d=k*9; for(var j=0;j<9;j++) out[d+j]=a[s+j]; }
+   var ng=new THREE.BufferGeometry();
+   ng.setAttribute('position',new THREE.BufferAttribute(out,3)); ng.computeVertexNormals();
+   mesh.geometry=ng;
+ }
+ function makeBoard(size){
+   var W=size.x*0.105, H=W*0.40, D=Math.max(W*0.05,size.x*0.006);
+   var cv=document.createElement('canvas'); cv.width=1024; cv.height=384;
+   var c=cv.getContext('2d');
+   c.fillStyle='#16301c'; c.fillRect(0,0,1024,384);
+   c.strokeStyle='#2f6b3c'; c.lineWidth=10; c.strokeRect(5,5,1014,374);
+   c.textAlign='center';
+   c.fillStyle='#8fd7a0'; c.font='bold 38px sans-serif';
+   c.fillText('325      368      400      368      325',512,72);
+   c.fillStyle='#cbf24c'; c.font='bold 110px sans-serif';
+   c.fillText('HOME 0',280,205); c.fillText('AWAY 0',744,205);
+   c.fillStyle='#8fd7a0'; c.font='bold 44px sans-serif';
+   c.fillText('1  2  3  4  5  6  7  8  9',512,292);
+   c.fillStyle='#7fa889'; c.font='bold 30px sans-serif';
+   c.fillText('壘間 27.43m ・ 中外野 121.92m(400ft) ・ 牆高 3m ・ 警戒區 4.6m',512,352);
+   var tex=new THREE.CanvasTexture(cv); tex.anisotropy=4;
+   var grp=new THREE.Group(); grp.name='scoreboard3d';
+   var dark=new THREE.MeshStandardMaterial({color:0x16301c,roughness:0.85,metalness:0.05});
+   var body=new THREE.Mesh(new THREE.BoxGeometry(W,H*0.96,D),dark);
+   body.position.y=H*0.55; grp.add(body);
+   var face=new THREE.Mesh(new THREE.PlaneGeometry(W*0.97,H*0.92),
+     new THREE.MeshStandardMaterial({map:tex,roughness:0.8}));
+   face.position.set(0,H*0.55,-D*0.52); face.rotation.y=Math.PI; grp.add(face);
+   var base=new THREE.Mesh(new THREE.BoxGeometry(W*1.16,H*0.34,D*2.6),
+     new THREE.MeshStandardMaterial({color:0xd6d3cd,roughness:0.95}));
+   base.position.y=H*0.17; grp.add(base);
+   return grp;
+ }
+ function patch(root){
+   if(!root) return;
+   var remove=[],wall=null;
+   root.traverse(function(o){
+     if(!o.isMesh) return;
+     var nm=(o.material&&o.material.name)||'';
+     if(nm==='Chalk and bases'||nm==='Bleacher seats'||nm==='Concrete plinth') remove.push(o);
+     if(nm==='Outfield wall') wall=o;
+   });
+   for(var i=0;i<remove.length;i++) if(remove[i].parent) remove[i].parent.remove(remove[i]);
+   if(wall){ try{ trimTall(wall,WALL_TOP); }catch(e){} }
+   // 先置中（依可見內容），再加計分板（避免計分板把重心拉歪）
+   var size=null,box=null;
+   try{
+     box=new THREE.Box3().setFromObject(root);
+     size=new THREE.Vector3(); box.getSize(size);
+     root.position.x-= (box.min.x+box.max.x)/2;
+     root.position.z-= (box.min.z+box.max.z)/2;
+   }catch(e){}
+   if(!root.getObjectByName('scoreboard3d') && size){
+     var b=makeBoard(size);
+     b.position.set(0, 0, size.z/2 - size.z*0.02);   // 中外野牆外緣
+     root.add(b);
+   }
+ }
+ window.__bfPatchModel=function(root){ try{ patch(root); }catch(e){} };
+ var orig=THREE.WebGLRenderer.prototype.render;
+ THREE.WebGLRenderer.prototype.render=function(scene,camera){
+   if(!this.__bfHooked){ this.__bfHooked=true;
+     try{
+       var roots=[];
+       scene.traverse(function(o){ if(o.parent===scene && !o.isLight && o!==camera) roots.push(o); });
+       patch(roots.length?roots[0]:scene);
+     }catch(e){}
+   }
+   return orig.apply(this,arguments);
+ };
+ }catch(e){ console.warn('basenefit field patch:',e); } }
+ boot();
+})();
+</script><script>/**
  * @license
  * Copyright 2010-2021 Three.js Authors
  * SPDX-License-Identifier: MIT
@@ -1537,11 +1621,12 @@ function buildField(){
     new THREE.GLTFLoader().load('baseball_stadium.glb', function(gl){
       const m0=gl.scene, S=1000;                    // 模型單位公尺 → 本頁公釐
       m0.scale.setScalar(S);
-      m0.rotation.y=Math.PI;                      // 模型外野朝 +Z、本頁朝 -Z → 轉 180°
-      // 模型本壘實測（投手板 z=-40m，本壘距投手板 18.44m → 本壘 z≈-21.6m）；轉向後為 +21.6m → 平移回原點
-      m0.position.set(0, 1500, -21600);
+      // 執行時方位：外野在 -Z（與本頁球場一致）→ 不需旋轉，只把本壘平移回原點
+      // GLB 原始座標：投手板 z=-40m、本壘 z≈-21.6m
+      m0.position.set(0, 1500, 21600);
       m0.traverse(o=>{ if(o.isMesh){ o.castShadow=false; o.frustumCulled=true; } });
       m0.name='codexField'; g.add(m0);
+      if(window.__bfPatchModel) try{ window.__bfPatchModel(m0); }catch(e){}
       const wrap=document.getElementById('t'); if(wrap) wrap.dataset.model='glb';
     }, undefined, function(){
       hide.forEach(o=>{ o.visible=true; });     // 載入失敗 → 還原舊球場，遊戲照常
