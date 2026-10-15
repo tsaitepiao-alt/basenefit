@@ -3,24 +3,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>basenefit｜棒球場 3D 模型（可旋轉）</title>
 <style>
- html,body{margin:0;height:100%;background:#0d1017;overflow:hidden;
+ html,body{margin:0;height:100%;background:#f2f1ed;overflow:hidden;color:#2b2f2a;
    font-family:-apple-system,"PingFang TC","Heiti TC",sans-serif;color:#e9eaee;-webkit-text-size-adjust:100%}
  canvas{display:block;width:100%;height:100%;touch-action:none}
- .panel{position:fixed;background:rgba(20,24,32,.93);border:1px solid #2f3846;border-radius:12px}
+ .panel{position:fixed;background:rgba(255,255,255,.92);border:1px solid #dcd9d3;border-radius:12px;color:#2b2f2a;box-shadow:0 4px 18px rgba(60,60,50,.10)}
  #t{top:12px;left:12px;padding:11px 15px;font-size:13px;line-height:1.6;max-width:44vw}
  #t b{font-size:15.5px}
  #spec{top:12px;right:12px;padding:11px 15px;font-size:12.5px;line-height:1.75;max-width:32vw;max-height:72vh;overflow:auto}
- #spec h4{margin:0 0 6px;font-size:13.5px;color:#ffcf9a;cursor:pointer}
- #spec i{color:#8fd7ff;font-style:normal}
- button{background:#232937;color:#e9eaee;border:1px solid #39404f;border-radius:9px;padding:9px 13px;
+ #spec h4{margin:0 0 6px;font-size:13.5px;color:#8a6f3f;cursor:pointer}
+ #spec i{color:#4a7ea8;font-style:normal}
+ button{background:#ffffff;color:#3a4038;border:1px solid #d8d5cf;border-radius:9px;padding:9px 13px;
    font-size:13px;cursor:pointer;font-family:inherit}
- button.on{background:#2f6fd6;border-color:#2f6fd6;color:#fff}
+ button.on{background:#6d8a68;border-color:#6d8a68;color:#fff}
  #c2{bottom:12px;right:12px;padding:8px 11px;display:flex;gap:6px;flex-wrap:wrap}
  #finfo{bottom:12px;left:12px;padding:12px 15px;font-size:12.8px;line-height:1.7;max-width:340px;display:none}
- #finfo h4{margin:0 0 7px;font-size:14.5px;color:#cbf24c}
- #finfo b{color:#8fd7ff;font-weight:600}
- #hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);font-size:12.5px;color:#b9c2d0;
-   background:rgba(20,24,32,.8);padding:5px 12px;border-radius:8px;pointer-events:none}
+ #finfo h4{margin:0 0 7px;font-size:14.5px;color:#5c7a55}
+ #finfo b{color:#4a7ea8;font-weight:600}
+ #hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);font-size:12.5px;color:#4a5262;
+   background:rgba(255,255,255,.85);padding:5px 12px;border-radius:8px;pointer-events:none}
  #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;line-height:1.8;font-size:15px}
  @media(max-width:760px){
    #t,#spec{display:none}
@@ -31,7 +31,7 @@
  }
 </style></head><body>
 <canvas id="cv"></canvas>
-<div id="t" class="panel"><b>棒球場 3D 模型</b><br><span style="color:#9aa2b1">拖曳環繞・雙指縮放・點選場地看規格</span></div>
+<div id="t" class="panel"><b>棒球場 3D 模型</b><br><span style="color:#6b7268">拖曳環繞・雙指縮放・點選場地看規格</span></div>
 <div id="spec" class="panel"><h4 id="sh">球場規格（MLB） ▾</h4><div id="sb"></div></div>
 <div id="finfo" class="panel"></div>
 <div id="c2" class="panel">
@@ -60,16 +60,16 @@ renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFShadowMap;   // 輕量陰影
 
 scene=new THREE.Scene();
-scene.background=new THREE.Color(0x0d1017);
-scene.fog=new THREE.Fog(0x0d1017, 420, 900);
+scene.background=new THREE.Color(0xf2f1ed);
+scene.fog=new THREE.Fog(0xf2f1ed, 620, 1400);
 camera=new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 1, 3000);
 
-scene.add(new THREE.HemisphereLight(0xdfeaff, 0x2b3340, 0.55));
-var key=new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(-90,140,-40); key.castShadow=true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d4cc, 0.92));
+var key=new THREE.DirectionalLight(0xfff6e8, 0.62); key.position.set(-90,140,-40); key.castShadow=true;
 key.shadow.mapSize.set(1024,1024);
 var sc=key.shadow.camera; sc.left=-190; sc.right=190; sc.top=190; sc.bottom=-190; sc.near=40; sc.far=460;
 scene.add(key);
-scene.add(new THREE.DirectionalLight(0x9fc4ff, 0.22).translateX(160).translateY(60).translateZ(120));
+scene.add(new THREE.DirectionalLight(0xe8eef5, 0.18).translateX(160).translateY(60).translateZ(120));
 
 var M=function(c,r,m){ return new THREE.MeshStandardMaterial({color:c, roughness:r===undefined?0.9:r, metalness:m||0.02}); };
 var G=new THREE.Group(); scene.add(G);
@@ -83,7 +83,7 @@ for(var k=0;k<N;k++){
   for(var j=0;j<=10;j++){ var t=k/N+(1/N)*j/10, a=wallAng(t), r=wallR(t); shp.lineTo(Math.sin(a)*r, Math.cos(a)*r); }
   shp.lineTo(0,0);
   var g=new THREE.ShapeGeometry(shp);
-  var m=new THREE.Mesh(g, M(k%2?0x3f7d28:0x2d5c1c,0.95)); m.rotation.x=-Math.PI/2;
+  var m=new THREE.Mesh(g, M(k%2?0x7d9a76:0x6d8a68,0.98)); m.rotation.x=-Math.PI/2;
   add(m, 'outfield', 0.02);
 }
 // ② 內野沙土
@@ -92,7 +92,12 @@ for(var k=0;k<N;k++){
   for(var i=0;i<=40;i++){ var a=-Math.PI/4+Math.PI/2*i/40; s.lineTo(Math.sin(a)*ARC, MOUND+Math.cos(a)*ARC); }
   s.lineTo(-B45,B45); s.lineTo(0,0);
   var m=new THREE.Mesh(new THREE.ShapeGeometry(s), M(0xa98c66,0.96)); m.rotation.x=-Math.PI/2; add(m,'infield',0.06);
-  var circ=new THREE.Mesh(new THREE.CircleGeometry(3.6,40), M(0xcdb391,0.96)); circ.rotation.x=-Math.PI/2; add(circ,'infield',0.07);
+  var circ=new THREE.Mesh(new THREE.CircleGeometry(3.6,40), M(0xc9b596,0.98)); circ.rotation.x=-Math.PI/2; add(circ,'infield',0.07);
+  // 內野草皮（參考圖風格：沙土壘線圈內是草地）
+  var gi=new THREE.Shape(); gi.moveTo(0,0); gi.lineTo(B45-4.6,B45-4.6);
+  for(var i2=0;i2<=40;i2++){ var a3=-Math.PI/4+Math.PI/2*i2/40; gi.lineTo(Math.sin(a3)*(ARC-4.6), MOUND+Math.cos(a3)*(ARC-4.6)); }
+  gi.lineTo(-(B45-4.6),B45-4.6); gi.lineTo(0,0);
+  var gm=new THREE.Mesh(new THREE.ShapeGeometry(gi), M(0x7d9a76,0.98)); gm.rotation.x=-Math.PI/2; add(gm,'infield',0.075);
 })();
 // ③ 警戒區（沿牆 4.6m）
 (function(){
@@ -100,7 +105,7 @@ for(var k=0;k<N;k++){
   for(var i=1;i<=60;i++){ var pi=wallPt(i/60); s.lineTo(pi[0],pi[1]); }
   for(var j=60;j>=0;j--){ var t=j/60, a=wallAng(t), r=wallR(t)-TRACK; s.lineTo(Math.sin(a)*r, Math.cos(a)*r); }
   s.lineTo(p0[0],p0[1]);
-  var m=new THREE.Mesh(new THREE.ShapeGeometry(s), M(0xc09263,0.95)); m.rotation.x=-Math.PI/2; add(m,'track',0.04);
+  var m=new THREE.Mesh(new THREE.ShapeGeometry(s), M(0xc4b195,0.98)); m.rotation.x=-Math.PI/2; add(m,'track',0.04);
 })();
 function wallPt(t){ var a=wallAng(t), r=wallR(t); return [Math.sin(a)*r, Math.cos(a)*r]; }
 // ④ 全壘打牆（有高度：沿弧線的帶狀立體）
@@ -111,13 +116,13 @@ function wallPt(t){ var a=wallAng(t), r=wallR(t); return [Math.sin(a)*r, Math.co
   for(var j=0;j<seg;j++){ var a=j*2; idx.push(a,a+1,a+2, a+1,a+3,a+2); }
   var g=new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(v,3)); g.setIndex(idx); g.computeVertexNormals();
-  add(new THREE.Mesh(g, M(0x1f5a24,0.85)), 'wall', 0);
+  add(new THREE.Mesh(g, M(0x8a9c84,0.92)), 'wall', 0);
   // 牆頂黃線
   var v2=[], i2=[];
   for(var i3=0;i3<=seg;i3++){ var t3=i3/seg, p3=wallPt(t3); v2.push(p3[0],WALL_H+0.12,p3[1], p3[0],WALL_H+0.42,p3[1]); }
   for(var j3=0;j3<seg;j3++){ var b=j3*2; i2.push(b,b+1,b+2, b+1,b+3,b+2); }
   var g2=new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(v2,3)); g2.setIndex(i2); g2.computeVertexNormals();
-  add(new THREE.Mesh(g2, M(0xe8c33a,0.6)), null, 0);
+  add(new THREE.Mesh(g2, M(0xefe6c9,0.7)), null, 0);
 })();
 // ⑤ 場外綠地 + 看台（立體階層，沿球場外形外推）
 function belt(extra){ var e=extra||0, back=BELT+e, o=[];
@@ -130,7 +135,7 @@ function beltShape(extra){ var b=belt(extra), s=new THREE.Shape(); s.moveTo(b[0]
 (function(){
   // 場外綠地：用圓盤（保證不出錯），看台另用扇形四邊形疊出階梯
   var maxR=0; var b0=belt(15); for(var q=0;q<b0.length;q++){ var d=Math.sqrt(b0[q][0]*b0[q][0]+b0[q][1]*b0[q][1]); if(d>maxR) maxR=d; }
-  var disc=new THREE.Mesh(new THREE.CircleGeometry(maxR+2, 96), M(0x356b1e,0.96));
+  var disc=new THREE.Mesh(new THREE.CircleGeometry(maxR+2, 96), M(0x93a888,0.98));
   disc.rotation.x=-Math.PI/2; G.add(disc); disc.position.y=-0.05; disc.receiveShadow=true;
   // 看台：5 層，每層用 48 片四邊形疊成環帶（不靠三角化，最穩）
   var SEG=48;
@@ -146,7 +151,7 @@ function beltShape(extra){ var b=belt(extra), s=new THREE.Shape(); s.moveTo(b[0]
     }
     var g2=new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(v,3));
     g2.setIndex(idx); g2.computeVertexNormals();
-    var mm=new THREE.Mesh(g2, M(i%2?0x7e7e84:0x96969c,0.92));
+    var mm=new THREE.Mesh(g2, M(i%2?0xe7e5e0:0xdcd9d3,0.95));
     mm.position.y=0.5+i*2.1; mm.receiveShadow=true; mm.castShadow=true; G.add(mm);
   }
 })();
@@ -157,11 +162,11 @@ function beltShape(extra){ var b=belt(extra), s=new THREE.Shape(); s.moveTo(b[0]
   c2.fillStyle='#8cb68e';
   for(var ix=0;ix<8;ix++) for(var iy=0;iy<3;iy++) c2.fillRect(24+ix*60, 40+iy*48, 46, 30);
   var tex=new THREE.CanvasTexture(cv2); tex.encoding=THREE.sRGBEncoding;
-  var body=new THREE.Mesh(new THREE.BoxGeometry(42,15,2.4), M(0x1f5a24,0.85));
+  var body=new THREE.Mesh(new THREE.BoxGeometry(42,15,2.4), M(0x8a9c84,0.92));
   var face=new THREE.Mesh(new THREE.PlaneGeometry(40,13.5), new THREE.MeshStandardMaterial({map:tex, roughness:0.9}));
   face.position.set(0,0.6,-1.25); body.add(face);
   body.position.set(0, 7.5+5, WCF+26); G.add(body);
-  var base=new THREE.Mesh(new THREE.BoxGeometry(46,7.5,3.4), M(0x4a4a50,0.9));
+  var base=new THREE.Mesh(new THREE.BoxGeometry(46,7.5,3.4), M(0xd6d3cd,0.95));
   base.position.set(0, 3.75, WCF+26); G.add(base);
 })();
 // ⑦ 壘包／本壘板／投手丘／投手板
@@ -175,18 +180,18 @@ function beltShape(extra){ var b=belt(extra), s=new THREE.Shape(); s.moveTo(b[0]
   hp.moveTo(-pw/2,0); hp.lineTo(pw/2,0); hp.lineTo(pw/2,pd*0.55); hp.lineTo(0,pd); hp.lineTo(-pw/2,pd*0.55); hp.closePath();
   var hpm=new THREE.Mesh(new THREE.ExtrudeGeometry(hp,{depth:0.05,bevelEnabled:false}), M(0xffffff,0.55));
   hpm.rotation.x=-Math.PI/2; hpm.position.y=0.08; add(hpm,'plate',0);
-  var mound=new THREE.Mesh(new THREE.CylinderGeometry(MR,MR*1.04,0.254,48), M(0xd9bd97,0.95));
+  var mound=new THREE.Mesh(new THREE.CylinderGeometry(MR,MR*1.04,0.254,48), M(0xd2c1a5,0.98));
   mound.position.set(0,0.127,MOUND); add(mound,'mound',0);
   var rub=new THREE.Mesh(new THREE.BoxGeometry(0.61,0.02,0.152), M(0xffffff,0.5));
   rub.position.set(0,0.27,MOUND+0.2); add(rub,'rubber',0);
 })();
 // ⑧ 界外桿（黃）
 [0,1].forEach(function(t){ var p=wallPt(t);
-  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.28,9,10), M(0xffd600,0.55));
+  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.28,9,10), M(0xe8c33a,0.7));
   pole.position.set(p[0]*1.04, 4.5, p[1]*1.04); add(pole,'foul',0); });
 
 // ⑨ 相機環繞控制
-var tgt=new THREE.Vector3(0,2,50), yaw=0, pitch=0.30, dist=205, AUTO=false;
+var tgt=new THREE.Vector3(0,2,50), yaw=0, pitch=0.60, dist=230, AUTO=false;
 function updCam(){
   camera.position.set(tgt.x+dist*Math.cos(pitch)*Math.sin(yaw), tgt.y+dist*Math.sin(pitch), tgt.z-dist*Math.cos(pitch)*Math.cos(yaw));
   camera.lookAt(tgt);
@@ -226,7 +231,7 @@ function showInfo(k){ var d=INFO[k]; if(!d) return; var a=d.split('|');
 document.getElementById('sb').innerHTML=ROWS.map(function(r){ return '<div>'+r[0]+'：<i>'+r[1]+'</i></div>'; }).join('');
 document.getElementById('sh').onclick=function(){ var sb=document.getElementById('sb');
   var hide=sb.style.display!=='none'; sb.style.display=hide?'none':''; this.textContent='球場規格（MLB） '+(hide?'▸':'▾'); };
-document.getElementById('v1').onclick=function(){ pitch=0.30; yaw=0; dist=205; tgt.set(0,2,50); updCam(); this.classList.add('on'); document.getElementById('v2').classList.remove('on'); };
+document.getElementById('v1').onclick=function(){ pitch=0.60; yaw=0; dist=230; tgt.set(0,2,50); updCam(); this.classList.add('on'); document.getElementById('v2').classList.remove('on'); };
 document.getElementById('v2').onclick=function(){ pitch=1.32; dist=300; tgt.set(0,0,50); updCam(); this.classList.add('on'); document.getElementById('v1').classList.remove('on'); };
 document.getElementById('v3').onclick=function(){ AUTO=!AUTO; this.classList.toggle('on',AUTO); };
 document.getElementById('v4').onclick=function(){ yaw=0; pitch=0.30; dist=205; tgt.set(0,2,50); updCam();
