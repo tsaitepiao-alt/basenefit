@@ -67,8 +67,9 @@
    ng.setAttribute('position',new THREE.BufferAttribute(out,3)); ng.computeVertexNormals();
    mesh.geometry=ng;
  }
- function makeBoard(size){
+ function makeBoard(size,dirZ){
    var W=size.x*0.105, H=W*0.40, D=Math.max(W*0.05,size.x*0.006);
+   var fside = (dirZ>0)? -1 : 1;            // 面板要朝場內
    var cv=document.createElement('canvas'); cv.width=1024; cv.height=384;
    var c=cv.getContext('2d');
    c.fillStyle='#16301c'; c.fillRect(0,0,1024,384);
@@ -89,7 +90,7 @@
    body.position.y=H*0.55; grp.add(body);
    var face=new THREE.Mesh(new THREE.PlaneGeometry(W*0.97,H*0.92),
      new THREE.MeshStandardMaterial({map:tex,roughness:0.8}));
-   face.position.set(0,H*0.55,-D*0.52); face.rotation.y=Math.PI; grp.add(face);
+   face.position.set(0,H*0.55,fside*D*0.52); face.rotation.y = (dirZ>0)? Math.PI : 0; grp.add(face);
    var base=new THREE.Mesh(new THREE.BoxGeometry(W*1.16,H*0.34,D*2.6),
      new THREE.MeshStandardMaterial({color:0xd6d3cd,roughness:0.95}));
    base.position.y=H*0.17; grp.add(base);
@@ -121,10 +122,9 @@
      }
    }catch(e){}
    if(!root.getObjectByName('scoreboard3d') && size){
-     var b=makeBoard(size);
+     var b=makeBoard(size,dirZ);
      var off = dirZ>0 ? (size.z/2 - size.z*0.02) : (-size.z/2 + size.z*0.02);
      b.position.set(0, 0, off);
-     b.rotation.y = dirZ>0 ? 0 : Math.PI;           // 面板永遠朝場內
      root.add(b);
    }
  }
