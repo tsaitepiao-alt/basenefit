@@ -37,7 +37,12 @@
    #c{bottom:60px} #c button{padding:9px 10px;font-size:12px}
    #c2 button{padding:9px 4px;font-size:12px}
  }
-</style></head><body>
+</style>  <style>
+  /* 游標換成一顆棒球（桌機；手機為觸控無游標） */
+  canvas{cursor:url('ball-cursor.png') 18 18, url('ball-cursor-18.png') 9 9, grab !important}
+  canvas:active{cursor:url('ball-cursor.png') 18 18, url('ball-cursor-18.png') 9 9, grabbing !important}
+  </style>
+</head><body>
 <canvas id="cv"></canvas>
 <div id="t" class="panel"><b>棒球 3D 互動學習</b><br>
  <span id="ttl">標準棒球場</span><br>
