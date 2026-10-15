@@ -368,13 +368,14 @@
         <div class="eyebrow">PERSONAL GROWTH</div>
         <h1>今天，也往目標靠近一點。</h1>
         <p class="lead">每天都有一點進度就好。這裡看你這週的安排、今天的動作，還有你累積的成果。</p>
-                                                        <!-- ========== 本壘板木框＋框內旋轉壘球＋兩側打擊區（純 CSS/SVG，無外部依賴）========== -->
+                                                                <!-- ========== 本壘板木框＋框內旋轉壘球＋兩側打擊區（純 CSS/SVG，無外部依賴）========== -->
         <style>
         .hero-anim{position:relative;display:flex;flex-direction:column;align-items:center;
           max-width:340px;margin:10px auto 14px;padding:4px 0 0;border-radius:18px;
           background:radial-gradient(110% 90% at 50% 16%,#f5f9ec 0%,#eef3e2 54%,rgba(238,243,226,0) 100%)}
         .hero-anim .bb-stage{position:relative;width:100%;max-width:316px;aspect-ratio:420/200}
         .hero-anim svg.bb-scene{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
+        /* 球＝使用者自己的素材 assets/bb-ball.webp（不要換成自畫的 SVG 球；他會說「用上一版的球」）*/
         .hero-anim .bb-ball{position:absolute;left:50%;top:43%;width:22.4%;height:auto;aspect-ratio:1;overflow:visible;
           transform:translate(-50%,-50%);animation:bbBob 3.6s ease-in-out infinite;z-index:2;
           filter:drop-shadow(0 0 9px rgba(255,224,120,.85)) drop-shadow(0 0 22px rgba(255,178,50,.65))
@@ -388,7 +389,7 @@
           border-radius:50%;z-index:3;pointer-events:none;opacity:0;
           background:radial-gradient(circle,#fff8d2 0%,var(--c,#ffcf4a) 55%,rgba(255,120,20,0) 100%);
           animation:bbEmber 2.8s linear infinite;animation-delay:var(--d,0s)}
-        .hero-anim .bb-ball .bb-seams{animation:bbSpin 2.4s linear infinite}
+        .hero-anim .bb-ball .bb-seams{animation:bbSpin 3s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
         .hero-anim .bb-cap{margin-top:6px;font-size:11.5px;letter-spacing:.16em;color:#6f7d55;
           text-transform:uppercase;font-weight:700}
         /* basenefit 英文字動畫：一個字一個字跑出來（逐字彈升）+ 光暈週期掃過 */
@@ -415,7 +416,7 @@
           62%{opacity:1;transform:translateY(-4px) scale(1.07)}
           100%{opacity:1;transform:translateY(0) scale(1)}}
         @keyframes bbShine{0%{left:-40%}52%,100%{left:114%}}
-        @keyframes bbSpin{from{transform:translateX(0)}to{transform:translateX(-94px)}}
+        @keyframes bbSpin{0%{transform:rotate(-22deg)}50%{transform:rotate(22deg)}100%{transform:rotate(-22deg)}}
         @keyframes bbBob{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - 5px))}}
         @keyframes bbHalo{0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(.94)}
           50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
@@ -469,17 +470,17 @@
             </svg>
             <svg class="bb-ball" viewBox="0 0 94 94" aria-hidden="true">
               <defs>
-                <radialGradient id="bbSoft" cx="35%" cy="27%" r="80%">
-                  <stop offset="0%" stop-color="#fffbd4"/><stop offset="42%" stop-color="#ffe45c"/>
-                  <stop offset="84%" stop-color="#eec200"/><stop offset="100%" stop-color="#c29700"/>
-                </radialGradient>
                 <clipPath id="bbBallClip"><circle cx="47" cy="47" r="47"/></clipPath>
+                <radialGradient id="bbShade" cx="38%" cy="30%" r="78%">
+                  <stop offset="0%" stop-color="#fff" stop-opacity=".28"/>
+                  <stop offset="55%" stop-color="#fff" stop-opacity="0"/>
+                  <stop offset="100%" stop-color="#000" stop-opacity=".30"/>
+                </radialGradient>
               </defs>
-              <circle cx="47" cy="47" r="47" fill="url(#bbSoft)"/>
-              <g clip-path="url(#bbBallClip)" opacity=".92"><g class="bb-seams"><g transform="translate(0,0)"><path d="M0,47C24,6 70,6 94,47M0,47C24,88 70,88 94,47" fill="none" stroke="#c23b2a" stroke-width="2.2" stroke-linecap="round" opacity=".85"/><path d="M0.0,40.3L5.8,44.2M6.5,32.0L11.7,36.7M13.7,25.2L18.1,30.6M21.5,19.8L25.0,25.9M29.7,15.9L32.2,22.5M38.3,13.6L39.5,20.5M47.0,12.8L47.0,19.8M55.7,13.6L54.5,20.5M64.3,15.9L61.8,22.5M72.5,19.8L69.0,25.9M80.3,25.2L75.9,30.6M87.5,32.0L82.3,36.7M94.0,40.3L88.2,44.2M5.8,49.8L0.0,53.7M11.7,57.3L6.5,62.0M18.1,63.4L13.7,68.8M25.0,68.1L21.5,74.2M32.2,71.5L29.7,78.1M39.5,73.5L38.3,80.4M47.0,74.2L47.0,81.2M54.5,73.5L55.7,80.4M61.8,71.5L64.3,78.1M69.0,68.1L72.5,74.2M75.9,63.4L80.3,68.8M82.3,57.3L87.5,62.0M88.2,49.8L94.0,53.7" fill="none" stroke="#ad2718" stroke-width="2.1" stroke-linecap="round"/></g><g transform="translate(94.0,0)"><path d="M0,47C24,6 70,6 94,47M0,47C24,88 70,88 94,47" fill="none" stroke="#c23b2a" stroke-width="2.2" stroke-linecap="round" opacity=".85"/><path d="M0.0,40.3L5.8,44.2M6.5,32.0L11.7,36.7M13.7,25.2L18.1,30.6M21.5,19.8L25.0,25.9M29.7,15.9L32.2,22.5M38.3,13.6L39.5,20.5M47.0,12.8L47.0,19.8M55.7,13.6L54.5,20.5M64.3,15.9L61.8,22.5M72.5,19.8L69.0,25.9M80.3,25.2L75.9,30.6M87.5,32.0L82.3,36.7M94.0,40.3L88.2,44.2M5.8,49.8L0.0,53.7M11.7,57.3L6.5,62.0M18.1,63.4L13.7,68.8M25.0,68.1L21.5,74.2M32.2,71.5L29.7,78.1M39.5,73.5L38.3,80.4M47.0,74.2L47.0,81.2M54.5,73.5L55.7,80.4M61.8,71.5L64.3,78.1M69.0,68.1L72.5,74.2M75.9,63.4L80.3,68.8M82.3,57.3L87.5,62.0M88.2,49.8L94.0,53.7" fill="none" stroke="#ad2718" stroke-width="2.1" stroke-linecap="round"/></g></g></g>
-              <ellipse cx="30" cy="25" rx="14" ry="8"
-                       fill="#ffffff" opacity=".5" transform="rotate(-24 30 25)"/>
-              <circle cx="47" cy="47" r="46" fill="none" stroke="#a8850a" stroke-width="1.6" opacity=".5"/>
+              <g class="bb-seams">
+                <image href="assets/bb-ball.webp" x="0" y="0" width="94" height="94" clip-path="url(#bbBallClip)" preserveAspectRatio="xMidYMid slice"/>
+              </g>
+              <circle cx="47" cy="47" r="47" fill="url(#bbShade)" clip-path="url(#bbBallClip)"/>
             </svg>
             <i class="bb-ember" style="--s:7px;--c:#ffd35c;--d:0s;--x0:-30px;--x1:-40px" aria-hidden="true"></i>
             <i class="bb-ember" style="--s:5px;--c:#ffe98a;--d:.35s;--x0:-24px;--x1:-16px" aria-hidden="true"></i>
