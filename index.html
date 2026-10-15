@@ -45,15 +45,37 @@
   .navfold{display:flex;flex-direction:column}
   .navrow{display:flex;align-items:center;gap:2px}
   .navrow>a{flex:1;min-width:0}
-  .foldbtn{background:none;border:0;color:#8d8d82;cursor:pointer;padding:7px 9px;border-radius:8px;font-size:12px;line-height:1;transition:transform .2s ease,color .2s}
-  .foldbtn:hover{background:#2a2a26;color:#fff}
-  .foldbtn[aria-expanded="true"]{transform:rotate(90deg);color:var(--lime)}
+  /* --- 折疊鈕：明顯的科技感樣式 --- */
+  .foldbtn,.grpbtn{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    background:linear-gradient(180deg,#28281f,#1b1b16);
+    border:1.5px solid rgba(203,242,76,.55);
+    color:var(--lime);cursor:pointer;
+    border-radius:999px;
+    box-shadow:inset 0 0 0 1px rgba(203,242,76,.10), 0 0 14px rgba(203,242,76,.28);
+    transition:box-shadow .2s ease,background .2s ease,color .2s ease,border-color .2s ease;
+  }
+  .foldbtn{width:34px;height:34px;flex:0 0 34px;display:flex;align-items:center;justify-content:center;
+    border-radius:50%;padding:0;font-size:15px;font-weight:800;line-height:1;color:#141412;
+    background:linear-gradient(180deg,#d9f764,#b3da2f);
+    border:1.5px solid var(--lime);
+    box-shadow:0 0 15px rgba(203,242,76,.55), 0 0 0 3px rgba(203,242,76,.12), inset 0 -2px 0 rgba(0,0,0,.15)}
+  .foldbtn .chev,.grpbtn .chev{display:inline-block;transition:transform .22s ease}
+  .foldbtn:hover,.grpbtn:hover{box-shadow:inset 0 0 0 1px rgba(203,242,76,.12), 0 0 16px rgba(203,242,76,.45);border-color:rgba(203,242,76,.62)}
+  .foldbtn:hover{box-shadow:0 0 22px rgba(203,242,76,.8), 0 0 0 4px rgba(203,242,76,.2), inset 0 -2px 0 rgba(0,0,0,.15)}
+  .foldbtn[aria-expanded="true"],.grpbtn[aria-expanded="true"]{background:linear-gradient(180deg,var(--lime),#b6dd33);color:#141412;border-color:var(--lime);box-shadow:0 0 18px rgba(203,242,76,.55)}
+  .foldbtn[aria-expanded="true"]{background:linear-gradient(180deg,#fffef2,#e7ff9b);box-shadow:0 0 24px rgba(203,242,76,.9), 0 0 0 4px rgba(203,242,76,.26), inset 0 -2px 0 rgba(0,0,0,.12)}
+  .foldbtn[aria-expanded="true"] .chev,.grpbtn[aria-expanded="true"] .chev{transform:rotate(90deg)}
+  /* 學員專區那一列：整條都是按鈕 */
+  .grpbtn{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:9px 11px;font-size:11.5px;font-weight:700;letter-spacing:1.6px}
+  .grp-ico{font-size:13px;font-family:inherit}
+  .grp-txt{display:flex;flex-direction:column;gap:1px;flex:1}
+  .grp-txt em{font-style:normal;font-size:8.5px;letter-spacing:2.2px;opacity:.55;font-weight:600}
   .navsub{display:none;flex-direction:column;gap:2px;margin:2px 0 4px}
   .navfold.open .navsub{display:flex}
   .nav a.sub{padding-left:36px;font-size:13.5px;position:relative;opacity:.95}
-  .nav a.sub::before{content:"";position:absolute;left:20px;top:50%;width:7px;height:1px;background:#6f6f66}
+  .nav a.sub::before{content:"";position:absolute;left:20px;top:50%;width:7px;height:1px;background:rgba(203,242,76,.45)}
   .nav a.sub .mi{font-size:13px}
-  .navgrp{font-size:11px;letter-spacing:1.8px;color:#7f7f73;font-weight:700;padding:16px 12px 6px}
   .side .foot{margin-top:auto;font-size:11.5px;color:#77776e;line-height:1.8}
   .side .foot strong{color:#d8d5cb;font-weight:600;display:block;letter-spacing:1.6px;font-size:11px}
 
@@ -237,10 +259,11 @@
     .nav a{font-size:17.5px;padding:15px 14px;border-radius:13px;gap:12px;white-space:nowrap;color:#fff;font-weight:600;letter-spacing:.2px;background:#26261f;border:1px solid rgba(255,255,255,.07);-webkit-font-smoothing:antialiased}
     .nav a .mi{font-size:19px;line-height:1}
     .nav a.on{background:var(--lime);border-color:var(--lime-dark);color:#141412;font-weight:800}
-    .foldbtn{font-size:15px;padding:11px 13px;color:#a3a396}
+    .foldbtn{width:40px;height:40px;flex:0 0 40px;font-size:17px}
+    .grpbtn{font-size:13px;padding:14px 14px;letter-spacing:1.8px}
+    .grp-txt em{font-size:10px;letter-spacing:2.4px}
     .nav a.sub{font-size:15.5px;padding:12px 14px 12px 40px;background:#1f1f1a}
-    .nav a.sub::before{left:24px;width:9px;background:#6f6f66}
-    .navgrp{font-size:12px;padding:16px 14px 6px;color:#8b8b7e}
+    .nav a.sub::before{left:24px;width:9px;background:rgba(203,242,76,.5)}
     .menu-close{display:flex;position:absolute;top:16px;right:16px;width:44px;height:44px;align-items:center;justify-content:center;background:#3a3a33;color:#fff;border:none;border-radius:13px;font-size:17px;cursor:pointer}
     .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;opacity:0;pointer-events:none;transition:opacity .26s}
     .scrim.open{opacity:1;pointer-events:auto}
@@ -272,7 +295,7 @@
         <div class="navfold" data-fold="3d">
           <div class="navrow">
             <a href="#/field3d" data-page="field3d"><span class="mi">⚾</span>3D 互動學習</a>
-            <button class="foldbtn" onclick="toggleFold(this)" aria-expanded="false" aria-label="展開或收合 3D 互動學習 的子項目">▸</button>
+            <button class="foldbtn" onclick="toggleFold(this)" aria-expanded="false" aria-label="展開或收合 3D 互動學習 的子項目"><span class="chev">▸</span></button>
           </div>
           <div class="navsub">
             <a href="#/tactics" data-page="tactics" class="sub"><span class="mi">⚔</span>戰術小遊戲</a>
@@ -282,7 +305,7 @@
         <div class="navfold" data-fold="analysis">
           <div class="navrow">
             <a href="#/analysis" data-page="analysis"><span class="mi">🎬</span>動作解析</a>
-            <button class="foldbtn" onclick="toggleFold(this)" aria-expanded="false" aria-label="展開或收合 動作解析 的子項目">▸</button>
+            <button class="foldbtn" onclick="toggleFold(this)" aria-expanded="false" aria-label="展開或收合 動作解析 的子項目"><span class="chev">▸</span></button>
           </div>
           <div class="navsub">
             <a href="#/pitch"     data-page="pitch" class="sub"><span class="mi">🎯</span>投球動作解析</a>
@@ -290,11 +313,21 @@
           </div>
         </div>
 
-        <div class="navgrp">學員專區</div>
-        <a href="#/assessment" data-page="assessment"><span class="mi">📋</span>能力評估</a>
-        <a href="#/plan"      data-page="plan"><span class="mi">🗓</span>訓練計畫</a>
-        <a href="#/quiz"      data-page="quiz"><span class="mi">🎯</span>棒球小考</a>
-        <a href="#/progress"  data-page="progress"><span class="mi">📈</span>進步追蹤</a>
+        <div class="navfold" data-fold="student">
+          <div class="navrow">
+            <button class="grpbtn" onclick="toggleFold(this)" aria-expanded="false" aria-label="展開或收合 學員專區">
+              <span class="grp-ico">🎓</span>
+              <span class="grp-txt">學員專區<em>STUDENT ZONE</em></span>
+              <span class="chev">▸</span>
+            </button>
+          </div>
+          <div class="navsub">
+            <a href="#/assessment" data-page="assessment" class="sub"><span class="mi">📋</span>能力評估</a>
+            <a href="#/plan"      data-page="plan" class="sub"><span class="mi">🗓</span>訓練計畫</a>
+            <a href="#/quiz"      data-page="quiz" class="sub"><span class="mi">🎯</span>棒球小考</a>
+            <a href="#/progress"  data-page="progress" class="sub"><span class="mi">📈</span>進步追蹤</a>
+          </div>
+        </div>
 
         <a href="#/coach"     data-page="coach"><span class="mi">🧢</span>教練工作區</a>
         <a href="#/install"   data-page="install"><span class="mi">☁️</span>雲端安裝</a>
