@@ -85,6 +85,13 @@
   .nav a.sub .nt em{font-size:8.5px}
   .nav a.sub::before{content:"";position:absolute;left:18px;top:50%;width:7px;height:1px;background:rgba(203,242,76,.45)}
   .nav a.sub .mi{font-size:13px}
+  /* 子項目選取時：維持深底 + 萊姆字（避免黑底黑字） */
+  .nav a.sub.on{background:linear-gradient(180deg,#33331f,#26261a);color:var(--lime);border-color:rgba(203,242,76,.5);box-shadow:0 0 12px rgba(203,242,76,.2)}
+  .nav a.sub.on .nt em{opacity:.7}
+  /* 群組展開（學員專區／3D 互動學習）：萊姆底 + 深字，確保看得見 */
+  .grpbtn[aria-expanded="true"]{background:linear-gradient(180deg,var(--lime),#b6dd33);color:#141412;border-color:var(--lime);box-shadow:0 0 16px rgba(203,242,76,.45)}
+  .grpbtn[aria-expanded="true"] .nt em{opacity:.7}
+  .grpbtn[aria-expanded="true"] .chev{transform:rotate(90deg)}
   .side .foot{margin-top:auto;font-size:11.5px;color:#77776e;line-height:1.8}
   .side .foot strong{color:#d8d5cb;font-weight:600;display:block;letter-spacing:1.6px;font-size:11px}
 
@@ -883,38 +890,6 @@
         </div>
       </section>
 
-      <!-- ========== 投球動作 3D 解析 ========== -->
-      <section class="page" id="page-pitch">
-        <div class="eyebrow">PITCHING LAB</div>
-        <h2 class="page-title">投球動作 3D 解析</h2>
-        <p class="lead">把投球動作拆成 9 個分期（準備→抬腿→平衡點→跨步→前腳落地→加速→出手→隨揮→收尾），用時間軸逐格看、慢動作播放，還能同時顯示<b>殘影（連續動作）</b>與<b>標註線</b>（質心 COM、肩線／髖線＝肩髖分離角度）。可切換「抬腿 / 不抬腿 / 對照」。</p>
-        <div class="card" style="padding:10px">
-          <iframe id="fpitch" src="assets/pitch3d.html" title="投球動作 3D 解析" loading="lazy"
-                  style="width:100%;height:min(80vh,820px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <button class="btn lime" onclick="document.getElementById('fpitch').src='assets/pitch3d.html'">重新載入</button>
-            <button class="btn ghost" onclick="window.open('assets/pitch3d.html','_blank')">全螢幕開啟</button>
-          </div>
-          <p class="req" style="margin-top:8px">操作：拖曳＝旋轉、滾輪＝縮放；下方時間軸可逐格拖動，右下可開關「殘影」與「標註線」。畫面右上會同步顯示該分期的重點與數據（肩髖分離角度、COM 高度、跨步距離）。<br>※ 動作為示意，非專業訓練建議；每人身體條件不同，實際調整請找教練。</p>
-        </div>
-      </section>
-
-      <!-- ========== 打擊：球棒軌跡 3D ========== -->
-      <section class="page" id="page-hitting">
-        <div class="eyebrow">HITTING LAB</div>
-        <h2 class="page-title">打擊：球棒軌跡 3D 解析</h2>
-        <p class="lead">球棒軌跡決定你的擊球。三種常見路徑直接比較：<b>✗ 棒頭下墜</b>、<b>✗ 手部下砍</b>、<b>✓ 提早進平面</b>（ON PLANE EARLY）。用時間軸逐格看，紅色軌跡點是錯誤路徑、綠色是正確路徑，畫面會即時算出<b>「球棒與來球同平面」的時間比例</b>。</p>
-        <div class="card" style="padding:10px">
-          <iframe id="fhit" src="assets/hitting.html" title="打擊球棒軌跡 3D" loading="lazy"
-                  style="width:100%;height:min(80vh,820px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <button class="btn lime" onclick="document.getElementById('fhit').src='assets/hitting.html'">重新載入</button>
-            <button class="btn ghost" onclick="window.open('assets/hitting.html','_blank')">全螢幕開啟</button>
-          </div>
-          <p class="req" style="margin-top:8px">操作：拖曳＝旋轉、滾輪＝縮放；下方時間軸逐格拖動；左下可切換三種路徑或「三種對照」（紅／綠軌跡點並排比較）。<br>實測數字（示意模型）：棒頭下墜 <b>11%</b>、手部下砍 <b>33%</b>、提早進平面 <b>48%</b>——球棒留在來球平面的時間差了三倍以上。</p>
-        </div>
-      </section>
-
       <section class="page" id="page-install">
         <div class="eyebrow">CLOUD SETUP</div>
         <h2 class="page-title">雲端同步安裝（約 3 分鐘）</h2>
@@ -1279,7 +1254,7 @@ function go(h){ location.hash = h; }
 
 /* ============ 路由 ============ */
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
-                diagrams:"圖解教室", field3d:"3D 互動學習", tactics:"戰術小遊戲", pitch:"投球動作解析", hitting:"打擊動作解析", analysis:"動作解析", quiz:"棒球小考",
+                diagrams:"圖解教室", field3d:"3D 互動學習", tactics:"戰術小遊戲", analysis:"動作解析", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", install:"雲端安裝", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
