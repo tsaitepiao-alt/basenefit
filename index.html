@@ -861,7 +861,9 @@
       <section class="page" id="page-field3d">
         <div class="eyebrow">3D INTERACTIVE</div>
         <h2 class="page-title">3D 互動學習</h2>
-        <p class="lead">用手指就能<b>轉動、縮放</b>整座球場。標準棒球場（壘間 27.43 m、投手板到本壘 18.44 m、中外野 121.92 m）。可用滑鼠左鍵拖曳旋轉、滾輪縮放，手機單指旋轉、雙指縮放；右下角可切「俯視圖」與「重設視角」，也能<b>下載 GLB 模型檔</b>。</p>
+        <p class="lead">這個單元正在<b>重新建構</b>，完成後會直接在這裡上線。</p>
+        <!-- 舊版 3D 球場暫時下架（等 Codex 做出較完整的版本再放回來）。
+             要恢復：把下面這段註解解開、刪掉紅字公告區塊即可。
         <div class="card" style="padding:10px">
           <iframe id="f3d" src="assets/baseball3d.html?embed=1&v=4" title="棒球 3D 互動學習" loading="lazy"
                   style="width:100%;height:min(78vh,780px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
@@ -871,6 +873,19 @@
             <button class="btn ghost" onclick="go('#/tactics')">⚔ 玩戰術小遊戲</button>
           </div>
           <p class="req" style="margin-top:8px">操作：拖曳＝旋轉｜滾輪或雙指＝縮放｜右鍵拖曳＝平移。畫面下方有「重設視角／俯視圖／下載 GLB」，右上可展開規格表。</p>
+        </div>
+        -->
+        <div class="card" style="padding:30px 20px;text-align:center;border:2px solid #e5484d;border-radius:14px;background:linear-gradient(180deg,rgba(229,72,77,.16),rgba(229,72,77,.04))">
+          <div style="font-size:clamp(28px,7.4vw,48px);font-weight:900;color:#ff4b4d;letter-spacing:.06em;line-height:1.2">🚧 建構中</div>
+          <div style="font-size:clamp(20px,5.6vw,34px);font-weight:900;color:#ff5c5e;letter-spacing:.14em;margin-top:8px">敬請期待</div>
+          <p style="margin:16px auto 0;max-width:600px;color:#c9cfc7;font-size:14.5px;line-height:1.8">
+            3D 互動球場正在用<b>更完整的版本</b>重新建構（守備 9 人、場地數據、動作示範），完成後會直接放進這一頁。<br>
+            想看舊版可以先按下面的按鈕（另開視窗）；戰術小遊戲照常可以玩。
+          </p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px">
+            <button class="btn ghost" onclick="go('#/tactics')">⚔ 玩戰術小遊戲</button>
+            <button class="btn ghost" onclick="window.open('assets/baseball3d.html?v='+Date.now(),'_blank')">先看舊版（另開）</button>
+          </div>
         </div>
       </section>
 
