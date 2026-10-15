@@ -859,16 +859,16 @@
       <section class="page" id="page-field3d">
         <div class="eyebrow">3D INTERACTIVE</div>
         <h2 class="page-title">3D 互動學習</h2>
-        <p class="lead">用手指就能轉動、放大。標準棒球場（壘間 27.43 m、投手板到本壘 18.44 m、中外野 121.92 m、警戒區 4.6 m）＋棒球、球棒，以及<b>五種守位手套</b>（內野／外野／投手／捕手／一壘）。<b>點球場上的元素</b>就會跑出該項目的尺寸說明（平時不顯示文字，畫面乾淨）。</p>
+        <p class="lead">用手指就能<b>轉動、縮放</b>整座球場。標準棒球場（壘間 27.43 m、投手板到本壘 18.44 m、中外野 121.92 m）。可用滑鼠左鍵拖曳旋轉、滾輪縮放，手機單指旋轉、雙指縮放；右下角可切「俯視圖」與「重設視角」，也能<b>下載 GLB 模型檔</b>。</p>
         <div class="card" style="padding:10px">
-          <iframe id="f3d" src="assets/baseball3d.html?embed=1" title="棒球 3D 互動學習" loading="lazy"
+          <iframe id="f3d" src="assets/baseball3d.html?embed=1&v=2" title="棒球 3D 互動學習" loading="lazy"
                   style="width:100%;height:min(78vh,780px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <button class="btn lime" onclick="document.getElementById('f3d').src='assets/baseball3d.html?embed=1&model=field&view=iso'">重新載入球場</button>
-            <button class="btn ghost" onclick="window.open('assets/baseball3d.html','_blank')">全螢幕開啟（可切換全部模型）</button>
+            <button class="btn lime" onclick="document.getElementById('f3d').src='assets/baseball3d.html?embed=1&v='+Date.now()">重新載入球場</button>
+            <button class="btn ghost" onclick="window.open('assets/baseball3d.html','_blank')">全螢幕開啟</button>
             <button class="btn ghost" onclick="go('#/tactics')">⚔ 玩戰術小遊戲</button>
           </div>
-          <p class="req" style="margin-top:8px">畫布左下切換模型（棒球場／棒球／球棒／手套→再選內野・外野・投手・捕手・一壘），右下切換視角（立體／俯視／正面／特寫），右上「規格」可展開尺寸表。</p>
+          <p class="req" style="margin-top:8px">操作：拖曳＝旋轉｜滾輪或雙指＝縮放｜右鍵拖曳＝平移。畫面下方有「重設視角／俯視圖／下載 GLB」，右上可展開規格表。</p>
         </div>
       </section>
 
@@ -878,10 +878,10 @@
         <h2 class="page-title">棒球戰術小遊戲</h2>
         <p class="lead">每個打席選一個戰術（強攻／打帶跑／盜壘／犧牲觸擊／強迫取分），用機率模型跑出結果，直接在 3D 球場上演。共 3 局，第 2 局是「關鍵一分」局面。</p>
         <div class="card" style="padding:10px">
-          <iframe id="fgame" src="assets/tactics.html" title="棒球戰術小遊戲" loading="lazy"
+          <iframe id="fgame" src="assets/tactics.html?v=2" title="棒球戰術小遊戲" loading="lazy"
                   style="width:100%;height:min(80vh,820px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <button class="btn lime" onclick="document.getElementById('fgame').src='assets/tactics.html'">重新開始</button>
+            <button class="btn lime" onclick="document.getElementById('fgame').src='assets/tactics.html?v='+Date.now()">重新開始</button>
             <button class="btn ghost" onclick="window.open('assets/tactics.html','_blank')">全螢幕開啟</button>
           </div>
           <p class="req" style="margin-top:8px">每選一次戰術，畫面會同時顯示各選項的「期望得分」與「得分率」，並告訴你模擬後的最佳選擇。最後會結算你的表現。</p>
