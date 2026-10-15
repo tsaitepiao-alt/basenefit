@@ -36,7 +36,7 @@
 <div id="spec" class="panel"><h4>球場規格（MLB）</h4><div id="sb"></div></div>
 <div id="finfo" class="panel"></div>
 <div id="c2" class="panel">
-  <button id="v1" class="on">立體</button><button id="v2">俯視</button><button id="m6">📐 數據</button>
+  <button id="v1" class="on">立體</button><button id="v2">俯視</button><button id="m6">📐 數據</button><button id="m7">⚾ 3D 模型</button>
 </div>
 <div id="hint">點選場地元素看規格</div>
 <script>
@@ -231,5 +231,6 @@ document.getElementById('v1').onclick=function(){ Q=0.62; this.classList.add('on
 document.getElementById('v2').onclick=function(){ Q=1.0; this.classList.add('on'); document.getElementById('v1').classList.remove('on'); render(); };
 document.getElementById('m6').onclick=function(){ this.classList.toggle('on'); var el=document.getElementById('finfo');
   el.style.display='block'; el.innerHTML='<h4>操作說明</h4><div><b>立體／俯視</b>：切換視角</div><div><b>點選場地</b>：顯示該區 MLB 規格</div>'; };
+document.getElementById('m7').onclick=function(){ location.href='baseball3d_models.html'; };
 render();
 </script></body></html>
