@@ -137,12 +137,12 @@ function build(){
   for(var i2=0;i2<lines.length;i2++){
     var L=lines[i2], p1=P(L[0][0],L[0][1]), p2=P(L[1][0],L[1][1]);
     put('<line x1="'+p1[0].toFixed(1)+'" y1="'+p1[1].toFixed(1)+'" x2="'+p2[0].toFixed(1)+'" y2="'+p2[1].toFixed(1)+
-        '" stroke="#ffffff" stroke-width="'+(0.16*S)+'" opacity=".9" class="hot" data-info="baseline"/>');
+        '" stroke="#ffffff" stroke-width="(Math.max(2,0.16*S))" opacity=".9" class="hot" data-info="baseline"/>');
   }
   for(var sg=1;sg>=-1;sg-=2){
     var e=P(sg*Math.sin(Math.PI/4)*WL, Math.cos(Math.PI/4)*WL), o=P(0,0);
     put('<line x1="'+o[0].toFixed(1)+'" y1="'+o[1].toFixed(1)+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+
-        '" stroke="#ffffff" stroke-width="'+(0.18*S)+'" opacity=".9" class="hot" data-info="baseline"/>');
+        '" stroke="#ffffff" stroke-width="(Math.max(2.2,0.18*S))" opacity=".9" class="hot" data-info="baseline"/>');
   }
   // 壘包（視覺放大）
   [[B45,B45],[0,R2],[-B45,B45]].forEach(function(b){
