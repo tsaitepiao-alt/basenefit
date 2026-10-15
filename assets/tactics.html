@@ -107,26 +107,34 @@
  }
  function patch(root){
    if(!root) return;
-   var remove=[],wall=null;
+   var remove=[],wall=null,poles=null;
    root.traverse(function(o){
      if(!o.isMesh) return;
      var nm=(o.material&&o.material.name)||'';
      if(nm==='Chalk and bases'||nm==='Bleacher seats'||nm==='Concrete plinth') remove.push(o);
      if(nm==='Outfield wall') wall=o;
+     if(nm==='Foul poles') poles=o;
    });
    for(var i=0;i<remove.length;i++) if(remove[i].parent) remove[i].parent.remove(remove[i]);
    if(wall){ try{ trimTall(wall,WALL_TOP); }catch(e){} }
-   // 先置中（依可見內容），再加計分板（避免計分板把重心拉歪）
-   var size=null,box=null;
+   // 先置中（依可見內容）
+   var size=null,box=null,dirZ=1;
    try{
      box=new THREE.Box3().setFromObject(root);
      size=new THREE.Vector3(); box.getSize(size);
      root.position.x-= (box.min.x+box.max.x)/2;
      root.position.z-= (box.min.z+box.max.z)/2;
+     if(poles){                                   // 界外桿在全壘打牆兩端 → 代表外野方向
+       var pb=new THREE.Box3().setFromObject(poles);
+       var pz=(pb.min.z+pb.max.z)/2 - root.position.z;
+       if(pz<0) dirZ=-1;
+     }
    }catch(e){}
    if(!root.getObjectByName('scoreboard3d') && size){
      var b=makeBoard(size);
-     b.position.set(0, 0, size.z/2 - size.z*0.02);   // 中外野牆外緣
+     var off = dirZ>0 ? (size.z/2 - size.z*0.02) : (-size.z/2 + size.z*0.02);
+     b.position.set(0, 0, off);
+     b.rotation.y = dirZ>0 ? 0 : Math.PI;           // 面板永遠朝場內
      root.add(b);
    }
  }
@@ -1622,7 +1630,6 @@ function buildField(){
       const m0=gl.scene, S=1000;                    // 模型單位公尺 → 本頁公釐
       m0.scale.setScalar(S);
       // 執行時方位：外野在 -Z（與本頁球場一致）→ 不需旋轉，只把本壘平移回原點
-      // GLB 原始座標：投手板 z=-40m、本壘 z≈-21.6m
       m0.position.set(0, 1500, 21600);
       m0.traverse(o=>{ if(o.isMesh){ o.castShadow=false; o.frustumCulled=true; } });
       m0.name='codexField'; g.add(m0);
