@@ -364,7 +364,7 @@
         .hero-anim svg.bb-scene{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
         .hero-anim .bb-ball{position:absolute;left:50%;top:43%;width:22.4%;height:auto;aspect-ratio:1;
           transform:translate(-50%,-50%);animation:bbBob 3.6s ease-in-out infinite;z-index:1}
-        .hero-anim .bb-ball .bb-seams{animation:bbSpin 2.4s linear infinite}
+        .hero-anim .bb-ball .bb-seams{animation:bbSpin 2.4s linear infinite;transform-box:fill-box;transform-origin:50% 50%}
         .hero-anim .bb-cap{margin-top:6px;font-size:11.5px;letter-spacing:.16em;color:#6f7d55;
           text-transform:uppercase;font-weight:700}
         /* basenefit 英文字動畫：一個字一個字跑出來（逐字彈升）+ 光暈週期掃過 */
@@ -391,7 +391,7 @@
           62%{opacity:1;transform:translateY(-4px) scale(1.07)}
           100%{opacity:1;transform:translateY(0) scale(1)}}
         @keyframes bbShine{0%{left:-40%}52%,100%{left:114%}}
-        @keyframes bbSpin{from{transform:translateX(0)}to{transform:translateX(-94px)}}
+        @keyframes bbSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
         @keyframes bbBob{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - 5px))}}
         @media (prefers-reduced-motion: reduce){
           .hero-anim .bb-ball,.hero-anim .bb-ball .bb-seams,
@@ -439,17 +439,17 @@
             </svg>
             <svg class="bb-ball" viewBox="0 0 94 94" aria-hidden="true">
               <defs>
-                <radialGradient id="bbSoft" cx="35%" cy="27%" r="80%">
-                  <stop offset="0%" stop-color="#fffbd4"/><stop offset="42%" stop-color="#ffe45c"/>
-                  <stop offset="84%" stop-color="#eec200"/><stop offset="100%" stop-color="#c29700"/>
-                </radialGradient>
                 <clipPath id="bbBallClip"><circle cx="47" cy="47" r="47"/></clipPath>
+                <radialGradient id="bbShade" cx="38%" cy="30%" r="78%">
+                  <stop offset="0%" stop-color="#fff" stop-opacity=".28"/>
+                  <stop offset="55%" stop-color="#fff" stop-opacity="0"/>
+                  <stop offset="100%" stop-color="#000" stop-opacity=".30"/>
+                </radialGradient>
               </defs>
-              <circle cx="47" cy="47" r="47" fill="url(#bbSoft)"/>
-              <g clip-path="url(#bbBallClip)" opacity=".92"><g class="bb-seams"><g transform="translate(0,0)"><path d="M0,47C24,6 70,6 94,47M0,47C24,88 70,88 94,47" fill="none" stroke="#c23b2a" stroke-width="2.2" stroke-linecap="round" opacity=".85"/><path d="M0.0,40.3L5.8,44.2M6.5,32.0L11.7,36.7M13.7,25.2L18.1,30.6M21.5,19.8L25.0,25.9M29.7,15.9L32.2,22.5M38.3,13.6L39.5,20.5M47.0,12.8L47.0,19.8M55.7,13.6L54.5,20.5M64.3,15.9L61.8,22.5M72.5,19.8L69.0,25.9M80.3,25.2L75.9,30.6M87.5,32.0L82.3,36.7M94.0,40.3L88.2,44.2M5.8,49.8L0.0,53.7M11.7,57.3L6.5,62.0M18.1,63.4L13.7,68.8M25.0,68.1L21.5,74.2M32.2,71.5L29.7,78.1M39.5,73.5L38.3,80.4M47.0,74.2L47.0,81.2M54.5,73.5L55.7,80.4M61.8,71.5L64.3,78.1M69.0,68.1L72.5,74.2M75.9,63.4L80.3,68.8M82.3,57.3L87.5,62.0M88.2,49.8L94.0,53.7" fill="none" stroke="#ad2718" stroke-width="2.1" stroke-linecap="round"/></g><g transform="translate(94.0,0)"><path d="M0,47C24,6 70,6 94,47M0,47C24,88 70,88 94,47" fill="none" stroke="#c23b2a" stroke-width="2.2" stroke-linecap="round" opacity=".85"/><path d="M0.0,40.3L5.8,44.2M6.5,32.0L11.7,36.7M13.7,25.2L18.1,30.6M21.5,19.8L25.0,25.9M29.7,15.9L32.2,22.5M38.3,13.6L39.5,20.5M47.0,12.8L47.0,19.8M55.7,13.6L54.5,20.5M64.3,15.9L61.8,22.5M72.5,19.8L69.0,25.9M80.3,25.2L75.9,30.6M87.5,32.0L82.3,36.7M94.0,40.3L88.2,44.2M5.8,49.8L0.0,53.7M11.7,57.3L6.5,62.0M18.1,63.4L13.7,68.8M25.0,68.1L21.5,74.2M32.2,71.5L29.7,78.1M39.5,73.5L38.3,80.4M47.0,74.2L47.0,81.2M54.5,73.5L55.7,80.4M61.8,71.5L64.3,78.1M69.0,68.1L72.5,74.2M75.9,63.4L80.3,68.8M82.3,57.3L87.5,62.0M88.2,49.8L94.0,53.7" fill="none" stroke="#ad2718" stroke-width="2.1" stroke-linecap="round"/></g></g></g>
-              <ellipse cx="30" cy="25" rx="14" ry="8"
-                       fill="#ffffff" opacity=".5" transform="rotate(-24 30 25)"/>
-              <circle cx="47" cy="47" r="46" fill="none" stroke="#a8850a" stroke-width="1.6" opacity=".5"/>
+              <g class="bb-seams">
+                <image href="assets/bb-ball.webp" x="0" y="0" width="94" height="94" clip-path="url(#bbBallClip)" preserveAspectRatio="xMidYMid slice"/>
+              </g>
+              <circle cx="47" cy="47" r="47" fill="url(#bbShade)" clip-path="url(#bbBallClip)"/>
             </svg>
           </div>
           <div class="bb-cap">PLAY BALL</div>
