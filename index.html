@@ -368,7 +368,7 @@
         <div class="eyebrow">PERSONAL GROWTH</div>
         <h1>今天，也往目標靠近一點。</h1>
         <p class="lead">每天都有一點進度就好。這裡看你這週的安排、今天的動作，還有你累積的成果。</p>
-                                                                <!-- ========== 本壘板木框＋框內旋轉壘球＋兩側打擊區（純 CSS/SVG，無外部依賴）========== -->
+                                                                        <!-- ========== 本壘板木框＋框內旋轉壘球＋兩側打擊區（純 CSS/SVG，無外部依賴）========== -->
         <style>
         .hero-anim{position:relative;display:flex;flex-direction:column;align-items:center;
           max-width:340px;margin:10px auto 14px;padding:4px 0 0;border-radius:18px;
@@ -385,10 +385,6 @@
           border-radius:50%;pointer-events:none;filter:blur(4px);
           background:radial-gradient(circle,rgba(255,248,205,.9) 0%,rgba(255,208,70,.72) 26%,rgba(255,140,26,.42) 50%,rgba(255,110,10,0) 74%);
           animation:bbHalo 2.6s ease-in-out infinite}
-        .hero-anim .bb-ember{position:absolute;left:50%;top:43%;width:var(--s,6px);height:var(--s,6px);
-          border-radius:50%;z-index:3;pointer-events:none;opacity:0;
-          background:radial-gradient(circle,#fff8d2 0%,var(--c,#ffcf4a) 55%,rgba(255,120,20,0) 100%);
-          animation:bbEmber 2.8s linear infinite;animation-delay:var(--d,0s)}
         .hero-anim .bb-ball .bb-seams{animation:bbSpin 3s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
         .hero-anim .bb-cap{margin-top:6px;font-size:11.5px;letter-spacing:.16em;color:#6f7d55;
           text-transform:uppercase;font-weight:700}
@@ -420,11 +416,8 @@
         @keyframes bbBob{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - 5px))}}
         @keyframes bbHalo{0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(.94)}
           50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
-        @keyframes bbEmber{0%{opacity:0;transform:translate(-50%,-50%) translate(var(--x0,0),4px) scale(.45)}
-          12%{opacity:.95}68%{opacity:.7}
-          100%{opacity:0;transform:translate(-50%,-50%) translate(var(--x1,0),-54px) scale(1.3)}}
         @media (prefers-reduced-motion: reduce){
-          .hero-anim .bb-ball,.hero-anim .bb-ball .bb-seams,.hero-anim .bb-halo,.hero-anim .bb-ember,
+          .hero-anim .bb-ball,.hero-anim .bb-ball .bb-seams,.hero-anim .bb-halo,
           .hero-anim .bb-word span,.hero-anim .bb-word::after{animation:none}
         }
         @media (min-width:720px){
@@ -482,15 +475,6 @@
               </g>
               <circle cx="47" cy="47" r="47" fill="url(#bbShade)" clip-path="url(#bbBallClip)"/>
             </svg>
-            <i class="bb-ember" style="--s:7px;--c:#ffd35c;--d:0s;--x0:-30px;--x1:-40px" aria-hidden="true"></i>
-            <i class="bb-ember" style="--s:5px;--c:#ffe98a;--d:.35s;--x0:-24px;--x1:-16px" aria-hidden="true"></i>
-            <i class="bb-ember" style="--s:6px;--c:#ffb020;--d:.7s;--x0:-34px;--x1:-46px" aria-hidden="true"></i>
-            <i class="bb-ember" style="--s:4px;--c:#fff3b0;--d:1.05s;--x0:-14px;--x1:-6px" aria-hidden="true"></i>
-            <i class="bb-ember" style="--s:8px;--c:#ff9a2e;--d:1.4s;--x0:28px;--x1:22px" aria-hidden="true"></i>
-            <i class="bb-ember" style="--s:5px;--c:#ffd35c;--d:1.75s;--x0:20px;--x1:34px" aria-hidden="true"></i>
-            <i class="bb-ember" style="--s:6px;--c:#ffe08a;--d:2.1s;--x0:36px;--x1:44px" aria-hidden="true"></i>
-            <i class="bb-ember" style="--s:4px;--c:#ffb020;--d:2.45s;--x0:10px;--x1:16px" aria-hidden="true"></i>
-            <i class="bb-ember" style="--s:7px;--c:#ffcf4a;--d:2.8s;--x0:-6px;--x1:-14px" aria-hidden="true"></i>
           </div>
           <div class="bb-cap">PLAY BALL</div>
         </div>
