@@ -68,20 +68,21 @@
  var WALL_TOP=8000;
  function trimTall(mesh,thr){
    var g=mesh.geometry,p=g.attributes.position; if(!p) return;
-   var a=p.array;
-   if(!thr){                                     // 自動：取牆高的 55% 為門檻（不受單位影響）
-     var mn=1e9,mx=-1e9;
-     for(var q=1;q<a.length;q+=3){ if(a[q]<mn)mn=a[q]; if(a[q]>mx)mx=a[q]; }
-     thr=mn+(mx-mn)*0.55;
+   var cnt=p.count, ys=[], i;
+   for(i=0;i<cnt;i++) ys.push(p.getY(i));      // getX/getY/getZ 才能正確處理 interleaved buffer
+   if(!thr){ var mn=Infinity,mx=-Infinity;
+     for(i=0;i<cnt;i++){ if(ys[i]<mn)mn=ys[i]; if(ys[i]>mx)mx=ys[i]; } thr=mn+(mx-mn)*0.55; }
+   var out=[];
+   for(i=0;i+2<cnt;i+=3){
+     if(Math.max(ys[i],ys[i+1],ys[i+2])<=thr){
+       for(var k=0;k<3;k++) out.push(p.getX(i+k),p.getY(i+k),p.getZ(i+k));
+     }
    }
-   var keep=[];
-   for(var i=0;i+8<a.length;i+=9){ if(Math.max(a[i+1],a[i+4],a[i+7])<=thr) keep.push(i); }
-   if(keep.length*9===a.length) return;
-   var out=new Float32Array(keep.length*9);
-   for(var k=0;k<keep.length;k++){ var s=keep[k],d=k*9; for(var j=0;j<9;j++) out[d+j]=a[s+j]; }
+   if(out.length/3===cnt) return;
    var ng=new THREE.BufferGeometry();
-   ng.setAttribute('position',new THREE.BufferAttribute(out,3)); ng.computeVertexNormals();
+   ng.setAttribute('position',new THREE.Float32BufferAttribute(out,3)); ng.computeVertexNormals();
    mesh.geometry=ng;
+   window.__bfDiag=(window.__bfDiag||{}); window.__bfDiag.wall={before:cnt/3,after:out.length/9,thr:thr};
  }
  function makeBoard(size,dirZ){
    var W=size.x*0.105, H=W*0.40, D=Math.max(W*0.05,size.x*0.006);
@@ -1635,7 +1636,7 @@ function buildField(){
     new THREE.GLTFLoader().load('baseball_stadium.glb', function(gl){
       const m0=gl.scene, S=1000;                    // 模型單位公尺 → 本頁公釐
       m0.scale.setScalar(S);
-      // 不旋轉（執行時外野已在 -Z）
+      // 不旋轉
       // 模型本壘實測（投手板 z=-40m，本壘距投手板 18.44m → 本壘 z≈-21.6m）；轉向後為 +21.6m → 平移回原點
       m0.position.set(0, 1500, 21600);
       m0.traverse(o=>{ if(o.isMesh){ o.castShadow=false; o.frustumCulled=true; } });
