@@ -33,7 +33,8 @@
 </style></head><body>
 <div id="stage"></div>
 <div id="t" class="panel"><b>棒球場互動學習</b><br><span style="color:#9aa2b1">點選場上任何區域 → 顯示 MLB 真實規格</span></div>
-<div id="spec" class="panel"><h4>球場規格（MLB）</h4><div id="sb"></div></div>
+<div id="spec" class="panel"><h4 id="sh" style="cursor:pointer;margin:0 0 6px">球場規格（MLB） ▾</h4><div id="sb"></div></div>
+<button id="specBtn" class="panel" style="display:none;top:12px;right:12px;padding:9px 13px;font-size:13px;cursor:pointer">📐 規格</button>
 <div id="finfo" class="panel"></div>
 <div id="c2" class="panel">
   <button id="v1" class="on">立體</button><button id="v2">俯視</button><button id="m6">📐 數據</button><button id="m7">⚾ 3D 模型</button>
@@ -55,7 +56,9 @@ var W=1000,H=1000,S=1,CX=500,CY=500;
 function fitViewport(){ W=Math.max(320, innerWidth||1000); H=Math.max(320, innerHeight||1000); }
 function fit(){
   fitViewport();
-  var zTop = RING*1.05, zBot = -RING*1.05, xHalf = RING*1.06;
+  var bb=boundary(15), xs=[], zs=[];
+  for(var q2=0;q2<bb.length;q2++){ xs.push(bb[q2][0]); zs.push(bb[q2][1]); }
+  var xHalf=Math.max.apply(null, xs.map(Math.abs))*1.04, zTop=(Math.max.apply(null,zs)+22)*1.04, zBot=Math.min.apply(null,zs)*1.04;
   var spanX = xHalf*2, spanY = (zTop-zBot)*Q;
   S = Math.min(W/spanX, H/spanY)*0.98;
   CX = W/2; CY = H/2 + ((zTop+zBot)/2)*S*Q;
@@ -66,6 +69,16 @@ function poly(list){ return list.map(function(p){ var q=P(p[0],p[1]); return q[0
 function closed(list){ return '<path d="M'+poly(list).split(' ').join('L')+' Z"'; }
 function ring(r,a0,a1,n){ var o=[]; for(var i=0;i<=n;i++){ var a=a0+(a1-a0)*i/n; o.push([Math.sin(a)*r, Math.cos(a)*r]); } return o; }
 function wallPath(t0,t1,n,off){ var o=[]; for(var i=0;i<=n;i++){ var t=t0+(t1-t0)*i/n, a=wallAng(t), r=wallR(t)-(off||0); o.push([Math.sin(a)*r, Math.cos(a)*r]); } return o; }
+// 場外綠帶邊界：沿球場外形等寬外推（含本壘後方擋球網距離），extra = 再外推量
+var BELT=20;
+function boundary(extra){
+  var e=extra||0, back=BELT+e, o=[];
+  for(var i=0;i<=40;i++){ var a=Math.PI*1.75-Math.PI*1.5*i/40; o.push([Math.sin(a)*back, Math.cos(a)*back]); }   // 本壘後方弧 315°→45°
+  for(var j=0;j<=10;j++){ var r=back+(WL+BELT+e-back)*j/10; o.push([Math.sin(Math.PI/4)*r, Math.cos(Math.PI/4)*r]); } // 一壘側外推
+  o=o.concat(wallPath(1,0,60,-(BELT+e)));                                                                   // 沿全壘打牆外推
+  for(var k=0;k<=10;k++){ var r2=(WL+BELT+e)+(back-(WL+BELT+e))*k/10; o.push([Math.sin(Math.PI*1.75)*r2, Math.cos(Math.PI*1.75)*r2]); } // 三壘側收回
+  return o;
+}
 
 var pieces = [];
 function put(s){ pieces.push(s); }
@@ -74,36 +87,23 @@ function build(){
   pieces = []; fit();
   var rectIn = RING-16;
   put('<rect width="'+W+'" height="'+H+'" fill="#0d1017"/>');
-  var rxO=RING*S, ryO=RING*S*Q, rxI=rectIn*S, ryI=rectIn*S*Q;
-  var rxm=(rxO+rxI)/2, rym=(ryO+ryI)/2, wSeg=(rxO-rxI);
-  put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+rxm.toFixed(1)+'" ry="'+rym.toFixed(1)+'" fill="none" stroke="#b8b8b8" stroke-width="'+wSeg.toFixed(1)+'"/>');
-  for(var i=0;i<28;i++){
-    var a=i/28*Math.PI*2, c=Math.cos(a), s2=Math.sin(a);
-    put('<line x1="'+(CX+c*rxI).toFixed(1)+'" y1="'+(CY+s2*ryI).toFixed(1)+'" x2="'+(CX+c*rxO).toFixed(1)+'" y2="'+(CY+s2*ryO).toFixed(1)+
-        '" stroke="#ffffff" stroke-width="1.8" opacity=".8"/>');
-  }
-  put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+rxO.toFixed(1)+'" ry="'+ryO.toFixed(1)+'" fill="none" stroke="#e6e8ec" stroke-width="2.4"/>');
-  put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+rxI.toFixed(1)+'" ry="'+ryI.toFixed(1)+'" fill="none" stroke="#ffffff" stroke-width="2"/>');
-  put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+(rxI+1).toFixed(1)+'" ry="'+(ryI+1).toFixed(1)+'" fill="#417725"/>');
-  // 場外綠地割草紋（同心帶，讓綠地有層次）
-  for(var g2=1;g2<=3;g2++){
-    var rr=(rxI)*(0.55+g2*0.14);
-    put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+rr.toFixed(1)+'" ry="'+(rr*Q).toFixed(1)+
-        '" fill="none" stroke="#4a8629" stroke-width="'+(rxI*0.055).toFixed(1)+'" opacity=".85"/>');
-  }
-  // 看台分層（5 階同心帶）
-  for(var t2=0;t2<5;t2++){
-    var mRx=rxI+wSeg*((t2+0.5)/5), mRy=ryI+wSeg*((t2+0.5)/5);
-    put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+mRx.toFixed(1)+'" ry="'+mRy.toFixed(1)+
-        '" fill="none" stroke="'+(t2%2?'#a3a3a7':'#c9c9cd')+'" stroke-width="'+(wSeg/5).toFixed(1)+'" opacity=".9"/>');
-  }
-  // 界外區：從三壘界外繞本壘後方到一壘界外（單一扇形）
+  // （舊的橢圓看台已改為沿球場外形的環帶，見下）
+  put('<path d="M'+poly(boundary(0))+' Z" fill="#3f7f2b"/>');
+  // 看台（沿綠帶外緣的環帶＋分區白線）
   (function(){
-    var list=[[0,0]];
-    list=list.concat(ring(rectIn, Math.PI/4, Math.PI*1.75, 70));
-    list.push([0,0]);
-    put(closed(list)+' fill="#3f7f2b" class="hot" data-info="foularea"/>');
+    var bIn=boundary(0), bOut=boundary(15);
+    put('<path d="M'+poly(bIn)+' Z M'+poly(bOut)+' Z" fill="#b8b8b8" fill-rule="evenodd"/>');
+    for(var i=0;i<36;i++){
+      var p1=P(bIn[i*bIn.length/36|0][0], bIn[i*bIn.length/36|0][1]);
+      var o1=bIn[i*bIn.length/36|0], o2=bOut[Math.min(bOut.length-1, (i*bOut.length/36|0))];
+      var a1=P(o1[0],o1[1]), a2=P(o2[0],o2[1]);
+      put('<line x1="'+a1[0].toFixed(1)+'" y1="'+a1[1].toFixed(1)+'" x2="'+a2[0].toFixed(1)+'" y2="'+a2[1].toFixed(1)+
+          '" stroke="#ffffff" stroke-width="1.6" opacity=".75"/>');
+    }
+    put('<path d="M'+poly(bIn)+' Z" fill="none" stroke="#ffffff" stroke-width="2"/>');
+    put('<path d="M'+poly(bOut)+' Z" fill="none" stroke="#e6e8ec" stroke-width="2.4"/>');
   })();
+  // 界外區已由綠帶涵蓋（不另畫）
   // 割草條紋
   var N=14;
   for(var k=0;k<N;k++){
@@ -217,8 +217,7 @@ function build(){
         '" rx="4" fill="#cfd3d8"/>');
   })();
   // 看台熱區
-  put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+rxm.toFixed(1)+'" ry="'+rym.toFixed(1)+'" fill="none" stroke="transparent" stroke-width="'+
-      wSeg.toFixed(1)+'" class="hot" data-info="stand"/>');
+  put('<path d="M'+poly(boundary(0))+' Z M'+poly(boundary(15))+' Z" fill="none" stroke="transparent" stroke-width="'+(15*S)+'" class="hot" data-info="stand"/>');
   return '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+pieces.join('')+'</svg>';
 }
 function render(){ document.getElementById('stage').innerHTML = build(); }
@@ -238,5 +237,17 @@ document.getElementById('v2').onclick=function(){ Q=1.0; this.classList.add('on'
 document.getElementById('m6').onclick=function(){ this.classList.toggle('on'); var el=document.getElementById('finfo');
   el.style.display='block'; el.innerHTML='<h4>操作說明</h4><div><b>立體／俯視</b>：切換視角</div><div><b>點選場地</b>：顯示該區 MLB 規格</div>'; };
 document.getElementById('m7').onclick=function(){ location.href='baseball3d_models.html'; };
+// 規格面板可收合（避免遮住球場）
+document.getElementById('sh').onclick=function(){
+  var sb=document.getElementById('sb'), b=document.getElementById('specBtn');
+  var hide = sb.style.display!=='none';
+  sb.style.display = hide?'none':''; this.textContent = '球場規格（MLB） '+(hide?'▸':'▾');
+  b.style.display = hide?'block':'none';
+};
+document.getElementById('specBtn').onclick=function(){
+  var sb=document.getElementById('sb'); sb.style.display='';
+  document.getElementById('sh').textContent='球場規格（MLB） ▾';
+  this.style.display='none';
+};
 render();
 </script></body></html>
