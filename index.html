@@ -364,7 +364,7 @@
         .hero-anim svg.bb-scene{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
         .hero-anim .bb-ball{position:absolute;left:50%;top:43%;width:22.4%;height:auto;aspect-ratio:1;
           transform:translate(-50%,-50%);animation:bbBob 3.6s ease-in-out infinite;z-index:1}
-        .hero-anim .bb-ball .bb-seams{animation:bbSpin 2.4s linear infinite;transform-box:fill-box;transform-origin:50% 50%}
+        .hero-anim .bb-ball .bb-seams{animation:bbSpin 3s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
         .hero-anim .bb-cap{margin-top:6px;font-size:11.5px;letter-spacing:.16em;color:#6f7d55;
           text-transform:uppercase;font-weight:700}
         /* basenefit 英文字動畫：一個字一個字跑出來（逐字彈升）+ 光暈週期掃過 */
@@ -391,7 +391,7 @@
           62%{opacity:1;transform:translateY(-4px) scale(1.07)}
           100%{opacity:1;transform:translateY(0) scale(1)}}
         @keyframes bbShine{0%{left:-40%}52%,100%{left:114%}}
-        @keyframes bbSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes bbSpin{0%{transform:rotate(-22deg)}50%{transform:rotate(22deg)}100%{transform:rotate(-22deg)}}
         @keyframes bbBob{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - 5px))}}
         @media (prefers-reduced-motion: reduce){
           .hero-anim .bb-ball,.hero-anim .bb-ball .bb-seams,
