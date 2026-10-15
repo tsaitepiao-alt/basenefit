@@ -20,7 +20,7 @@
  #finfo{bottom:12px;left:12px;padding:12px 15px;font-size:12.8px;line-height:1.7;max-width:340px;display:none}
  #finfo h4{margin:0 0 7px;font-size:14.5px;color:#cbf24c}
  #finfo b{color:#8fd7ff;font-weight:600}
- #hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);font-size:12px;color:#7f8798}
+ #hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);font-size:12.5px;color:#b9c2d0;background:rgba(20,24,32,.8);padding:5px 12px;border-radius:8px}
  .hot{cursor:pointer}
  .hot:hover{filter:brightness(1.15)}
  @media(max-width:760px){
@@ -45,7 +45,7 @@ var Q = 0.62;
 
 var D=90*0.3048, R2=D*Math.SQRT2, B45=D*Math.SQRT1_2;
 var MOUND=18.44, MR=2.74, ARC=28.96;
-var WL=99.06, WCF=121.92, TRACK=4.6, RING=WCF+7;
+var WL=99.06, WCF=121.92, TRACK=4.6, RING=WCF+26;   // 外野牆後留約 26 m 綠帶（約球場半徑 1/5）
 
 function wallR(t){ return WL+(WCF-WL)*Math.sin(Math.PI*t); }
 function wallAng(t){ return -Math.PI/4+Math.PI/2*t; }
@@ -55,7 +55,7 @@ var W=1000,H=1000,S=1,CX=500,CY=500;
 function fitViewport(){ W=Math.max(320, innerWidth||1000); H=Math.max(320, innerHeight||1000); }
 function fit(){
   fitViewport();
-  var zTop = WCF+40, zBot = -RING*1.04, xHalf = RING*1.08;
+  var zTop = RING*1.05, zBot = -RING*1.05, xHalf = RING*1.06;
   var spanX = xHalf*2, spanY = (zTop-zBot)*Q;
   S = Math.min(W/spanX, H/spanY)*0.98;
   CX = W/2; CY = H/2 + ((zTop+zBot)/2)*S*Q;
@@ -85,6 +85,12 @@ function build(){
   put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+rxO.toFixed(1)+'" ry="'+ryO.toFixed(1)+'" fill="none" stroke="#e6e8ec" stroke-width="2.4"/>');
   put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+rxI.toFixed(1)+'" ry="'+ryI.toFixed(1)+'" fill="none" stroke="#ffffff" stroke-width="2"/>');
   put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+(rxI+1).toFixed(1)+'" ry="'+(ryI+1).toFixed(1)+'" fill="#417725"/>');
+  // 場外綠地割草紋（同心帶，讓綠地有層次）
+  for(var g2=1;g2<=3;g2++){
+    var rr=(rxI)*(0.55+g2*0.14);
+    put('<ellipse cx="'+CX+'" cy="'+CY+'" rx="'+rr.toFixed(1)+'" ry="'+(rr*Q).toFixed(1)+
+        '" fill="none" stroke="#4a8629" stroke-width="'+(rxI*0.055).toFixed(1)+'" opacity=".85"/>');
+  }
   // 看台分層（5 階同心帶）
   for(var t2=0;t2<5;t2++){
     var mRx=rxI+wSeg*((t2+0.5)/5), mRy=ryI+wSeg*((t2+0.5)/5);
@@ -196,7 +202,7 @@ function build(){
   });
   // 計分板（含基座）
   (function(){
-    var c=P(0,WCF+2); var w=42*S, h=16*S, base=h*0.34;
+    var c=P(0,WCF+15); var w=42*S, h=16*S, base=h*0.34;
     put('<path d="M'+(c[0]-w/2-6).toFixed(1)+','+c[1].toFixed(1)+' L'+(c[0]+w/2+6).toFixed(1)+','+c[1].toFixed(1)+
         ' L'+(c[0]+w/2).toFixed(1)+','+(c[1]-base).toFixed(1)+' L'+(c[0]-w/2).toFixed(1)+','+(c[1]-base).toFixed(1)+
         ' Z" fill="#4a4a50" stroke="#6a6a70" stroke-width="1"/>');
