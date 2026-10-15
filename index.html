@@ -415,32 +415,6 @@
           </div>
         </div>
 
-        <div>
-          <div class="card">
-            <div class="hrow"><h2>本週數據</h2><button class="btn sm ghost" onclick="go('#/progress')">看詳細</button></div>
-            <div class="grid3" style="gap:10px">
-              <div class="stat" style="padding:12px"><div class="n" id="home-days">0/3</div><div class="l">訓練天數</div></div>
-              <div class="stat" style="padding:12px"><div class="n" id="home-sess">0</div><div class="l">完成次數</div></div>
-              <div class="stat" style="padding:12px"><div class="n" id="home-mins">0</div><div class="l">累積分鐘</div></div>
-            </div>
-            <div style="margin-top:14px"><button class="btn lime" onclick="go('#/plan')">開始今天的訓練</button></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="hrow"><h2>今日動作清單</h2><span class="pill" id="home-list-count">10 個動作</span></div>
-          <ol class="list" id="home-today"></ol>
-        </div>
-
-        <div class="card">
-          <div class="hrow"><h2>☁ 雲端同步</h2><span class="pill" id="sync-pill">未設定</span></div>
-          <p class="req" id="sync-info" style="margin:0 0 12px"></p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn lime" onclick="syncPush()">上傳這台裝置</button>
-            <button class="btn ghost" onclick="syncPull()">下載雲端資料</button>
-            <button class="btn ghost" onclick="go('#/coach')">教練檢視</button>
-          </div>
-        </div>
       </section>
 
       <!-- ========== 2. 動作影片 ========== -->
@@ -516,6 +490,15 @@
         <div class="eyebrow">YOUR PERSONAL PLAN</div>
         <h2 class="page-title">把想練的，變成每天做的。</h2>
         <p class="lead">棒球基礎動作、腳步、核心與緩和 —— 每週 3 天，每次 10～12 分鐘，主題每天不同。</p>
+
+        <div class="card">
+            <div class="hrow"><h2>本週數據</h2><button class="btn sm ghost" onclick="go('#/progress')">看詳細</button></div>
+            <div class="grid3" style="gap:10px">
+              <div class="stat" style="padding:12px"><div class="n" id="home-days">0/3</div><div class="l">訓練天數</div></div>
+              <div class="stat" style="padding:12px"><div class="n" id="home-sess">0</div><div class="l">完成次數</div></div>
+              <div class="stat" style="padding:12px"><div class="n" id="home-mins">0</div><div class="l">累積分鐘</div></div>
+            </div>
+        </div>
         <div class="grid2">
           <div class="card">
             <div class="hrow"><h2>今日動作清單</h2>
@@ -559,6 +542,16 @@
               </div>
               <div id="coach-tab-body" style="font-size:14px;color:#3c3f3a"></div>
             </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hrow"><h2>☁ 雲端同步</h2><span class="pill" id="sync-pill">未設定</span></div>
+          <p class="req" id="sync-info" style="margin:0 0 12px"></p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn lime" onclick="syncPush()">上傳這台裝置</button>
+            <button class="btn ghost" onclick="syncPull()">下載雲端資料</button>
+            <button class="btn ghost" onclick="go('#/coach')">教練檢視</button>
           </div>
         </div>
       </section>
@@ -1233,9 +1226,9 @@ window.addEventListener("hashchange", route);
 function render(){
   const mins = S.sessions.reduce((a,b)=>a+b.mins,0);
   const days = new Set(S.sessions.map(s=>s.date)).size;
-  document.getElementById("home-days").textContent = `${Math.min(days,3)}/3`;
-  document.getElementById("home-sess").textContent = S.sessions.length;
-  document.getElementById("home-mins").textContent = mins;
+  const _hd = document.getElementById("home-days"); if (_hd) _hd.textContent = `${Math.min(days,3)}/3`;
+  const _hs = document.getElementById("home-sess"); if (_hs) _hs.textContent = S.sessions.length;
+  const _hm = document.getElementById("home-mins"); if (_hm) _hm.textContent = mins;
   document.getElementById("who-name").textContent = `${coachName(S.me.coach)}（教練）`;
   document.getElementById("who-ini").textContent = (coachName(S.me.coach)[0]||"W").toUpperCase();
 
@@ -1251,7 +1244,7 @@ function render(){
   const apiState = document.getElementById("api-state");
   if (apiState) apiState.textContent = S.api ? "已設定雲端網址 ✅" : "尚未設定，資料只存在這台裝置。";
   const _wp = document.getElementById("week-pill"); if (_wp) _wp.textContent = "每週 3 天";
-  document.getElementById("home-list-count").textContent = `${S.today.filter(t=>!t.rest).length} 個動作 · 共 ${S.today.length} 項`;
+  const _hl = document.getElementById("home-list-count"); if (_hl) _hl.textContent = `${S.today.filter(t=>!t.rest).length} 個動作 · 共 ${S.today.length} 項`;
   document.getElementById("coach-plan-title").textContent = `${S.me.name} · 訓練安排`;
 
   // 每週節奏（週一／三／五 各自主題）
@@ -1276,7 +1269,7 @@ function render(){
        <span>${t.rest ? "" : `<b class="cat">${t.cat||""}</b>`}${t.name}</span><span class="secs">${t.secs} 秒</span>
        <button class="btn ghost sm" onclick="toggleItem(${i})">${t.done?"還原":"完成"}</button>
      </li>`).join("");
-  document.getElementById("home-today").innerHTML = listHtml;
+  const _ht = document.getElementById("home-today"); if (_ht) _ht.innerHTML = listHtml;
   document.getElementById("plan-list").innerHTML = listHtml;
 
   // 影片庫
