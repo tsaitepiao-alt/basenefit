@@ -42,9 +42,18 @@
   .nav a{display:flex;align-items:center;gap:10px;color:#d8d5cb;text-decoration:none;padding:9px 11px;border-radius:10px;font-size:14.5px}
   .nav a:hover{background:#2a2a26;color:#fff}
   .nav a.on{background:var(--lime);color:#1b1b19;font-weight:700}
-  .nav a.sub{padding-left:34px;font-size:13.5px;position:relative;opacity:.94}
-  .nav a.sub::before{content:"└";position:absolute;left:15px;color:#6f6f66;font-size:12px}
+  .navfold{display:flex;flex-direction:column}
+  .navrow{display:flex;align-items:center;gap:2px}
+  .navrow>a{flex:1;min-width:0}
+  .foldbtn{background:none;border:0;color:#8d8d82;cursor:pointer;padding:7px 9px;border-radius:8px;font-size:12px;line-height:1;transition:transform .2s ease,color .2s}
+  .foldbtn:hover{background:#2a2a26;color:#fff}
+  .foldbtn[aria-expanded="true"]{transform:rotate(90deg);color:var(--lime)}
+  .navsub{display:none;flex-direction:column;gap:2px;margin:2px 0 4px}
+  .navfold.open .navsub{display:flex}
+  .nav a.sub{padding-left:36px;font-size:13.5px;position:relative;opacity:.95}
+  .nav a.sub::before{content:"";position:absolute;left:20px;top:50%;width:7px;height:1px;background:#6f6f66}
   .nav a.sub .mi{font-size:13px}
+  .navgrp{font-size:11px;letter-spacing:1.8px;color:#7f7f73;font-weight:700;padding:16px 12px 6px}
   .side .foot{margin-top:auto;font-size:11.5px;color:#77776e;line-height:1.8}
   .side .foot strong{color:#d8d5cb;font-weight:600;display:block;letter-spacing:1.6px;font-size:11px}
 
@@ -228,8 +237,10 @@
     .nav a{font-size:17.5px;padding:15px 14px;border-radius:13px;gap:12px;white-space:nowrap;color:#fff;font-weight:600;letter-spacing:.2px;background:#26261f;border:1px solid rgba(255,255,255,.07);-webkit-font-smoothing:antialiased}
     .nav a .mi{font-size:19px;line-height:1}
     .nav a.on{background:var(--lime);border-color:var(--lime-dark);color:#141412;font-weight:800}
-    .nav a.sub{font-size:15.5px;padding:12px 14px 12px 34px;background:#1f1f1a}
-    .nav a.sub::before{left:16px;font-size:13px;color:#7c7c70}
+    .foldbtn{font-size:15px;padding:11px 13px;color:#a3a396}
+    .nav a.sub{font-size:15.5px;padding:12px 14px 12px 40px;background:#1f1f1a}
+    .nav a.sub::before{left:24px;width:9px;background:#6f6f66}
+    .navgrp{font-size:12px;padding:16px 14px 6px;color:#8b8b7e}
     .menu-close{display:flex;position:absolute;top:16px;right:16px;width:44px;height:44px;align-items:center;justify-content:center;background:#3a3a33;color:#fff;border:none;border-radius:13px;font-size:17px;cursor:pointer}
     .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;opacity:0;pointer-events:none;transition:opacity .26s}
     .scrim.open{opacity:1;pointer-events:auto}
@@ -256,16 +267,35 @@
         <div class="drawer-title">選單 · MENU</div>
         <a href="#/home"      data-page="home"><span class="mi">🏠</span>運動首頁</a>
         <a href="#/videos"    data-page="videos"><span class="mi">🎥</span>動作影片</a>
+        <a href="#/diagrams"  data-page="diagrams"><span class="mi">📐</span>圖解教室</a>
+
+        <div class="navfold" data-fold="3d">
+          <div class="navrow">
+            <a href="#/field3d" data-page="field3d"><span class="mi">⚾</span>3D 互動學習</a>
+            <button class="foldbtn" onclick="toggleFold(this)" aria-expanded="false" aria-label="展開或收合 3D 互動學習 的子項目">▸</button>
+          </div>
+          <div class="navsub">
+            <a href="#/tactics" data-page="tactics" class="sub"><span class="mi">⚔</span>戰術小遊戲</a>
+          </div>
+        </div>
+
+        <div class="navfold" data-fold="analysis">
+          <div class="navrow">
+            <a href="#/analysis" data-page="analysis"><span class="mi">🎬</span>動作解析</a>
+            <button class="foldbtn" onclick="toggleFold(this)" aria-expanded="false" aria-label="展開或收合 動作解析 的子項目">▸</button>
+          </div>
+          <div class="navsub">
+            <a href="#/pitch"     data-page="pitch" class="sub"><span class="mi">🎯</span>投球動作解析</a>
+            <a href="#/hitting"   data-page="hitting" class="sub"><span class="mi">🏏</span>打擊動作解析</a>
+          </div>
+        </div>
+
+        <div class="navgrp">學員專區</div>
         <a href="#/assessment" data-page="assessment"><span class="mi">📋</span>能力評估</a>
         <a href="#/plan"      data-page="plan"><span class="mi">🗓</span>訓練計畫</a>
-        <a href="#/diagrams"  data-page="diagrams"><span class="mi">📐</span>圖解教室</a>
-        <a href="#/field3d"   data-page="field3d"><span class="mi">⚾</span>3D 互動學習</a>
-        <a href="#/tactics"   data-page="tactics" class="sub"><span class="mi">⚔</span>戰術小遊戲</a>
-        <a href="#/analysis"  data-page="analysis"><span class="mi">🎬</span>動作解析</a>
-        <a href="#/pitch"     data-page="pitch" class="sub"><span class="mi">🎯</span>投球動作解析</a>
-        <a href="#/hitting"   data-page="hitting" class="sub"><span class="mi">🏏</span>打擊動作解析</a>
         <a href="#/quiz"      data-page="quiz"><span class="mi">🎯</span>棒球小考</a>
         <a href="#/progress"  data-page="progress"><span class="mi">📈</span>進步追蹤</a>
+
         <a href="#/coach"     data-page="coach"><span class="mi">🧢</span>教練工作區</a>
         <a href="#/install"   data-page="install"><span class="mi">☁️</span>雲端安裝</a>
         <a href="#/settings"  data-page="settings"><span class="mi">⚙️</span>學員與設定</a>
@@ -1217,12 +1247,29 @@ function route(){
   const page = TITLES[p] ? p : "home";
   document.querySelectorAll(".page").forEach(el => el.classList.toggle("show", el.id === "page-" + page));
   document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.page === page));
+  syncFolds(page);
   document.getElementById("crumb").textContent = TITLES[page];
   toggleMenu(false);
   window.scrollTo({top:0});
   render();
 }
 window.addEventListener("hashchange", route);
+
+/* ============ 選單折疊：子項目預設收起 ============ */
+function toggleFold(btn){
+  const fold = btn.closest(".navfold");
+  if (!fold) return;
+  const open = fold.classList.toggle("open");
+  btn.setAttribute("aria-expanded", open ? "true" : "false");
+}
+function syncFolds(page){
+  document.querySelectorAll(".navfold").forEach(f => {
+    const hit = f.querySelector('a[data-page="' + page + '"]');
+    if (hit && hit.classList.contains("sub")) f.classList.add("open");   // 正在看子頁面 → 自動展開
+    const b = f.querySelector(".foldbtn");
+    if (b) b.setAttribute("aria-expanded", f.classList.contains("open") ? "true" : "false");
+  });
+}
 
 /* ============ 畫面渲染 ============ */
 function render(){
