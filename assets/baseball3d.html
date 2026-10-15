@@ -191,7 +191,7 @@ function beltShape(extra){ var b=belt(extra), s=new THREE.Shape(); s.moveTo(b[0]
   pole.position.set(p[0]*1.04, 4.5, p[1]*1.04); add(pole,'foul',0); });
 
 // ⑨ 相機環繞控制
-var tgt=new THREE.Vector3(0,2,50), yaw=0, pitch=0.60, dist=230, AUTO=false;
+var tgt=new THREE.Vector3(0,2,50), yaw=0, pitch=0.62, dist=430, AUTO=false;
 function updCam(){
   camera.position.set(tgt.x+dist*Math.cos(pitch)*Math.sin(yaw), tgt.y+dist*Math.sin(pitch), tgt.z-dist*Math.cos(pitch)*Math.cos(yaw));
   camera.lookAt(tgt);
@@ -231,8 +231,8 @@ function showInfo(k){ var d=INFO[k]; if(!d) return; var a=d.split('|');
 document.getElementById('sb').innerHTML=ROWS.map(function(r){ return '<div>'+r[0]+'：<i>'+r[1]+'</i></div>'; }).join('');
 document.getElementById('sh').onclick=function(){ var sb=document.getElementById('sb');
   var hide=sb.style.display!=='none'; sb.style.display=hide?'none':''; this.textContent='球場規格（MLB） '+(hide?'▸':'▾'); };
-document.getElementById('v1').onclick=function(){ pitch=0.60; yaw=0; dist=230; tgt.set(0,2,50); updCam(); this.classList.add('on'); document.getElementById('v2').classList.remove('on'); };
-document.getElementById('v2').onclick=function(){ pitch=1.32; dist=300; tgt.set(0,0,50); updCam(); this.classList.add('on'); document.getElementById('v1').classList.remove('on'); };
+document.getElementById('v1').onclick=function(){ pitch=0.62; yaw=0; dist=430; tgt.set(0,2,50); updCam(); this.classList.add('on'); document.getElementById('v2').classList.remove('on'); };
+document.getElementById('v2').onclick=function(){ pitch=1.30; dist=520; tgt.set(0,0,50); updCam(); this.classList.add('on'); document.getElementById('v1').classList.remove('on'); };
 document.getElementById('v3').onclick=function(){ AUTO=!AUTO; this.classList.toggle('on',AUTO); };
 document.getElementById('v4').onclick=function(){ yaw=0; pitch=0.30; dist=205; tgt.set(0,2,50); updCam();
   document.getElementById('v1').classList.add('on'); document.getElementById('v2').classList.remove('on'); };
