@@ -64,12 +64,12 @@ scene.background=new THREE.Color(0x0d1017);
 scene.fog=new THREE.Fog(0x0d1017, 420, 900);
 camera=new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 1, 3000);
 
-scene.add(new THREE.HemisphereLight(0xdfeaff, 0x2b3340, 0.95));
-var key=new THREE.DirectionalLight(0xffffff, 1.15); key.position.set(-90,140,-40); key.castShadow=true;
+scene.add(new THREE.HemisphereLight(0xdfeaff, 0x2b3340, 0.55));
+var key=new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(-90,140,-40); key.castShadow=true;
 key.shadow.mapSize.set(1024,1024);
 var sc=key.shadow.camera; sc.left=-190; sc.right=190; sc.top=190; sc.bottom=-190; sc.near=40; sc.far=460;
 scene.add(key);
-scene.add(new THREE.DirectionalLight(0x9fc4ff, 0.35).translateX(160).translateY(60).translateZ(120));
+scene.add(new THREE.DirectionalLight(0x9fc4ff, 0.22).translateX(160).translateY(60).translateZ(120));
 
 var M=function(c,r,m){ return new THREE.MeshStandardMaterial({color:c, roughness:r===undefined?0.9:r, metalness:m||0.02}); };
 var G=new THREE.Group(); scene.add(G);
@@ -91,7 +91,7 @@ for(var k=0;k<N;k++){
   var s=new THREE.Shape(); s.moveTo(0,0); s.lineTo(B45,B45);
   for(var i=0;i<=40;i++){ var a=-Math.PI/4+Math.PI/2*i/40; s.lineTo(Math.sin(a)*ARC, MOUND+Math.cos(a)*ARC); }
   s.lineTo(-B45,B45); s.lineTo(0,0);
-  var m=new THREE.Mesh(new THREE.ShapeGeometry(s), M(0xc4ab8a,0.96)); m.rotation.x=-Math.PI/2; add(m,'infield',0.06);
+  var m=new THREE.Mesh(new THREE.ShapeGeometry(s), M(0xa98c66,0.96)); m.rotation.x=-Math.PI/2; add(m,'infield',0.06);
   var circ=new THREE.Mesh(new THREE.CircleGeometry(3.6,40), M(0xcdb391,0.96)); circ.rotation.x=-Math.PI/2; add(circ,'infield',0.07);
 })();
 // ③ 警戒區（沿牆 4.6m）
@@ -146,8 +146,8 @@ function beltShape(extra){ var b=belt(extra), s=new THREE.Shape(); s.moveTo(b[0]
     }
     var g2=new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(v,3));
     g2.setIndex(idx); g2.computeVertexNormals();
-    var mm=new THREE.Mesh(g2, M(i%2?0xb9b9bd:0xd2d2d6,0.92));
-    mm.position.y=0.5+i*1.05; mm.receiveShadow=true; mm.castShadow=true; G.add(mm);
+    var mm=new THREE.Mesh(g2, M(i%2?0x7e7e84:0x96969c,0.92));
+    mm.position.y=0.5+i*2.1; mm.receiveShadow=true; mm.castShadow=true; G.add(mm);
   }
 })();
 // ⑥ 計分板（立體方塊＋窗格）
