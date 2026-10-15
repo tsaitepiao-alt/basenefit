@@ -128,20 +128,26 @@ function belt(extra){ var e=extra||0, back=BELT+e, o=[];
 function beltShape(extra){ var b=belt(extra), s=new THREE.Shape(); s.moveTo(b[0][0],b[0][1]);
   for(var i=1;i<b.length;i++) s.lineTo(b[i][0],b[i][1]); s.lineTo(b[0][0],b[0][1]); return s; }
 (function(){
-  var g=new THREE.ShapeGeometry(beltShape(0)); var m=new THREE.Mesh(g, M(0x356b1e,0.96));
-  m.rotation.x=-Math.PI/2; add(m,'outfield',0.0);
-  // 看台：5 層階梯（每層內縮、抬高）— 用 outer 當外框、inner 當洞
+  // 場外綠地：用圓盤（保證不出錯），看台另用扇形四邊形疊出階梯
+  var maxR=0; var b0=belt(15); for(var q=0;q<b0.length;q++){ var d=Math.sqrt(b0[q][0]*b0[q][0]+b0[q][1]*b0[q][1]); if(d>maxR) maxR=d; }
+  var disc=new THREE.Mesh(new THREE.CircleGeometry(maxR+2, 96), M(0x356b1e,0.96));
+  disc.rotation.x=-Math.PI/2; G.add(disc); disc.position.y=-0.05; disc.receiveShadow=true;
+  // 看台：5 層，每層用 48 片四邊形疊成環帶（不靠三角化，最穩）
+  var SEG=48;
   for(var i=0;i<5;i++){
-    var inner=belt(i*3.2), outer=belt((i+1)*3.2);
-    var s=new THREE.Shape();
-    s.moveTo(outer[0][0],outer[0][1]);
-    for(var j=1;j<outer.length;j++) s.lineTo(outer[j][0],outer[j][1]);
-    var hole=new THREE.Path();
-    hole.moveTo(inner[0][0],inner[0][1]);
-    for(var j2=1;j2<inner.length;j2++) hole.lineTo(inner[j2][0],inner[j2][1]);
-    s.holes.push(hole);
-    var gg=new THREE.ShapeGeometry(s), mm=new THREE.Mesh(gg, M(i%2?0xb9b9bd:0xd2d2d6,0.92));
-    mm.rotation.x=-Math.PI/2; G.add(mm); mm.position.y=0.6+i*1.1; mm.receiveShadow=true;
+    var v=[], idx=[], inner=belt(i*3.2), outer=belt((i+1)*3.2);
+    var step=Math.max(1, Math.floor(inner.length/SEG));
+    var pt=[];
+    for(var s=0;s<inner.length;s+=step) pt.push([inner[s], outer[Math.min(outer.length-1,s)]]);
+    for(var k2=0;k2<pt.length;k2++){
+      var a1=pt[k2][0], a2=pt[(k2+1)%pt.length][0], b1=pt[k2][1], b2=pt[(k2+1)%pt.length][1];
+      v.push(a1[0],0,a1[1], a2[0],0,a2[1], b2[0],0,b2[1], b1[0],0,b1[1]);
+      var base=v.length/3-4; idx.push(base,base+1,base+2, base,base+2,base+3);
+    }
+    var g2=new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(v,3));
+    g2.setIndex(idx); g2.computeVertexNormals();
+    var mm=new THREE.Mesh(g2, M(i%2?0xb9b9bd:0xd2d2d6,0.92));
+    mm.position.y=0.5+i*1.05; mm.receiveShadow=true; mm.castShadow=true; G.add(mm);
   }
 })();
 // ⑥ 計分板（立體方塊＋窗格）
