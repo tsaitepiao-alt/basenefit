@@ -1197,6 +1197,7 @@ const FENCE_LINE=99060;           // 325 ft 邊線
 const FENCE_CF=121920;            // 400 ft 中外野
 const TRACK_W=3000;               // 警戒區 3 m（依需求；MLB 標準 15 ft ≈ 4.6 m）
 const BOX_W=1219, BOX_D=1829;     // 打擊區 4ft × 6ft
+const STRIPES=14;                  // 外野割草條紋數（深淺交替）
 
 // ══ 標籤 ══
 let LS = 1;
@@ -1229,8 +1230,8 @@ function circle(r,seg=96,y=0){ const p=[]; for(let i=0;i<=seg;i++){const a=i/seg
 
 // ── 球場元素說明（點選才顯示）──
 const FIELD_INFO={
-  outfield:{area:true, t:'外野草區（綠）',rows:['邊線 99.06 m（325 ft）','中外野 121.92 m（400 ft）','界外線夾角 90°','草區半徑依 325–400 ft 弧線變化']},
-  infield:{area:true, t:'內野紅土區（紅）',rows:['壘間 27.43 m（90 ft）','本壘 → 投手板 18.44 m（60 ft 6 in）','內野土弧半徑 28.96 m（95 ft）','壘包 38.1 × 38.1 cm（15 in）']},
+  outfield:{area:true, t:'外野草區（割草條紋）',rows:['邊線 99.06 m（325 ft）','中外野 121.92 m（400 ft）','界外線夾角 90°','草區半徑依 325–400 ft 弧線變化']},
+  infield:{area:true, t:'內野沙土區（沙色）',rows:['壘間 27.43 m（90 ft）','本壘 → 投手板 18.44 m（60 ft 6 in）','內野土弧半徑 28.96 m（95 ft）','壘包 38.1 × 38.1 cm（15 in）']},
   track:{area:true, t:'警戒區（紅）',rows:['寬度 3 m（此圖設定）','MLB 標準 15 ft ≈ 4.6 m','提醒野手接近全壘打牆']},
   wall:{t:'全壘打牆',rows:['邊線 99.06 m（325 ft）','中外野 121.92 m（400 ft）','高度 3 m・牆頂黃線','距離牌 325／347／368／400 ft']},
   plate:{t:'本壘板',rows:['43.18 × 21.6 cm（17 × 8.5 in）','五角形，尖端朝捕手','好球帶寬度由此決定']},
@@ -1353,20 +1354,31 @@ function fieldClickInit(){
 function buildField(){
   const g=new THREE.Group(); g.name='field';
   const gy=0;
-  const grass=M(0x348a45,0.95,0,0.28);      // 外野草區（綠）
-  const clay =M(0x9c3a22,0.96,0,0.22);     // 內野紅土（紅）
-  const trk  =M(0x7d2418,0.96,0,0.20);     // 警戒區（深紅）
+  const grassA=M(0x316a25,0.95,0,0.28);    // 割草深色條紋
+  const grassB=M(0x5d9835,0.95,0,0.28);    // 割草淺色條紋
+  const apron =M(0x417725,0.96,0,0.24);    // 場外草皮
+  const clay =M(0xc4ab8a,0.96,0,0.22);     // 內野沙土（沙色）
+  const trk  =M(0xa9764c,0.96,0,0.20);     // 警戒區（土色）
   const white=M(0xf8f8f4,0.55,0.02,0.7);
-  for(const mm of [grass,clay,trk,white]) mm.side=THREE.DoubleSide;   // 平面要雙面，否則點選（raycast）打不到
+  for(const mm of [grassA,grassB,apron,clay,trk,white]) mm.side=THREE.DoubleSide;   // 平面要雙面，否則點選（raycast）打不到
   const a0=-Math.PI*0.25, a1=Math.PI*0.25;   // 界內扇形：-45°~+45°（0°=中外野）
   // ① 外野草區（扇形）
   const sector=new THREE.Shape(); sector.moveTo(0,0);
   const Rmax=FENCE_CF*1.05;
   for(let i=0;i<=120;i++){ const a=a0+(a1-a0)*i/120; sector.lineTo(Math.sin(a)*Rmax, -Math.cos(a)*Rmax); }
   sector.lineTo(0,0);
-  const gm=mkI(new THREE.ShapeGeometry(sector,24), grass, 0, gy+2, 0, 'outfield');
-  gm.rotation.x=-Math.PI/2; gm.receiveShadow=true; g.add(gm);
-  // ② 內野紅土區（壘線內側 + 95 ft 土弧）
+  for(let s=0;s<STRIPES;s++){
+    const sa=a0+(a1-a0)*s/STRIPES, sb=a0+(a1-a0)*(s+1)/STRIPES;
+    const wedge=new THREE.Shape(); wedge.moveTo(0,0);
+    for(let i=0;i<=10;i++){ const a=sa+(sb-sa)*i/10; wedge.lineTo(Math.sin(a)*Rmax, -Math.cos(a)*Rmax); }
+    wedge.lineTo(0,0);
+    const wm=mkI(new THREE.ShapeGeometry(wedge,6), (s%2?grassB:grassA), 0, gy+2, 0, 'outfield');
+    wm.rotation.x=-Math.PI/2; wm.receiveShadow=true; g.add(wm);
+  }
+  // 場外草皮（讓圍牆外不是空洞）
+  const ap=new THREE.Mesh(new THREE.CircleGeometry(Rmax+26000, 96), apron);
+  ap.rotation.x=-Math.PI/2; ap.position.y=gy-6; ap.receiveShadow=true; g.add(ap);
+  // ② 內野沙土區（壘線內側 + 95 ft 土弧）
   const infield=new THREE.Shape(); infield.moveTo(0,0);
   for(let i=0;i<=60;i++){ const a=a0+(a1-a0)*i/60; infield.lineTo(Math.sin(a)*(BASE_PATH*0.92), -Math.cos(a)*(BASE_PATH*0.92)); }
   const dm=mkI(new THREE.ShapeGeometry(infield,20), clay, 0, gy+6, 0, 'infield');
@@ -1394,7 +1406,7 @@ function buildField(){
     wallPts.push([Math.sin(a)*r, gy, Math.cos(a)*r]); }
   for(let i=0;i<n;i++){ const p=wallPts[i], p2=wallPts[i+1];
     const dx=p2[0]-p[0], dz=p2[2]-p[2], len=Math.hypot(dx,dz);
-    const seg=mkI(new THREE.BoxGeometry(len+40, 3000, 260), M(0x1e3f7a,0.85,0.02,0.4),
+    const seg=mkI(new THREE.BoxGeometry(len+40, 3000, 260), M(0x276a2a,0.85,0.02,0.4),
       (p[0]+p2[0])/2, gy+1500, (p[2]+p2[2])/2, 'wall');
     seg.rotation.y=Math.atan2(dx,dz)-Math.PI/2; g.add(seg);
   }
@@ -1473,6 +1485,39 @@ function buildField(){
     g.add(pole);
     g.add(hitProx(new THREE.CylinderGeometry(900,900,9000,12), Math.sin(a)*FENCE_LINE, gy+4500, Math.cos(a)*FENCE_LINE, 'foul'));
   }
+  // ⑪ 環形看台（灰色＋白色分隔）
+  (function(){
+    const seat=M(0xb8b8b8,0.92,0,0.35), roof=M(0xcecece,0.90,0,0.42), line=M(0xffffff,0.80,0,0.50);
+    seat.side=THREE.DoubleSide; roof.side=THREE.DoubleSide;
+    const rIn=FENCE_CF+2600, rOut=rIn+13000, SH=4200, sweep=[-Math.PI*1.02, Math.PI*2.04];
+    const ring=new THREE.Mesh(new THREE.RingGeometry(rIn, rOut, 160, 1, sweep[0], sweep[1]), seat);
+    ring.rotation.x=-Math.PI/2; ring.position.y=gy+SH; g.add(ring);
+    const rim=new THREE.Mesh(new THREE.CylinderGeometry(rIn, rIn, SH, 160, 1, true), roof);
+    rim.position.y=gy+SH/2; g.add(rim);
+    const eOut=new THREE.Mesh(new THREE.RingGeometry(rOut-700, rOut, 160, 1, sweep[0], sweep[1]), roof);
+    eOut.rotation.x=-Math.PI/2; eOut.position.y=gy+SH+3; g.add(eOut);
+    const eIn=new THREE.Mesh(new THREE.RingGeometry(rIn, rIn+650, 160, 1, sweep[0], sweep[1]), line);
+    eIn.rotation.x=-Math.PI/2; eIn.position.y=gy+SH+3; g.add(eIn);
+    for(let i=0;i<24;i++){
+      const a=sweep[0]+sweep[1]*i/24, rm=rIn+(rOut-rIn)/2;
+      const bar=new THREE.Mesh(new THREE.BoxGeometry(560, 20, rOut-rIn), line);
+      bar.position.set(Math.sin(a)*rm, gy+SH+6, Math.cos(a)*rm);
+      bar.rotation.y=-a; g.add(bar);
+    }
+  })();
+  // ⑫ 綠色計分板（中外野後方，窗格為淺綠小方格）
+  (function(){
+    const body=M(0x276a2a,0.88,0,0.35), win=M(0x8cb68e,0.90,0,0.40), frame=M(0xcecece,0.90,0,0.42);
+    const zc=FENCE_CF+11000;
+    const box=new THREE.Mesh(new THREE.BoxGeometry(20000, 9000, 2600), body);
+    box.position.set(0, gy+4500, zc); g.add(box);
+    for(let ix=0; ix<8; ix++) for(let iy=0; iy<3; iy++){
+      const w=new THREE.Mesh(new THREE.BoxGeometry(1700, 1100, 140), win);
+      w.position.set(-7000+ix*2000, gy+2500+iy*1600, zc-1370); g.add(w);
+    }
+    const rf=new THREE.Mesh(new THREE.BoxGeometry(21200, 420, 3400), frame);
+    rf.position.set(0, gy+9210, zc); g.add(rf);
+  })();
   // 尺寸輔助線（壘間、投手板距離；文字要按「數據」才顯示）
   const dim=(a,b,c)=>{ const m=line([a,b],c,0.85,g); return m; };
   dim([0,gy+60,0],[B,gy+60,B],0x8fd7ff);
