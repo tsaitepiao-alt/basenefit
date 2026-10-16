@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>滾動式 3D 球場 · basenefit</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:#0b0f0c;color:#f2f5ee;font:16px/1.8 -apple-system,"PingFang TC",system-ui,sans-serif;overflow-x:hidden}
+  #cv{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+  #topbar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px;background:linear-gradient(180deg,rgba(8,12,9,.85),transparent);pointer-events:none}
+  #topbar b{color:#cbf24c;letter-spacing:.5px}
+  #topbar a{pointer-events:auto;color:#dfe6d6;text-decoration:none;font-size:13px;border:1px solid rgba(203,242,76,.4);
+    border-radius:999px;padding:6px 13px;background:rgba(12,18,14,.6)}
+  #prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#cbf24c,#8fd7a0);z-index:6;width:0}
+  section{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;padding:0 22px}
+  section[data-side="left"]{justify-content:flex-start}
+  section[data-side="right"]{justify-content:flex-end}
+  section[data-side="center"]{justify-content:center;text-align:center}
+  .card{max-width:430px;background:rgba(10,16,12,.72);border:1px solid rgba(203,242,76,.28);
+    border-radius:18px;padding:22px 24px;backdrop-filter:blur(8px);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+  .card .eb{font:600 10px/1 ui-monospace,Menlo,monospace;letter-spacing:2.4px;color:#cbf24c;opacity:.85}
+  .card h2{font-size:27px;line-height:1.25;margin:9px 0 8px;letter-spacing:.5px}
+  .card p{font-size:14.5px;color:#c3ccb8}
+  .card .big{font:800 34px/1.1 ui-monospace,Menlo,monospace;color:#cbf24c;letter-spacing:1px;margin:6px 0}
+  .card ul{margin:8px 0 0 18px;font-size:14px;color:#c3ccb8}
+  .card li{margin:3px 0}
+  #hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:5;font-size:12px;color:#a9b79c;
+    letter-spacing:1px;animation:bob 2.2s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
+  #load{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;
+    background:#0b0f0c;color:#cbf24c;font:600 14px/1 ui-monospace,Menlo,monospace;letter-spacing:2px}
+  #load.off{opacity:0;pointer-events:none;transition:opacity .6s}
+  @media(max-width:600px){.card{padding:18px 18px}.card h2{font-size:22px}.big{font-size:28px}}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<canvas id="cv"></canvas>
+<div id="topbar"><b>basenefit · 3D 互動學習</b><a href="../index.html#/field3d">← 回到球場</a></div>
+<div id="load">LOADING 3D…</div>
+
+<section data-side="center">
+  <div class="card" data-fade>
+    <div class="eb">SCROLL · 3D · BASEBALL</div>
+    <h2>往下滾，球場跟著動</h2>
+    <p>滾動就是你的鏡頭：從本壘後方起飛、繞過內野、飛到全壘打牆外。這個頁面示範「滾動驅動 3D 場景」的做法。</p>
+  </div>
+</section>
+
+<section data-side="left">
+  <div class="card" data-fade>
+    <div class="eb">01 · INFIELD</div>
+    <h2>內野鑽石</h2>
+    <div class="big">27.43 m</div>
+    <ul><li>壘間距離 27.43 m（90 ft）</li><li>本壘 → 投手板 18.44 m（60 ft 6 in）</li><li>投手丘半徑 2.74 m、高 25.4 cm</li></ul>
+  </div>
+</section>
+
+<section data-side="right">
+  <div class="card" data-fade>
+    <div class="eb">02 · OUTFIELD</div>
+    <h2>外野與警戒區</h2>
+    <div class="big">400 ft</div>
+    <ul><li>中外野 121.92 m（400 ft）、左右外野 325 ft</li><li>警戒區 4.6 m（15 ft）</li><li>全壘打牆高 3 m、界外桿 6 m 以上</li></ul>
+  </div>
+</section>
+
+<section data-side="center">
+  <div class="card" data-fade>
+    <div class="eb">03 · SCOREBOARD</div>
+    <h2>計分板與壘包</h2>
+    <ul><li>壘包 38.1 × 38.1 cm、投手板 61 × 15.2 cm</li><li>本壘板 43.18 × 21.6 cm</li><li>守備員 9 人：投捕＋內野 4＋外野 3</li></ul>
+    <p style="margin-top:10px;color:#8fa383;font-size:13px">往下滾到底，鏡頭會拉回空中俯看整個場地。</p>
+  </div>
+</section>
+
+<section data-side="center">
+  <div class="card" data-fade>
+    <div class="eb">04 · OVERVIEW</div>
+    <h2>整個球場，一眼看完</h2>
+    <p>這就是滾動驅動 3D 的效果：一個 GLB 模型 ＋ 一條鏡頭路徑 ＋ 滾動進度，不需要影片、不需要逐格動畫檔。</p>
+    <p style="margin-top:10px"><a href="../index.html#/field3d" style="color:#cbf24c">回 3D 互動球場 →</a></p>
+  </div>
+</section>
+
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+(function(){
+  var cv=document.getElementById('cv');
+  if(!window.THREE){ document.getElementById('load').textContent='需要網路載入 3D 引擎'; return; }
+  var renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth,innerHeight);
+  var scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x0b0f0c);
+  scene.fog=new THREE.Fog(0x0b0f0c,700,1500);
+  var camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,1,4000);
+  scene.add(new THREE.HemisphereLight(0xdfeee0,0x2b3327,1.1));
+  var dir=new THREE.DirectionalLight(0xffffff,1.5); dir.position.set(180,320,120); scene.add(dir);
+  var model=null;
+
+  new THREE.GLTFLoader().load('baseball_stadium.glb',function(gl){
+    model=gl.scene;
+    var b=new THREE.Box3().setFromObject(model), c=new THREE.Vector3(), s=new THREE.Vector3();
+    b.getCenter(c); b.getSize(s);
+    model.position.x-=c.x; model.position.z-=c.z;         // 置中
+    scene.add(model);
+    document.getElementById('load').classList.add('off');
+    window.__ready=true;
+  },undefined,function(){ document.getElementById('load').textContent='模型載入失敗'; });
+
+  // 鏡頭路徑（p = 滾動進度 0→1）
+  var KEYS=[
+    {p:0.00, pos:[   0, 120, -300], look:[  0,  10,   20]},
+    {p:0.28, pos:[ -70,  60,  -95], look:[  8,   6,  -18]},
+    {p:0.55, pos:[ 135,  75,   60], look:[ 20,   4,   50]},
+    {p:0.78, pos:[   0,  90,  330], look:[  0,  10,   60]},
+    {p:1.00, pos:[   0, 430,  120], look:[  0,   0,   10]}
+  ];
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function eio(t){ return t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+  function camAt(p){
+    for(var i=0;i<KEYS.length-1;i++){
+      var A=KEYS[i],B=KEYS[i+1];
+      if(p<=B.p){
+        var t=eio(Math.max(0,Math.min(1,(p-A.p)/(B.p-A.p))));
+        return {
+          pos:[lerp(A.pos[0],B.pos[0],t),lerp(A.pos[1],B.pos[1],t),lerp(A.pos[2],B.pos[2],t)],
+          look:[lerp(A.look[0],B.look[0],t),lerp(A.look[1],B.look[1],t),lerp(A.look[2],B.look[2],t)]
+        };
+      }
+    }
+    return {pos:KEYS[KEYS.length-1].pos, look:KEYS[KEYS.length-1].look};
+  }
+
+  var target=0, cur=0, lookCur=new THREE.Vector3(0,10,20), lookTgt=new THREE.Vector3(0,10,20);
+  function progress(){
+    var max=document.documentElement.scrollHeight-innerHeight;
+    return max>0 ? Math.max(0,Math.min(1,scrollY/max)) : 0;
+  }
+  function onScroll(){
+    target=progress();
+    document.getElementById('prog').style.width=(target*100)+'%';
+  }
+  addEventListener('scroll',onScroll,{passive:true});
+  addEventListener('resize',function(){
+    camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight); onScroll();
+  });
+  onScroll();
+
+  // 文字卡淡入
+  var cards=[].slice.call(document.querySelectorAll('[data-fade]'));
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){ e.target.style.transition='opacity .7s ease, transform .7s ease';
+        e.target.style.opacity=1; e.target.style.transform='translateY(0)'; }
+      else { e.target.style.opacity=0; e.target.style.transform='translateY(26px)'; }
+    });
+  },{threshold:.35});
+  cards.forEach(function(c){ c.style.opacity=0; c.style.transform='translateY(26px)'; io.observe(c); });
+
+  (function loop(){
+    requestAnimationFrame(loop);
+    cur += (target-cur)*0.075;                     // 平滑跟隨滾動
+    var k=camAt(cur);
+    camera.position.set(k.pos[0],k.pos[1],k.pos[2]);
+    lookCur.x+=(k.look[0]-lookCur.x)*0.09;
+    lookCur.y+=(k.look[1]-lookCur.y)*0.09;
+    lookCur.z+=(k.look[2]-lookCur.z)*0.09;
+    camera.lookAt(lookCur);
+    if(model){
+      var b=cur-0.5;
+      model.rotation.y=Math.sin(cur*Math.PI)*0.16;  // 滾動時微微轉
+      model.position.y=b*0;                          // 保持貼地（保留參數方便微調）
+    }
+    renderer.render(scene,camera);
+  })();
+})();
+</script>
+</body>
+</html>
