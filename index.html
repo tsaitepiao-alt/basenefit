@@ -904,13 +904,13 @@
       <section class="page" id="page-tactics">
         <div class="eyebrow">TACTICS GAME</div>
         <h2 class="page-title">棒球戰術小遊戲</h2>
-        <p class="lead">每個打席選一個戰術（強攻／打帶跑／盜壘／犧牲觸擊／強迫取分），用機率模型跑出結果，直接在 3D 球場上演。共 3 局，第 2 局是「關鍵一分」局面。</p>
+        <p class="lead">3D 戰術模擬器：你當總教練，每一球自己選<b>攻擊策略</b>（強攻／打帶跑／盜壘／犧牲觸擊／強迫取分）與投手的<b>球種、進壘點</b>，引擎即時算出好壞球、出局數、壘上跑者與完整計分板（逐局 R／H／E／LOB）。內建 6 種情境（開局觀察／滿壘滿球數／雙殺守備／高壓推進／九下守成／延長決勝），正規 9 局打完會給<b>戰術分數</b>與排名等級（S～D）。</p>
         <div class="card" style="padding:10px">
-          <iframe id="fgame" src="assets/tactics.html?v=2" title="棒球戰術小遊戲" loading="lazy"
+          <iframe id="fgame" src="assets/tactics/index.html?v=3" title="棒球戰術小遊戲" loading="lazy"
                   style="width:100%;height:min(80vh,820px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <button class="btn lime" onclick="document.getElementById('fgame').src='assets/tactics.html?v='+Date.now()">重新開始</button>
-            <button class="btn ghost" onclick="window.open('assets/tactics.html','_blank')">全螢幕開啟</button>
+            <button class="btn lime" onclick="document.getElementById('fgame').src='assets/tactics/index.html?v='+Date.now()">重新開始</button>
+            <button class="btn ghost" onclick="window.open('assets/tactics/index.html','_blank')">全螢幕開啟</button>
           </div>
           <p class="req" style="margin-top:8px">每選一次戰術，畫面會同時顯示各選項的「期望得分」與「得分率」，並告訴你模擬後的最佳選擇。最後會結算你的表現。</p>
         </div>

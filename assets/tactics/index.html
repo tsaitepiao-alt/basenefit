@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071426" />
+    <meta
+      name="description"
+      content="Diamond Tactics Lab：可互動的 3D 棒球戰術比賽模擬與賽後教練評級。"
+    />
+    <title>Diamond Tactics Lab｜3D 棒球戰術模擬</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="stadium-glow glow-one"></div>
+    <div class="stadium-glow glow-two"></div>
+    <main class="app-shell" id="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#play" aria-label="回到 Diamond Tactics Lab 主畫面">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none"><path d="M24 4 44 24 24 44 4 24 24 4Z" stroke="currentColor" stroke-width="3"/><path d="M24 10 38 24 24 38 10 24 24 10Z" fill="currentColor" opacity=".22"/><path d="M24 14v20M14 24h20" stroke="currentColor" stroke-width="2" opacity=".9"/></svg>
+          </span>
+          <span><strong>DIAMOND</strong><em>TACTICS LAB</em></span>
+        </a>
+        <div class="topbar-center">
+          <span class="live-dot"></span><span id="game-phase-label">戰術演練中</span>
+          <span class="topbar-divider"></span>
+          <span class="muted">規則模式：教學完整制</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-button compact" id="help-button" type="button">玩法說明</button>
+          <button class="outline-button compact" id="reset-button" type="button">重新開賽</button>
+        </div>
+      </header>
+
+      <section class="scoreboard-panel" aria-label="即時計分板">
+        <div class="team-block away-team">
+          <span class="team-tag">學員隊</span>
+          <strong id="away-name">TAIPEI TACTICS</strong>
+          <span class="team-record" id="away-record">AWAY</span>
+        </div>
+        <div class="line-score-wrap" aria-live="polite">
+          <table class="line-score" id="line-score-table">
+            <caption class="sr-only">逐局計分板</caption>
+          </table>
+        </div>
+        <div class="team-block home-team">
+          <span class="team-tag">對手隊</span>
+          <strong id="home-name">NORTH STARS</strong>
+          <span class="team-record" id="home-record">HOME</span>
+        </div>
+      </section>
+
+      <section class="game-context" aria-label="本球數、局數與壘包狀態">
+        <div class="inning-card context-card">
+          <span class="mini-label">目前局面</span>
+          <strong id="inning-label">▲ 1 局上</strong>
+          <span id="matchup-label">TAIPEI TACTICS 進攻</span>
+        </div>
+        <div class="count-card context-card">
+          <span class="mini-label">球數</span>
+          <div class="count-lights" aria-label="好壞球出局數">
+            <div><span>Ｂ</span><i id="ball-light-1"></i><i id="ball-light-2"></i><i id="ball-light-3"></i></div>
+            <div><span>Ｓ</span><i id="strike-light-1"></i><i id="strike-light-2"></i></div>
+            <div><span>Ｏ</span><i id="out-light-1"></i><i id="out-light-2"></i></div>
+          </div>
+        </div>
+        <div class="bases-card context-card">
+          <span class="mini-label">壘上狀態</span>
+          <div class="mini-diamond" aria-label="壘包指示">
+            <i class="base base-second" id="base-second" title="二壘"></i>
+            <i class="base base-third" id="base-third" title="三壘"></i>
+            <i class="base base-first" id="base-first" title="一壘"></i>
+            <span class="home-plate" aria-hidden="true"></span>
+          </div>
+        </div>
+        <div class="at-bat-card context-card">
+          <span class="mini-label">對決</span>
+          <div class="matchup-people"><span class="pitcher-dot"></span><strong id="pitcher-name">投手</strong><b>vs</b><span class="batter-dot"></span><strong id="batter-name">打者</strong></div>
+        </div>
+        <div class="probability-card context-card">
+          <span class="mini-label">攻勢指標</span>
+          <strong id="win-probability">50%</strong>
+          <span id="probability-copy">目前攻方得分態勢</span>
+        </div>
+      </section>
+
+      <section class="main-grid" id="play">
+        <aside class="left-rail">
+          <section class="panel scenario-panel">
+            <div class="panel-heading"><div><span class="eyebrow">TRAINING DECK</span><h2>局面演練</h2></div><span class="shortcut-key">1–6</span></div>
+            <p class="panel-description">不必等待比賽自然發生。載入關鍵局面，練習選擇與處置。</p>
+            <div class="scenario-list" id="scenario-list">
+              <button class="scenario active" data-scenario="opening" type="button"><span class="scenario-number">01</span><span><strong>開局觀察</strong><small>1 局上 · 無人出局</small></span><i>↗</i></button>
+              <button class="scenario" data-scenario="fullCount" type="button"><span class="scenario-number">02</span><span><strong>滿壘滿球數</strong><small>3–2 · 1 出局</small></span><i>↗</i></button>
+              <button class="scenario" data-scenario="doublePlay" type="button"><span class="scenario-number">03</span><span><strong>雙殺守備</strong><small>一壘有人 · 0 出局</small></span><i>↗</i></button>
+              <button class="scenario" data-scenario="sacrifice" type="button"><span class="scenario-number">04</span><span><strong>高壓推進</strong><small>三壘有人 · 1 出局</small></span><i>↗</i></button>
+              <button class="scenario" data-scenario="walkoff" type="button"><span class="scenario-number">05</span><span><strong>九下守成</strong><small>1 分差 · 一三壘</small></span><i>↗</i></button>
+              <button class="scenario" data-scenario="extras" type="button"><span class="scenario-number">06</span><span><strong>延長決勝</strong><small>第 10 局 · 二壘有人</small></span><i>↗</i></button>
+            </div>
+          </section>
+          <section class="panel coach-panel">
+            <div class="panel-heading"><div><span class="eyebrow">COACHING SIGNAL</span><h2>即時建議</h2></div><span class="coach-icon">⌁</span></div>
+            <strong class="coach-call" id="coach-call">讀球、不要急著出棒</strong>
+            <p id="coach-reason">先用好球帶與球數判讀，選擇下一個高價值決策。</p>
+            <div class="coach-meter"><span id="coach-score-bar"></span></div>
+            <small id="coach-score-label">戰術契合度 68</small>
+          </section>
+        </aside>
+
+        <section class="field-column">
+          <div class="field-frame">
+            <div class="field-frame-top"><span><i class="camera-dot"></i> LIVE 3D FIELD</span><span id="fielding-position-label">標準守備</span></div>
+            <div id="field-3d" class="field-3d" aria-label="3D 棒球場畫面"></div>
+            <div class="field-hud field-hud-left"><span>風速</span><strong>3.2 m/s</strong></div>
+            <div class="field-hud field-hud-right"><span>投球數</span><strong id="pitch-count">0</strong></div>
+            <div class="field-status" id="field-status" role="status">選擇策略，開始本球數。</div>
+          </div>
+          <div class="event-ticker" aria-live="polite"><span class="ticker-mark">PLAY</span><p id="last-play-text">比賽開始：學員隊從 1 局上進攻。</p><time id="play-number"># 000</time></div>
+        </section>
+
+        <aside class="right-rail">
+          <section class="panel command-panel">
+            <div class="panel-heading"><div><span class="eyebrow" id="command-eyebrow">OFFENSIVE PLAN</span><h2 id="command-title">打擊決策</h2></div><span class="decision-chip" id="decision-side">學員進攻</span></div>
+            <p class="panel-description" id="command-description">依球數和壘上跑者，選擇這一球的進攻意圖。</p>
+            <div class="offense-controls" id="offense-controls">
+              <div class="strategy-buttons" role="group" aria-label="打擊策略">
+                <button class="strategy-button selected" data-strategy="take" type="button"><span class="strategy-icon">◌</span><strong>觀察</strong><small>選球／等失投</small></button>
+                <button class="strategy-button" data-strategy="contact" type="button"><span class="strategy-icon">⌁</span><strong>接觸</strong><small>扎實放進場</small></button>
+                <button class="strategy-button" data-strategy="power" type="button"><span class="strategy-icon">✦</span><strong>強攻</strong><small>追求長打</small></button>
+                <button class="strategy-button" data-strategy="bunt" type="button"><span class="strategy-icon">⌇</span><strong>短打</strong><small>推進跑者</small></button>
+                <button class="strategy-button" data-strategy="steal" type="button"><span class="strategy-icon">⇢</span><strong>盜壘</strong><small>製造壓力</small></button>
+              </div>
+              <button class="primary-action" id="offense-play-button" type="button"><span>執行打席</span><kbd>SPACE</kbd></button>
+            </div>
+            <div class="defense-controls hidden" id="defense-controls">
+              <div class="defense-row"><label for="pitch-type">球種</label><div class="segmented" id="pitch-type"><button class="segment selected" data-pitch="fastball" type="button">直球</button><button class="segment" data-pitch="slider" type="button">滑球</button><button class="segment" data-pitch="changeup" type="button">變速</button></div></div>
+              <div class="defense-row zone-row"><label>配球位置</label><div class="zone-grid" id="zone-grid" aria-label="投球位置"><button data-zone="up-in" type="button"></button><button data-zone="up" type="button"></button><button data-zone="up-away" type="button"></button><button data-zone="in" type="button"></button><button class="selected" data-zone="middle" type="button"></button><button data-zone="away" type="button"></button><button data-zone="down-in" type="button"></button><button data-zone="down" type="button"></button><button data-zone="down-away" type="button"></button></div></div>
+              <div class="defense-row"><label for="fielding-select">守備站位</label><select id="fielding-select"><option value="standard">標準守備</option><option value="doubleplay">雙殺深度</option><option value="infieldIn">內野趨前</option><option value="noDoubles">防長打</option></select></div>
+              <div class="defense-actions"><button class="secondary-action" id="intentional-walk-button" type="button">敬遠</button><button class="primary-action" id="defense-play-button" type="button"><span>投出這一球</span><kbd>SPACE</kbd></button></div>
+            </div>
+            <button class="manual-toggle" id="manual-toggle" type="button" aria-expanded="false">教練事件控制 <span>⌄</span></button>
+            <div class="manual-controls hidden" id="manual-controls">
+              <p>直接判定此球結果，供課堂講解或重現罕見情境。</p>
+              <div class="manual-grid">
+                <button data-action="ball" type="button">壞球</button><button data-action="calledStrike" type="button">好球</button><button data-action="foul" type="button">界外</button><button data-action="single" type="button">一安</button><button data-action="double" type="button">二安</button><button data-action="homeRun" type="button">全壘打</button><button data-action="groundOut" type="button">滾地出局</button><button data-action="doublePlay" type="button">雙殺</button><button data-action="wildPitch" type="button">暴投</button><button data-action="error" type="button">失誤</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel telemetry-panel">
+            <div class="panel-heading"><div><span class="eyebrow">GAME TELEMETRY</span><h2>比賽數據</h2></div><span class="pulse-label">LIVE</span></div>
+            <div class="telemetry-grid">
+              <div><span>打者</span><strong id="batter-line">—</strong></div><div><span>投手</span><strong id="pitcher-line">—</strong></div><div><span>本局得分</span><strong id="inning-runs">0 / 0</strong></div><div><span>壘上殘壘</span><strong id="lob-line">0 / 0</strong></div>
+            </div>
+          </section>
+        </aside>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel log-panel">
+          <div class="panel-heading"><div><span class="eyebrow">PLAY BY PLAY</span><h2>比賽紀錄</h2></div><button class="text-button" id="simulate-half-button" type="button">自動完成半局 →</button></div>
+          <ol class="play-log" id="play-log" aria-live="polite"></ol>
+        </section>
+        <section class="panel rank-panel">
+          <div class="panel-heading"><div><span class="eyebrow">TACTICAL PROFILE</span><h2>學員戰術等級</h2></div><span class="local-badge">本機紀錄</span></div>
+          <div class="rank-content"><div class="rank-emblem" id="rank-emblem"><span id="rank-letter">C</span></div><div><strong class="rank-title" id="rank-title">成長型教練</strong><p id="rank-summary">完成關鍵決策與比賽，即可取得最終評級。</p><div class="rank-progress"><span id="rank-progress"></span></div><small id="rank-score">戰術分數 55 / 100</small></div></div>
+          <div class="rank-history" id="rank-history"><span>最佳紀錄</span><strong>尚無完成比賽</strong></div>
+        </section>
+      </section>
+    </main>
+
+    <dialog class="result-modal" id="result-modal" aria-labelledby="result-title">
+      <button class="modal-close" id="modal-close" type="button" aria-label="關閉賽後報告">×</button>
+      <div class="result-kicker">FINAL REPORT</div>
+      <div class="result-score" id="final-score">0 — 0</div>
+      <h2 id="result-title">賽後戰術報告</h2>
+      <div class="final-rank" id="final-rank">C</div>
+      <p id="result-summary"></p>
+      <div class="result-stats" id="result-stats"></div>
+      <div class="result-actions"><button class="secondary-action" id="close-results" type="button">回看比賽</button><button class="primary-action" id="new-game-button" type="button">開始新對戰</button></div>
+    </dialog>
+
+    <dialog class="help-modal" id="help-modal" aria-labelledby="help-title">
+      <button class="modal-close" id="help-close" type="button" aria-label="關閉玩法說明">×</button>
+      <span class="eyebrow">HOW TO PLAY</span><h2 id="help-title">以局面做決策，而不是猜結果</h2>
+      <ol class="help-list"><li><strong>進攻回合</strong>：選觀察、接觸、強攻、短打或盜壘，再執行打席。</li><li><strong>守備回合</strong>：設定球種、位置與站位，壓低對手的高價值結果。</li><li><strong>演練牌組</strong>：一鍵載入滿壘、雙殺、九下守成等局面；右側也可由教練直接判定事件。</li><li><strong>賽後評級</strong>：分數會綜合情境下的戰術選擇、進攻效率與最終賽果，產出 S–D 等級。</li></ol>
+      <p class="help-note">採教學完整制：包含 B/S/O、壘包、R/H/E、四壞／觸身、安打、短打、犧飛、失誤、雙殺、盜壘、暴投、延長賽與再見分等情境。</p>
+    </dialog>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
