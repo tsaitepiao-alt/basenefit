@@ -91,12 +91,12 @@
             <div class="panel-heading"><div><span class="eyebrow">TRAINING DECK</span><h2>局面演練</h2></div><span class="shortcut-key">1–6</span></div>
             <p class="panel-description">不必等待比賽自然發生。載入關鍵局面，練習選擇與處置。</p>
             <div class="scenario-list" id="scenario-list">
-              <button class="scenario active" data-scenario="opening" type="button" aria-label="情境 01：開局觀察"><span class="scenario-number">01</span><span><strong>開局觀察</strong><small>1 局上 · 無人出局</small></span><i>↗</i></button>
-              <button class="scenario" data-scenario="fullCount" type="button" aria-label="情境 02：滿壘滿球數"><span class="scenario-number">02</span><span><strong>滿壘滿球數</strong><small>3–2 · 1 出局</small></span><i>↗</i></button>
-              <button class="scenario" data-scenario="doublePlay" type="button" aria-label="情境 03：雙殺守備"><span class="scenario-number">03</span><span><strong>雙殺守備</strong><small>一壘有人 · 0 出局</small></span><i>↗</i></button>
-              <button class="scenario" data-scenario="sacrifice" type="button" aria-label="情境 04：高壓推進"><span class="scenario-number">04</span><span><strong>高壓推進</strong><small>三壘有人 · 1 出局</small></span><i>↗</i></button>
-              <button class="scenario" data-scenario="walkoff" type="button" aria-label="情境 05：九下守成"><span class="scenario-number">05</span><span><strong>九下守成</strong><small>1 分差 · 一三壘</small></span><i>↗</i></button>
-              <button class="scenario" data-scenario="extras" type="button" aria-label="情境 06：延長決勝"><span class="scenario-number">06</span><span><strong>延長決勝</strong><small>第 10 局 · 二壘有人</small></span><i>↗</i></button>
+              <button class="scenario active" data-scenario="opening" type="button"><span class="scenario-number">01</span><span><strong>開局觀察</strong><small>1 局上 · 無人出局</small></span><i>↗</i></button>
+              <button class="scenario" data-scenario="fullCount" type="button"><span class="scenario-number">02</span><span><strong>滿壘滿球數</strong><small>3–2 · 1 出局</small></span><i>↗</i></button>
+              <button class="scenario" data-scenario="doublePlay" type="button"><span class="scenario-number">03</span><span><strong>雙殺守備</strong><small>一壘有人 · 0 出局</small></span><i>↗</i></button>
+              <button class="scenario" data-scenario="sacrifice" type="button"><span class="scenario-number">04</span><span><strong>高壓推進</strong><small>三壘有人 · 1 出局</small></span><i>↗</i></button>
+              <button class="scenario" data-scenario="walkoff" type="button"><span class="scenario-number">05</span><span><strong>九下守成</strong><small>1 分差 · 一三壘</small></span><i>↗</i></button>
+              <button class="scenario" data-scenario="extras" type="button"><span class="scenario-number">06</span><span><strong>延長決勝</strong><small>第 10 局 · 二壘有人</small></span><i>↗</i></button>
             </div>
           </section>
           <section class="panel coach-panel">
@@ -146,7 +146,6 @@
                 <button data-action="ball" type="button">壞球</button><button data-action="calledStrike" type="button">好球</button><button data-action="foul" type="button">界外</button><button data-action="single" type="button">一安</button><button data-action="double" type="button">二安</button><button data-action="homeRun" type="button">全壘打</button><button data-action="groundOut" type="button">滾地出局</button><button data-action="doublePlay" type="button">雙殺</button><button data-action="wildPitch" type="button">暴投</button><button data-action="error" type="button">失誤</button>
               </div>
             </div>
-            <button class="text-button command-simulate" id="simulate-half-button" type="button">自動完成半局 →</button>
           </section>
 
           <section class="panel telemetry-panel">
@@ -160,7 +159,7 @@
 
       <section class="bottom-grid">
         <section class="panel log-panel">
-          <div class="panel-heading"><div><span class="eyebrow">PLAY BY PLAY</span><h2>比賽紀錄</h2></div></div>
+          <div class="panel-heading"><div><span class="eyebrow">PLAY BY PLAY</span><h2>比賽紀錄</h2></div><button class="text-button" id="simulate-half-button" type="button">自動完成半局 →</button></div>
           <ol class="play-log" id="play-log" aria-live="polite"></ol>
         </section>
         <section class="panel rank-panel">

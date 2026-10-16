@@ -76,28 +76,26 @@ const OUTCOME_COPY = Object.freeze({
 });
 
 const OUTCOME_TARGETS = Object.freeze({
-  // The camera sits behind home plate, so world -x appears on screen right.
-  // Keep automated ball destinations in the same mirrored space as defenders.
-  single: [-7.2, 0.45, 18.5],
-  double: [10.5, 0.55, 23.5],
-  triple: [-11.5, 0.6, 26.5],
+  single: [7.2, 0.45, 18.5],
+  double: [-10.5, 0.55, 23.5],
+  triple: [11.5, 0.6, 26.5],
   homerun: [0, 7.2, 37],
   home_run: [0, 7.2, 37],
   grand_slam: [0, 8, 38],
-  flyout: [2.5, 1.7, 19.5],
-  groundout: [-2.4, 0.45, 8.7],
-  forceout: [-4.9, 0.5, 7.2],
-  doubleplay: [2.8, 0.55, 10.4],
-  double_play: [2.8, 0.55, 10.4],
+  flyout: [-2.5, 1.7, 19.5],
+  groundout: [2.4, 0.45, 8.7],
+  forceout: [4.9, 0.5, 7.2],
+  doubleplay: [-2.8, 0.55, 10.4],
+  double_play: [-2.8, 0.55, 10.4],
   tripleplay: [-0.3, 0.55, 9.2],
   triple_play: [-0.3, 0.55, 9.2],
-  sacfly: [2.7, 1.7, 19.8],
-  sacrificefly: [2.7, 1.7, 19.8],
-  sacbunt: [-1.1, 0.32, 4.8],
-  sacrificebunt: [-1.1, 0.32, 4.8],
-  fielderschoice: [-2.2, 0.45, 8.7],
-  bunt: [-1.1, 0.32, 4.8],
-  error: [4.5, 0.55, 12.7],
+  sacfly: [-2.7, 1.7, 19.8],
+  sacrificefly: [-2.7, 1.7, 19.8],
+  sacbunt: [1.1, 0.32, 4.8],
+  sacrificebunt: [1.1, 0.32, 4.8],
+  fielderschoice: [2.2, 0.45, 8.7],
+  bunt: [1.1, 0.32, 4.8],
+  error: [-4.5, 0.55, 12.7],
 });
 
 const TEAM_COLORS = Object.freeze({
@@ -420,15 +418,18 @@ export class BaseballScene {
         this.ball.rotation.z += 0.52;
         this._appendBallTrail(point);
 
-        this._animatePitcherDelivery(progress);
+        // A small delivery movement makes the pitcher read as an active player.
+        if (this.pitcher?.userData?.throwingArm) {
+          this.pitcher.userData.throwingArm.rotation.z = -0.25 - Math.sin(progress * Math.PI) * 1.1;
+        }
       },
       onComplete: () => {
-        this._resetPitcherPose();
+        if (this.pitcher?.userData?.throwingArm) this.pitcher.userData.throwingArm.rotation.z = -0.28;
         this.ball.position.copy(target);
         if (data.afterState) this.renderState(data.afterState);
       },
       onCancel: () => {
-        this._resetPitcherPose();
+        if (this.pitcher?.userData?.throwingArm) this.pitcher.userData.throwingArm.rotation.z = -0.28;
       },
     });
 
@@ -719,9 +720,7 @@ export class BaseballScene {
       new T.PlaneGeometry(18.6, 18.6),
       new T.MeshStandardMaterial({ color: 0xa86d42, roughness: 0.98 }),
     );
-    // Lay the dirt on the ground before turning it into a diamond. A Y-axis
-    // turn here tilts the plane upright and creates the obstructing rhombus.
-    dirt.rotation.set(-Math.PI / 2, 0, Math.PI / 4);
+    dirt.rotation.set(-Math.PI / 2, Math.PI / 4, 0);
     dirt.position.set(0, 0.025, 6.5);
     dirt.receiveShadow = true;
     this.fieldGroup.add(dirt);
@@ -910,147 +909,50 @@ export class BaseballScene {
     const dark = new T.MeshStandardMaterial({ color: 0x142032, roughness: 0.72 });
     const skin = new T.MeshStandardMaterial({ color: 0xdfaa7c, roughness: 0.88 });
     const cap = new T.MeshStandardMaterial({ color: role === 'batter' ? 0xa71e39 : 0x17608d, roughness: 0.58 });
-    const glove = new T.MeshStandardMaterial({ color: 0x563621, roughness: 0.9 });
-    const isPitcher = role === 'pitcher';
-    const isBatter = role === 'batter';
-    const isCatcher = role === 'catcher';
-    const posture = isCatcher
-      ? { y: -0.28, lean: 0.24, stance: 0.27, knee: 0.32 }
-      : isBatter
-        ? { y: -0.13, lean: 0.13, stance: 0.3, knee: 0.17 }
-        : isPitcher
-          ? { y: -0.07, lean: 0.09, stance: 0.23, knee: 0.08 }
-          : { y: -0.05, lean: 0.1, stance: 0.24, knee: 0.1 };
 
     const shadow = new T.Mesh(new T.CircleGeometry(0.55, 20), new T.MeshBasicMaterial({ color: 0x061d17, transparent: true, opacity: 0.22, depthWrite: false }));
     shadow.rotation.x = -Math.PI / 2;
     shadow.position.y = 0.01;
     group.add(shadow);
 
-    // Keep the label and shadow steady while the nested pose rig leans, breathes,
-    // and moves through a delivery. It gives each player a grounded stance instead
-    // of a single upright cylinder.
-    const pose = new T.Group();
-    pose.position.y = posture.y;
-    pose.rotation.x = posture.lean;
-    group.add(pose);
-
-    const torso = new T.Mesh(new T.CylinderGeometry(0.35, 0.42, 0.84, 12), uniform);
-    torso.position.set(0, 1.14, isCatcher ? 0.05 : 0);
+    const torso = new T.Mesh(new T.CylinderGeometry(0.35, 0.42, 0.88, 12), uniform);
+    torso.position.y = 1.12;
     torso.castShadow = true;
-    pose.add(torso);
-    const belt = new T.Mesh(new T.TorusGeometry(0.37, 0.035, 8, 16), dark);
-    belt.rotation.x = Math.PI / 2;
-    belt.position.set(0, 0.78, isCatcher ? 0.05 : 0);
-    pose.add(belt);
-
-    const headRig = new T.Group();
-    headRig.position.set(0, 1.77, isCatcher ? 0.1 : 0);
-    headRig.rotation.x = isCatcher ? -0.08 : 0;
+    group.add(torso);
     const head = new T.Mesh(new T.SphereGeometry(0.26, 14, 12), skin);
+    head.position.y = 1.78;
     head.castShadow = true;
-    headRig.add(head);
+    group.add(head);
     const hat = new T.Mesh(new T.CylinderGeometry(0.29, 0.29, 0.11, 14), cap);
-    hat.position.y = 0.2;
+    hat.position.y = 1.99;
     hat.castShadow = true;
-    headRig.add(hat);
-    const brim = new T.Mesh(new T.BoxGeometry(0.36, 0.045, 0.18), cap);
-    brim.position.set(0, 0.16, 0.25);
-    headRig.add(brim);
-    pose.add(headRig);
+    group.add(hat);
 
-    const legs = [-1, 1].map((side, index) => {
-      const legRig = new T.Group();
-      const stride = isBatter ? (side < 0 ? 0.11 : -0.08) : isPitcher ? (side < 0 ? 0.05 : -0.06) : 0;
-      legRig.position.set(side * posture.stance, 0.82, stride);
-      legRig.rotation.z = side * (isBatter ? 0.13 : 0.075);
-      legRig.rotation.x = posture.knee + (index ? -0.025 : 0.025);
-
-      const thigh = new T.Mesh(new T.CylinderGeometry(0.115, 0.135, 0.45, 10), dark);
-      thigh.position.y = -0.22;
-      thigh.castShadow = true;
-      legRig.add(thigh);
-      const knee = new T.Mesh(new T.SphereGeometry(0.13, 10, 8), dark);
-      knee.position.y = -0.46;
-      legRig.add(knee);
-      const shinRig = new T.Group();
-      shinRig.position.y = -0.44;
-      shinRig.rotation.x = isCatcher ? 0.27 : isBatter ? 0.12 : 0.06;
-      const shin = new T.Mesh(new T.CylinderGeometry(0.095, 0.11, 0.37, 10), dark);
-      shin.position.y = -0.18;
-      shin.castShadow = true;
-      shinRig.add(shin);
-      const shoe = new T.Mesh(new T.BoxGeometry(0.25, 0.13, 0.43), new T.MeshStandardMaterial({ color: 0x0a101c, roughness: 0.65 }));
-      shoe.position.set(0, -0.39, 0.08);
-      shoe.castShadow = true;
-      shinRig.add(shoe);
-      legRig.add(shinRig);
-      pose.add(legRig);
-      return legRig;
+    [-0.18, 0.18].forEach((offset) => {
+      const leg = new T.Mesh(new T.CylinderGeometry(0.105, 0.125, 0.7, 10), dark);
+      leg.position.set(offset, 0.44, 0);
+      leg.castShadow = true;
+      group.add(leg);
     });
 
-    const makeArm = ({ side, zRotation, xRotation, forward = 0, hasGlove = false }) => {
-      const arm = new T.Group();
-      arm.position.set(side * 0.43, 1.44, forward);
-      arm.rotation.set(xRotation, 0, zRotation);
-      const upper = new T.Mesh(new T.CylinderGeometry(0.095, 0.11, 0.47, 10), uniform);
-      upper.position.y = -0.22;
-      upper.castShadow = true;
-      arm.add(upper);
-      const elbow = new T.Mesh(new T.SphereGeometry(0.105, 10, 8), uniform);
-      elbow.position.y = -0.46;
-      arm.add(elbow);
-      const forearmRig = new T.Group();
-      forearmRig.position.y = -0.44;
-      forearmRig.rotation.x = isCatcher ? -0.34 : isBatter ? -0.22 : -0.08;
-      const forearm = new T.Mesh(new T.CylinderGeometry(0.08, 0.095, 0.37, 10), uniform);
-      forearm.position.y = -0.17;
-      forearm.castShadow = true;
-      forearmRig.add(forearm);
-      const hand = new T.Mesh(new T.SphereGeometry(0.105, 10, 8), skin);
-      hand.position.y = -0.4;
-      forearmRig.add(hand);
-      if (hasGlove) {
-        const mitt = new T.Mesh(new T.SphereGeometry(0.15, 12, 10), glove);
-        mitt.scale.set(1.1, 0.74, 0.8);
-        mitt.position.y = -0.42;
-        mitt.castShadow = true;
-        forearmRig.add(mitt);
-      }
-      arm.add(forearmRig);
-      pose.add(arm);
-      return arm;
-    };
+    const throwingArm = new T.Group();
+    const armMesh = new T.Mesh(new T.CylinderGeometry(0.09, 0.1, 0.69, 10), uniform);
+    armMesh.position.y = -0.29;
+    throwingArm.position.set(0.43, 1.42, 0);
+    throwingArm.rotation.z = -0.28;
+    throwingArm.add(armMesh);
+    group.add(throwingArm);
+    const gloveArm = new T.Mesh(new T.CylinderGeometry(0.09, 0.1, 0.62, 10), uniform);
+    gloveArm.position.set(-0.43, 1.13, 0);
+    gloveArm.rotation.z = 0.5;
+    group.add(gloveArm);
 
-    // Local x offsets are mirrored too: the active arm, glove, and bat follow
-    // the same x-axis convention as the corrected batter and pitch release.
-    const throwingArm = makeArm({
-      side: -1,
-      zRotation: isPitcher ? 0.34 : isBatter ? 0.78 : isCatcher ? 0.58 : 0.38,
-      xRotation: isPitcher ? 0.04 : isBatter ? -0.28 : isCatcher ? -0.3 : -0.08,
-      forward: isCatcher ? 0.14 : 0,
-    });
-    const gloveArm = makeArm({
-      side: 1,
-      zRotation: isPitcher ? -0.5 : isBatter ? -0.68 : isCatcher ? -0.62 : -0.48,
-      xRotation: isPitcher ? -0.04 : isBatter ? -0.24 : isCatcher ? -0.34 : -0.06,
-      forward: isCatcher ? 0.15 : 0,
-      hasGlove: !isBatter,
-    });
-
-    let bat = null;
-    if (isBatter) {
-      bat = new T.Group();
-      bat.position.set(-0.39, 1.2, -0.02);
-      bat.rotation.set(-0.18, -0.22, 0.46);
-      const barrel = new T.Mesh(new T.CylinderGeometry(0.055, 0.09, 1.42, 10), new T.MeshStandardMaterial({ color: 0xc88843, roughness: 0.55 }));
-      barrel.position.y = 0.62;
-      barrel.castShadow = true;
-      bat.add(barrel);
-      const knob = new T.Mesh(new T.SphereGeometry(0.095, 10, 8), new T.MeshStandardMaterial({ color: 0x9d622e, roughness: 0.58 }));
-      knob.position.y = -0.08;
-      bat.add(knob);
-      pose.add(bat);
+    if (role === 'batter') {
+      const bat = new T.Mesh(new T.CylinderGeometry(0.055, 0.09, 1.45, 10), new T.MeshStandardMaterial({ color: 0xc88843, roughness: 0.55 }));
+      bat.position.set(0.54, 1.27, 0.1);
+      bat.rotation.set(0.45, 0.25, -0.55);
+      bat.castShadow = true;
+      group.add(bat);
     }
 
     const labelSprite = this._makeSprite(label, {
@@ -1063,99 +965,8 @@ export class BaseballScene {
     });
     labelSprite.sprite.position.set(0, 2.53, 0);
     group.add(labelSprite.sprite);
-    group.userData = {
-      role,
-      labelSprite,
-      uniform,
-      pose,
-      torso,
-      headRig,
-      throwingArm,
-      gloveArm,
-      legs,
-      bat,
-      restPose: {
-        poseY: pose.position.y,
-        poseX: pose.rotation.x,
-        throwingArmZ: throwingArm.rotation.z,
-        throwingArmX: throwingArm.rotation.x,
-        gloveArmZ: gloveArm.rotation.z,
-        gloveArmX: gloveArm.rotation.x,
-        legs: legs.map((leg) => ({ x: leg.rotation.x, z: leg.rotation.z })),
-        bat: bat ? { x: bat.rotation.x, y: bat.rotation.y, z: bat.rotation.z } : null,
-      },
-    };
+    group.userData = { role, labelSprite, throwingArm, uniform };
     return group;
-  }
-
-  _animatePitcherDelivery(progress) {
-    const rig = this.pitcher?.userData;
-    const rest = rig?.restPose;
-    if (!rig || !rest) return;
-    const drive = Math.sin(progress * Math.PI);
-    const followThrough = Math.max(0, (progress - 0.55) / 0.45);
-
-    rig.pose.position.y = rest.poseY - drive * 0.085;
-    rig.pose.rotation.x = rest.poseX + drive * 0.12 - followThrough * 0.2;
-    rig.throwingArm.rotation.z = rest.throwingArmZ + drive * 1.18;
-    rig.throwingArm.rotation.x = rest.throwingArmX - drive * 0.66;
-    rig.gloveArm.rotation.z = rest.gloveArmZ - drive * 0.42;
-    rig.gloveArm.rotation.x = rest.gloveArmX - drive * 0.19;
-    rig.legs.forEach((leg, index) => {
-      const legRest = rest.legs[index];
-      leg.rotation.x = legRest.x + (index ? -0.24 : 0.22) * drive;
-      leg.rotation.z = legRest.z + (index ? -0.045 : 0.045) * drive;
-    });
-  }
-
-  _resetPitcherPose() {
-    const rig = this.pitcher?.userData;
-    const rest = rig?.restPose;
-    if (!rig || !rest) return;
-    rig.pose.position.y = rest.poseY;
-    rig.pose.rotation.x = rest.poseX;
-    rig.throwingArm.rotation.z = rest.throwingArmZ;
-    rig.throwingArm.rotation.x = rest.throwingArmX;
-    rig.gloveArm.rotation.z = rest.gloveArmZ;
-    rig.gloveArm.rotation.x = rest.gloveArmX;
-    rig.legs.forEach((leg, index) => {
-      const legRest = rest.legs[index];
-      leg.rotation.x = legRest.x;
-      leg.rotation.z = legRest.z;
-    });
-  }
-
-  _animatePlayerPoses(time) {
-    const setIdle = (player, speed, phase = 0) => {
-      const rig = player?.userData;
-      const rest = rig?.restPose;
-      if (!rig || !rest) return;
-      const breath = Math.sin(time * speed + phase);
-      rig.pose.position.y = rest.poseY + breath * 0.012;
-      rig.pose.rotation.x = rest.poseX + breath * 0.012;
-      rig.throwingArm.rotation.z = rest.throwingArmZ + breath * 0.025;
-      rig.gloveArm.rotation.z = rest.gloveArmZ - breath * 0.018;
-    };
-
-    const pitcherIsDelivering = [...this.animations].some((animation) => animation.channel === 'pitch');
-    if (!pitcherIsDelivering) setIdle(this.pitcher, 1.7, 0.2);
-
-    setIdle(this.catcher, 2.15, 0.8);
-    Object.values(this.fielders ?? {}).forEach((fielder, index) => setIdle(fielder, 1.45 + index * 0.08, index * 0.7));
-
-    const batterRig = this.batter?.userData;
-    const batterRest = batterRig?.restPose;
-    if (!batterRig || !batterRest) return;
-    const settle = Math.sin(time * 2.1);
-    batterRig.pose.position.y = batterRest.poseY + settle * 0.014;
-    batterRig.pose.rotation.x = batterRest.poseX + settle * 0.018;
-    batterRig.throwingArm.rotation.z = batterRest.throwingArmZ + settle * 0.028;
-    batterRig.gloveArm.rotation.z = batterRest.gloveArmZ - settle * 0.024;
-    if (batterRig.bat && batterRest.bat) {
-      batterRig.bat.rotation.x = batterRest.bat.x + Math.sin(time * 3.2) * 0.035;
-      batterRig.bat.rotation.y = batterRest.bat.y + Math.sin(time * 2.15) * 0.055;
-      batterRig.bat.rotation.z = batterRest.bat.z + Math.sin(time * 3.2) * 0.07;
-    }
   }
 
   _makeRunnerToken(color) {
@@ -1329,7 +1140,7 @@ export class BaseballScene {
   _animateBattedBall(outcome, data) {
     const T = this.THREE;
     this._cancelAnimations('superseded', 'batted-ball');
-    const start = this._toVector3(data.start, new T.Vector3(-0.3, 1.15, 0));
+    const start = this._toVector3(data.start, new T.Vector3(0.3, 1.15, 0));
     const suppliedTarget = data.landing ?? data.target ?? data.destination;
     const fallback = OUTCOME_TARGETS[outcome] || OUTCOME_TARGETS.single;
     const end = this._toVector3(suppliedTarget, new T.Vector3(fallback[0], fallback[1], fallback[2]));
@@ -1492,7 +1303,6 @@ export class BaseballScene {
       visual.ring.material.emissiveIntensity = isPulsing ? 1.55 : 0.35;
       visual.ring.scale.setScalar(isPulsing ? 1 + Math.sin(time * 9) * 0.08 : 1);
     });
-    this._animatePlayerPoses(time);
   }
 
   _updateCamera() {

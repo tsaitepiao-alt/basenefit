@@ -413,12 +413,10 @@ function selectScenario(name) {
 }
 
 function pitchTarget(zone) {
-  // The scene is mirrored on X so player-facing in/away locations remain
-  // consistent with the mirrored batter and release point.
   const targets = {
-    'up-in': [0.72, 1.72, -0.06], up: [0, 1.78, -0.06], 'up-away': [-0.72, 1.72, -0.06],
-    in: [0.72, 1.22, -0.06], middle: [0, 1.24, -0.06], away: [-0.72, 1.22, -0.06],
-    'down-in': [0.72, 0.78, -0.06], down: [0, 0.74, -0.06], 'down-away': [-0.72, 0.78, -0.06],
+    'up-in': [-0.72, 1.72, -0.06], up: [0, 1.78, -0.06], 'up-away': [0.72, 1.72, -0.06],
+    in: [-0.72, 1.22, -0.06], middle: [0, 1.24, -0.06], away: [0.72, 1.22, -0.06],
+    'down-in': [-0.72, 0.78, -0.06], down: [0, 0.74, -0.06], 'down-away': [0.72, 0.78, -0.06],
   };
   return targets[zone] ?? targets.middle;
 }
