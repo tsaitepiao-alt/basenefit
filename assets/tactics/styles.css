@@ -111,6 +111,141 @@ dialog { max-width: min(560px, calc(100% - 28px)); border: 1px solid rgba(128,21
 .baseball-3d-fallback { min-height: 100%; display: grid; place-items: center; position: relative; overflow: hidden; background: radial-gradient(circle at 50% 62%, #4d9c62 0 20%, #29764d 20% 53%, #183f50 54% 100%); }.baseball-3d-fallback .fallback-field { width: 280px; height: 250px; position: relative; transform: perspective(500px) rotateX(50deg) rotateZ(45deg); }.baseball-3d-fallback .fallback-diamond { position: absolute; inset: 64px; border: 2px solid rgba(255,255,255,.65); background: #c68c59; }.baseball-3d-fallback .fallback-base { position: absolute; width: 18px; height: 18px; border: 1px solid #fff; background: #daeaff; }.baseball-3d-fallback .fallback-base.is-active { background: var(--orange); box-shadow: 0 0 16px var(--orange); }.baseball-3d-fallback .fallback-second { top: -10px; left: calc(50% - 9px); }.baseball-3d-fallback .fallback-first { right: -10px; top: calc(50% - 9px); }.baseball-3d-fallback .fallback-third { left: -10px; top: calc(50% - 9px); }.baseball-3d-fallback .fallback-score { position: absolute; top: 28px; font-weight: 800; font-size: 12px; letter-spacing: .05em; }.baseball-3d-fallback .fallback-notice { position: absolute; z-index: 2; bottom: 44px; padding: 8px 11px; border-radius: 99px; color: #dff7ff; font-size: 11px; background: rgba(5,17,29,.7); }
 
 @keyframes breathe { 50% { opacity: .48; transform: scale(.78); } }
-@media (max-width: 1180px) { .main-grid { grid-template-columns: minmax(205px,.78fr) minmax(430px,1.7fr); }.right-rail { grid-column: 1 / -1; grid-template-columns: 1.4fr .6fr; }.game-context { grid-template-columns: 1fr 1.35fr .82fr 1.5fr; }.probability-card { display: none; } }
-@media (max-width: 850px) { .app-shell { width: min(100% - 20px, 680px); padding-top: 10px; }.topbar { height: auto; flex-wrap: wrap; padding: 8px 0; }.topbar-center { order: 3; width: 100%; }.scoreboard-panel { grid-template-columns: 92px 1fr 92px; }.team-block { padding: 12px 9px; }.team-block strong { max-width: 76px; font-size: 10px; }.team-tag { font-size: 7px; }.line-score-wrap { padding: 7px 4px; }.line-score th, .line-score td { min-width: 25px; padding: 1px 2px; }.game-context { grid-template-columns: 1fr 1.4fr 1fr; }.at-bat-card { grid-column: span 2; }.main-grid { grid-template-columns: 1fr; }.left-rail { grid-template-columns: 1fr 1fr; }.scenario-panel { grid-row: span 1; }.field-column { order: -1; }.field-frame, .field-3d { min-height: 440px; height: 440px; }.right-rail { grid-column: auto; grid-template-columns: 1fr 1fr; }.bottom-grid { grid-template-columns: 1fr; }.rank-panel { min-height: auto; } }
-@media (max-width: 560px) { .app-shell { width: min(100% - 14px, 520px); }.topbar-actions .ghost-button { display: none; }.brand { min-width: unset; }.topbar-center { font-size: 10px; }.scoreboard-panel { grid-template-columns: 67px 1fr 67px; min-height: 83px; }.team-block { padding: 9px 5px; }.team-record { font-size: 7px; }.line-score tbody th { display: none; }.line-score th, .line-score td { min-width: 22px; height: 25px; font-size: 9px; }.line-score thead th { font-size: 7px; }.game-context { gap: 6px; }.context-card { min-height: 60px; padding: 9px 8px; }.inning-card strong { font-size: 14px; }.at-bat-card { grid-column: 1 / -1; }.bases-card { display: none; }.field-frame, .field-3d { height: 370px; min-height: 370px; }.field-frame-top { top: 10px; left: 11px; right: 11px; font-size: 7px; }.field-hud { bottom: 12px; padding: 6px 7px; }.field-hud strong { font-size: 10px; }.field-status { bottom: 12px; max-width: 42%; padding: 6px 8px; font-size: 8px; }.left-rail, .right-rail { grid-template-columns: 1fr; }.coach-panel { display: none; }.strategy-button { min-height: 58px; }.bottom-grid { gap: 9px; }.log-panel, .rank-panel, .scenario-panel, .command-panel, .telemetry-panel { padding: 13px; }.rank-content { grid-template-columns: 64px 1fr; }.rank-emblem { width: 60px; height: 68px; }.rank-emblem span { width: 47px; height: 53px; font-size: 27px; }.result-modal { padding: 26px 18px 18px; }.result-score { font-size: 32px; } }
+/* The match surface is deliberately viewport-aware: score, decision controls, and
+   the 3D field stay together above the first vertical scroll. */
+.app-shell { --field-height: clamp(300px, calc(100dvh - 306px), 526px); padding-top: 14px; }
+.topbar { height: 50px; }
+.scoreboard-panel { min-height: 88px; margin-top: 8px; }
+.game-context { margin: 8px 0; }
+.context-card { min-height: 60px; padding: 10px 12px; }
+
+.main-grid {
+  grid-template-columns: minmax(190px, .72fr) minmax(0, 1.86fr) minmax(286px, 1fr);
+  grid-template-areas: "scenario field commands";
+}
+.left-rail { grid-area: scenario; }
+.field-column { grid-area: field; min-width: 0; }
+.right-rail { grid-area: commands; align-self: start; position: sticky; top: 12px; }
+.field-frame, .field-3d { height: var(--field-height); min-height: var(--field-height); }
+.command-simulate { width: 100%; margin-top: 10px; }
+
+@media (max-width: 1220px) {
+  .main-grid {
+    grid-template-columns: minmax(0, 1.55fr) minmax(295px, .85fr);
+    grid-template-areas:
+      "field commands"
+      "scenario commands";
+  }
+  .probability-card { display: none; }
+}
+
+@media (max-width: 850px) {
+  .app-shell { --field-height: clamp(190px, 29svh, 250px); width: min(100% - 16px, 680px); padding-top: 6px; }
+  .topbar { height: 34px; flex-wrap: nowrap; padding: 0; }
+  .topbar-center { display: none; }
+  .brand { min-width: 0; gap: 7px; }
+  .brand-mark { width: 25px; height: 25px; }
+  .brand strong { font-size: 11px; }
+  .brand em { margin-top: 2px; font-size: 6px; }
+  .topbar-actions { gap: 5px; }
+  .compact { padding: 6px 8px; font-size: 10px; }
+
+  .scoreboard-panel { min-height: 60px; margin-top: 5px; grid-template-columns: 62px minmax(0, 1fr) 62px; }
+  .team-block { padding: 7px 4px; }
+  .team-block::after { top: 8px; bottom: 8px; }
+  .team-block strong { max-width: 55px; font-size: 8px; }
+  .team-tag { font-size: 6px; letter-spacing: .1em; }
+  .team-record { font-size: 6px; letter-spacing: .08em; }
+  .line-score-wrap { padding: 3px 2px; overflow: hidden; }
+  .line-score th, .line-score td { min-width: 16px; height: 18px; padding: 0; font-size: 7px; }
+  .line-score thead th { height: 14px; font-size: 6px; }
+  .line-score tbody th { min-width: 34px; font-size: 7px; }
+
+  .game-context { margin: 6px 0 8px; grid-template-columns: .78fr 1.08fr 1.5fr; gap: 5px; }
+  .context-card { min-height: 53px; padding: 6px 7px; }
+  .mini-label { font-size: 7px; letter-spacing: .1em; }
+  .inning-card strong { margin: 3px 0 0; font-size: 13px; }
+  .inning-card span:last-child, .bases-card, .probability-card { display: none; }
+  .count-card { gap: 5px; }
+  .count-lights { gap: 5px; }
+  .count-lights div { gap: 2px; }
+  .count-lights span { font-size: 8px; }
+  .count-lights i { width: 6px; height: 6px; }
+  .at-bat-card { grid-column: auto; gap: 3px; }
+  .matchup-people { gap: 4px; }
+  .matchup-people strong { font-size: 8px; }
+  .pitcher-dot, .batter-dot { width: 6px; height: 6px; }
+
+  .main-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "scenario"
+      "commands"
+      "field";
+    gap: 7px;
+  }
+  .left-rail, .right-rail { display: grid; grid-template-columns: 1fr; gap: 0; }
+  .right-rail { position: static; }
+  .coach-panel, .telemetry-panel { display: none; }
+  .scenario-panel { padding: 7px 8px; }
+  .scenario-panel .panel-heading { align-items: center; }
+  .scenario-panel .panel-heading h2 { margin: 0; font-size: 10px; }
+  .scenario-panel .eyebrow, .scenario-panel .panel-description, .scenario-panel .shortcut-key { display: none; }
+  .scenario-list { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; margin-top: 5px; }
+  .scenario { min-height: 31px; display: grid; place-items: center; padding: 3px; border-color: rgba(132,178,222,.12); }
+  .scenario > span:not(.scenario-number), .scenario i { display: none; }
+  .scenario-number { font-size: 9px; }
+
+  .command-panel { min-height: 0; padding: 8px 9px; }
+  .command-panel .panel-heading { align-items: center; }
+  .command-panel .panel-heading h2 { margin: 1px 0 0; font-size: 13px; }
+  .command-panel .eyebrow { font-size: 7px; }
+  .command-panel .panel-description { display: none; }
+  .command-panel .strategy-buttons { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; margin-top: 7px; }
+  .command-panel .strategy-button { min-height: 46px; padding: 3px 2px; text-align: center; }
+  .command-panel .strategy-button:last-child { grid-column: auto; }
+  .command-panel .strategy-icon { position: static; display: block; font-size: 13px; line-height: 1; }
+  .command-panel .strategy-button strong { margin-top: 3px; font-size: 9px; }
+  .command-panel .strategy-button small { display: none; }
+  .command-panel .primary-action { min-height: 33px; margin-top: 7px; padding: 0 9px; font-size: 10px; }
+  .command-panel .primary-action kbd { font-size: 7px; }
+
+  .defense-controls { margin-top: 6px; }
+  .defense-row { grid-template-columns: 43px 1fr; gap: 5px; margin-top: 5px; }
+  .defense-row > label { font-size: 9px; }
+  .segment { min-height: 26px; font-size: 9px; }
+  .zone-grid { width: 72px; gap: 2px; padding: 2px; }
+  .zone-grid button { height: 17px; }
+  .defense-row select { height: 27px; font-size: 9px; }
+  .defense-actions { margin-top: 7px; }
+  .secondary-action { min-height: 33px; font-size: 10px; }
+  .manual-toggle { min-height: 25px; margin-top: 7px; padding-top: 5px; font-size: 9px; }
+  .manual-controls { margin-top: 5px; }
+  .manual-controls p { display: none; }
+  .manual-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; }
+  .manual-grid button { min-height: 23px; padding: 1px; font-size: 7px; }
+  .command-simulate { min-height: 25px; margin-top: 6px; padding: 4px 6px; font-size: 8px; }
+  .main-grid:has(.manual-controls:not(.hidden)) { --field-height: clamp(165px, 22svh, 205px); }
+
+  .field-frame, .field-3d { height: var(--field-height); min-height: var(--field-height); }
+  .field-frame-top { top: 9px; left: 10px; right: 10px; font-size: 7px; }
+  .field-hud { bottom: 10px; padding: 5px 6px; }
+  .field-hud strong { font-size: 9px; }
+  .field-status { bottom: 10px; max-width: 43%; padding: 5px 7px; font-size: 7px; }
+  .event-ticker { min-height: 36px; margin-top: 6px; padding: 6px 8px; }
+  .event-ticker p { font-size: 9px; }
+  .bottom-grid { grid-template-columns: 1fr; gap: 9px; margin-top: 9px; }
+  .rank-panel { min-height: auto; }
+}
+
+@media (max-width: 560px) {
+  .app-shell { width: min(100% - 14px, 520px); }
+  .topbar-actions .ghost-button { display: none; }
+  .field-status { max-width: 45%; }
+  .log-panel, .rank-panel { padding: 13px; }
+  .rank-content { grid-template-columns: 64px 1fr; }
+  .rank-emblem { width: 60px; height: 68px; }
+  .rank-emblem span { width: 47px; height: 53px; font-size: 27px; }
+  .result-modal { padding: 26px 18px 18px; }
+  .result-score { font-size: 32px; }
+}
