@@ -59,10 +59,11 @@ function brandPanel(w,h,x,y,z,rotation=0){
 // 中外野：獨立懸掛式招牌，整塊離開弧形圍牆，防止牆體裁切文字兩端。
 // 球場內側方向是 (-X,+Z)；把招牌放在牆內 4.5 單位，並高於牆頂。
 // 中外野牆切線沿 (X,Z)=(+,+)；看板平面應沿相同切線。
-const centerWallAngle=Math.PI/4;
-const wallLogo=brandPanel(19,3.6,45.5,7.1,-45.5,centerWallAngle);
+// 中外野牆位於 x=-z；牆面切線沿 (+x,+z)，法線朝球場內 (-x,+z)。
+const centerWallAngle=-Math.PI/4;
+const wallLogo=brandPanel(19,3.6,45.1,7.1,-45.1,centerWallAngle);
 wallLogo.material.depthTest=true;
-const logoBacking=add(new T.BoxGeometry(20,4.2,.45),M(0x092636),45.7,7.1,-45.7);
+const logoBacking=add(new T.BoxGeometry(20,4.2,.45),M(0x092636),45.5,7.1,-45.5);
 logoBacking.rotation.y=centerWallAngle;
 wallLogo.renderOrder=3;
 // 主審後方地面品牌字標。
@@ -74,7 +75,7 @@ const scoreCanvas=document.createElement('canvas');scoreCanvas.width=1536;scoreC
 const scoreCtx=scoreCanvas.getContext('2d'),scoreTex=new T.CanvasTexture(scoreCanvas);scoreTex.colorSpace=T.SRGBColorSpace;
 const scoreBack=add(new T.BoxGeometry(28,16.8,1),M(0x071824),49.2,19,-49.2);
 scoreBack.rotation.y=centerWallAngle;
-const scoreBoard=add(new T.PlaneGeometry(27,16),new T.MeshBasicMaterial({map:scoreTex,side:T.DoubleSide}),48.4,19,-48.4);
+const scoreBoard=add(new T.PlaneGeometry(27,16),new T.MeshBasicMaterial({map:scoreTex,side:T.DoubleSide}),48.35,19,-48.35);
 scoreBoard.rotation.y=centerWallAngle;
 function drawStadiumScore(){
  const ctx=scoreCtx,W=1536,H=900;
