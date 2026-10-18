@@ -1,6 +1,17 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>basenefit｜3D 棒球規則教室</title><style>
 *{box-sizing:border-box}body{margin:0;background:#0b1725;color:#f4f7fa;font:15px/1.6 system-ui,"Noto Sans TC",sans-serif}.shell{max-width:1320px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:clamp(20px,3vw,30px);margin:4px 0}.hint{color:#a7c0ce;font-size:12px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px;margin-top:12px}.stage{position:relative;background:#142c3b;border:1px solid #36536a;border-radius:16px;overflow:hidden;height:min(68vh,620px);min-height:340px}#view{width:100%;height:100%;touch-action:none}.hud{position:absolute;left:12px;top:12px;background:#0a1826d9;border-radius:10px;padding:9px 13px;font-size:13px;pointer-events:none}.hud strong{color:#c9f34e;font-size:22px}.panel{background:#162737;border:1px solid #36536a;border-radius:16px;padding:14px}.score{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;text-align:center}.score div{background:#0a1a29;padding:7px 2px;border-radius:9px}.score b{display:block;color:#c9f34e;font-size:24px}.rules{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 0}button{border:1px solid #456275;background:#253d50;color:#fff;border-radius:9px;padding:9px 6px;cursor:pointer;font:inherit}button.active,button:hover{background:#c9f34e;color:#15201c;border-color:#c9f34e}button:focus-visible{outline:3px solid #fff}#explain{min-height:105px;color:#d8e7ed}#explain b{color:#c9f34e}#status{font-size:12px;color:#b4cbd9}.actions{display:flex;gap:6px;flex-wrap:wrap}.actions button{flex:1}.footer{color:#a9c1cb;font-size:12px;margin-top:12px}@media(max-width:850px){.layout{grid-template-columns:1fr}.stage{height:54vh;min-height:310px}.rules{grid-template-columns:repeat(3,1fr)}}
 </style></head><body><main class="shell"><div class="top"><div><h1>⚾ 3D 棒球互動規則教室</h1><div class="hint">單指旋轉 · 雙指縮放／平移 · 電腦滾輪縮放 · 選擇情境觀看動作</div></div><div class="actions"><button id="reset">重設視角</button><button id="top">俯視球場</button></div></div><div class="layout"><div class="stage"><div id="view"></div><div class="hud">示範場景 · <strong id="title">一壘安打</strong><div id="status">準備播放</div></div></div><aside class="panel"><div class="score"><div>得分<b id="runs">0</b></div><div>出局<b id="outs">0</b></div><div>好球<b id="strikes">0</b></div><div>壞球<b id="balls">0</b></div></div><h3>規則與動作示範</h3><div class="rules" id="rules"></div><div id="explain" aria-live="polite"></div><div class="actions"><button id="replay">▶ 重新播放</button><button id="pause">⏸ 暫停</button><button id="speed">速度 1×</button></div><p class="hint">計分板顯示各情境的示範結果；不是連續比賽計分。動畫為簡化教學，不代替正式裁判判決。</p></aside></div><p class="footer">basenefit · 棒球學習｜球員以程式化模型呈現，九位守備員依位置配置。適合手機及桌面瀏覽器。</p></main>
+<script>
+window.rules3dReady=false;
+document.addEventListener('click',function(e){
+ const b=e.target.closest('#rules button');
+ if(!b||window.rules3dReady)return;
+ window.rules3dPending=b.dataset.key;
+ document.getElementById('status').textContent='3D 場景載入中，將自動播放所選示範…';
+ document.getElementById('title').textContent=b.textContent;
+ document.querySelectorAll('#rules button').forEach(x=>x.classList.toggle('active',x===b));
+});
+</script>
 <script type="module">
 import * as T from 'https://esm.sh/three@0.170.0';
 import {OrbitControls} from 'https://esm.sh/three@0.170.0/examples/jsm/controls/OrbitControls.js';
@@ -282,5 +293,5 @@ else{ball.position.set(9,1.4,-9)}
 animateDefense(kind,t,now);
 if(!finished&&t===1){finished=true;['runs','outs','strikes','balls'].forEach((id,i)=>$(id).textContent=c[i+3]);$('status').textContent='示範完成 · 可重新播放';drawStadiumScore()}
 orbit.update();renderer.render(scene,camera)}
-choose('single');requestAnimationFrame(loop);
+window.rules3dReady=true;choose(window.rules3dPending||'single');requestAnimationFrame(loop);
 </script></body></html>
