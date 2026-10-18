@@ -96,6 +96,9 @@ const hitter=person(gold,1.8,1.8);
 hitter.rotation.y=Math.atan2(towardPitcher.x,towardPitcher.z);
 fielders[1].rotation.y=Math.atan2(towardPitcher.x,towardPitcher.z);
 umpire.rotation.y=Math.atan2(towardPitcher.x,towardPitcher.z);
+// 額外壘上跑者：雙殺與犧牲觸擊情境使用
+const leadRunner=person(gold,18,0);
+leadRunner.visible=false;
 const bat=add(new T.CylinderGeometry(.1,.24,4,10),dirt,2.7,2.3,1.4);bat.rotation.z=-.5;
 const glove=M(0x9b5936);
 fielders.forEach((p,i)=>{p.userData.parts=p.children.filter(o=>o.geometry?.type==='CylinderGeometry');const g=add(new T.SphereGeometry(.43,10,8),glove,-1.15,2.35,.4,p);g.name='glove';p.userData.glove=g;p.userData.home=new T.Vector3(positions[i][0],.1,positions[i][1])});
@@ -105,9 +108,9 @@ const defensivePlans={
 single:{fielder:6,target:[16,-32],throwTo:3},double:{fielder:7,target:[30,-37],throwTo:3},
 triple:{fielder:8,target:[49,-25],throwTo:3},homer:{fielder:8,target:[56,-25],throwTo:null},
 walk:{fielder:1,target:[0,3],throwTo:null},strike:{fielder:1,target:[0,3],throwTo:null},
-fly:{fielder:7,target:[34,-39],throwTo:null},ground:{fielder:5,target:[11,-18],throwTo:2},
-steal:{fielder:1,target:[0,3],throwTo:3},doubleplay:{fielder:5,target:[11,-16],throwTo:3},
-sacrifice:{fielder:0,target:[6,-5],throwTo:2},tag:{fielder:3,target:[18,-9],throwTo:null}
+fly:{fielder:7,target:[34,-39],throwTo:null},ground:{fielder:5,target:[11,-18],throwTo:1},
+steal:{fielder:1,target:[-2.25,2.25],throwTo:2},doubleplay:{fielder:5,target:[11,-16],throwTo:2},
+sacrifice:{fielder:0,target:[6,-5],throwTo:1},tag:{fielder:3,target:[18,-9],throwTo:null}
 };
 function animateDefense(kind,t,now){
  const plan=defensivePlans[selected],f=fielders[plan.fielder],target=new T.Vector3(plan.target[0],.1,plan.target[1]);
@@ -129,12 +132,32 @@ function animateDefense(kind,t,now){
    p.userData.glove.position.y=t>.43&&t<.78?3.1:2.35;
   }else{p.rotation.x=0;if(i===1)p.rotation.y=Math.atan2(towardPitcher.x,towardPitcher.z);p.userData.glove.position.y=2.35}
  });
- // 接球後依情境傳球：球沿著接球員→目標壘包的拋物線飛行。
- if(plan.throwTo!==null&&t>(selected==='triple'?.84:.65)){
-  const to=base[plan.throwTo],from=target.clone();from.y=2.6;
-  const u=smooth((t-(selected==='triple'?.84:.65))/(selected==='triple'?.16:.29));
-  ball.position.copy(from.lerp(new T.Vector3(to.x,1.6,to.z),u));
-  ball.position.y+=Math.sin(Math.PI*u)*3.3;
+ // 依棒球規則指定傳球方向：一壘＝base[1]、二壘＝base[2]。
+ const throwBall=(from,to,u,height=3.3)=>{
+   const p=from.clone().lerp(to,smooth(u));p.y+=Math.sin(Math.PI*smooth(u))*height;ball.position.copy(p);
+ };
+ if(selected==='ground'&&t>=.54){
+   throwBall(new T.Vector3(11,2.5,-18),new T.Vector3(18,1.8,0),Math.min(1,(t-.54)/.31));
+ }else if(selected==='steal'&&t>=.46){
+   // 捕手接到投球後轉傳二壘，跑者同時從一壘起跑。
+   throwBall(new T.Vector3(-2.25,2.2,2.25),new T.Vector3(18,1.9,-18),Math.min(1,(t-.46)/.36),5);
+ }else if(selected==='doubleplay'){
+   // 游擊手接滾地球→二壘手踩二壘→二壘手轉傳一壘。
+   const second=fielders[3];
+   if(t>.38){second.position.lerp(new T.Vector3(18,.1,-18),smooth((t-.38)/.26));}
+   if(t>=.5&&t<.73){
+     throwBall(new T.Vector3(11,2.5,-16),new T.Vector3(18,2.3,-18),(t-.5)/.23,1.7);
+   }else if(t>=.73){
+     throwBall(new T.Vector3(18,2.3,-18),new T.Vector3(18,2.2,0),(t-.73)/.22,3);
+   }
+ }else if(selected==='sacrifice'){
+   // 觸擊球在投手前滾動，投手撿起後傳一壘。
+   if(t<.52){const u=smooth(Math.max(0,(t-.2)/.32));ball.position.set(6*u,.38,-5*u);}
+   else throwBall(new T.Vector3(6,2.1,-5),new T.Vector3(18,1.9,0),Math.min(1,(t-.52)/.3),2.5);
+ }else if(plan.throwTo!==null&&t>(selected==='triple'?.84:.65)){
+   const to=base[plan.throwTo],from=target.clone();from.y=2.6;
+   const u=(t-(selected==='triple'?.84:.65))/(selected==='triple'?.16:.29);
+   throwBall(from,new T.Vector3(to.x,1.6,to.z),u);
  }
 }
 const cases={
@@ -145,10 +168,10 @@ homer:['全壘打','無人上壘的全壘打，打者跑完四壘得 1 分。',[
 walk:['四壞保送','累積四顆壞球，打者獲得一壘。',[home,one],0,0,0,4,'pitch'],
 strike:['三振出局','打者揮棒落空，球通過球棒進入捕手手套；第三好球由捕手合法接捕，打者出局。',[home],0,1,3,0,'pitch'],
 fly:['飛球接殺','打者擊出高飛球，中外野手移位，在落地前接住形成飛球出局。',[home],0,1,0,0,'fly'],
-ground:['滾地出局','守備員接球傳一壘，球比打者先到，完成封殺。',[home,new T.Vector3(12,0,0)],0,1,0,0,'ground'],
-steal:['盜二壘','一壘跑者在投球時起跑，安全盜上二壘。',[one,two],0,0,0,0,'steal'],
-doubleplay:['雙殺守備','示範無人出局、一壘有人：滾地球形成二壘封殺，再傳一壘完成雙殺。',[home,new T.Vector3(11,0,0)],0,2,0,0,'doubleplay'],
-sacrifice:['犧牲觸擊','無人出局、一壘有人：打者觸擊出局，跑者推進二壘。',[home,new T.Vector3(12,0,0)],0,1,0,0,'sacrifice'],
+ground:['滾地出局','游擊手接住滾地球後傳一壘，球先到一壘手完成出局。',[home,new T.Vector3(12,0,0)],0,1,0,0,'ground'],
+steal:['盜二壘','一壘跑者起跑盜二壘；捕手接球後立即傳向二壘，跑者示範安全上壘。',[one,two],0,0,0,0,'steal'],
+doubleplay:['雙殺守備','一壘有人：游擊手接滾地球傳二壘，二壘手踩壘封殺跑者，再轉傳一壘完成雙殺。',[home,new T.Vector3(11,0,0)],0,2,0,0,'doubleplay'],
+sacrifice:['犧牲觸擊','一壘有跑者，打者將球點到投手前方，投手撿球傳一壘使打者出局，一壘跑者推進二壘。',[home,new T.Vector3(12,0,0)],0,1,0,0,'sacrifice'],
 tag:['觸殺出局','跑者離壘時，持球守備員以球或持球手套觸及跑者。',[one,new T.Vector3(18,0,-9)],0,1,0,0,'tag']
 };
 const $=id=>document.getElementById(id),rules=$('rules');let selected='single',start=performance.now(),paused=false,pauseAt=0,speed=1,finished=false;
@@ -162,13 +185,21 @@ function resize(){const w=mount.clientWidth,h=mount.clientHeight;if(!w||!h)retur
 function along(path,t){if(path.length===1)return path[0].clone();const n=path.length-1,f=Math.min(n-.00001,t*n),i=Math.floor(f),u=f-i;return path[i].clone().lerp(path[i+1],u)}
 function loop(now){requestAnimationFrame(loop);const c=cases[selected],time=(paused?pauseAt:now)-start,duration=Math.max(3500,(c[2].length-1)*1300)/speed,t=Math.min(1,Math.max(0,time/duration)),kind=c[7],pitch=kind==='pitch'||kind==='steal',hit=kind==='hit'||kind==='homer',fly=kind==='fly',ground=kind==='ground'||kind==='doubleplay'||kind==='sacrifice'||kind==='tag';
 let rt=t;if(pitch)rt=Math.max(0,(t-.45)/.55);else if(hit||fly||ground)rt=Math.max(0,(t-.22)/.78);
+// 犧牲觸擊及雙殺：原有跑者從一壘向二壘移動。
+leadRunner.visible=selected==='sacrifice'||selected==='doubleplay';
+if(leadRunner.visible){
+ const advance=selected==='sacrifice'?smooth((t-.25)/.65):smooth((t-.23)/.42);
+ const p=one.clone().lerp(two,advance);
+ leadRunner.position.set(p.x,.1,p.z);
+ leadRunner.rotation.y=Math.atan2(two.x-one.x,two.z-one.z);
+}
 const rp=along(c[2],rt);runner.position.set(rp.x,.1+Math.abs(Math.sin(now*.013))*((rt>0&&rt<1)? .13:0),rp.z+(rt===0&&selected!=='steal'?.9:0));
 if(c[2].length>1){const dest=along(c[2],Math.min(1,rt+.02));runner.rotation.y=Math.atan2(dest.x-rp.x,dest.z-rp.z)}
 const pitcher=fielders[0];
 // 三振情境：明確揮棒落空；球先穿過本壘才進捕手手套。
-const swing=selected==='strike'||hit||fly||ground;
+const swing=selected==='strike'||hit||fly||ground&&selected!=='sacrifice';
 const swingPhase=Math.max(0,Math.min(1,(t-.18)/.25));
-bat.rotation.z=-.5+(swing?Math.sin(swingPhase*Math.PI)*1.65:0);
+bat.rotation.z=-.5+(swing?Math.sin(swingPhase*Math.PI)*1.65:selected==='sacrifice'?.9:0);
 hitter.rotation.y=Math.atan2(towardPitcher.x,towardPitcher.z)+(swing?Math.sin(swingPhase*Math.PI)*.42:0);
 if(pitch){const u=Math.min(1,t*2.2);ball.position.set(9*(1-u),1.7+u*.5,-9*(1-u));if(selected==='strike'&&u>.82)ball.position.y=1.5;}
 else if(hit||fly||ground){
