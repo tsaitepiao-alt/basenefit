@@ -39,14 +39,14 @@ function onDeckCircle(side){const center=acrossPlate.clone().multiplyScalar(side
 onDeckCircle(-1);onDeckCircle(1);
 // 全壘打牆：位於界內扇形外緣；黃線標示牆頂、兩端界外標竿。
 const wallMat=M(0x184b63),topMat=M(0xf5d351),poleMat=M(0xffdb35),radius=70,segments=36;
-let centerWallAngle=0;
+let centerWallSegment=null;
 for(let i=0;i<segments;i++){
  const a=i/segments*Math.PI/2,b=(i+1)/segments*Math.PI/2;
  const p=new T.Vector3(radius*Math.cos(a),0,-radius*Math.sin(a)),q=new T.Vector3(radius*Math.cos(b),0,-radius*Math.sin(b));
  const len=p.distanceTo(q),mid=p.clone().add(q).multiplyScalar(.5);
  const wall=add(new T.BoxGeometry(len+.1,5,.65),wallMat,mid.x,2.5,mid.z);
  wall.rotation.y=-Math.atan2(q.z-p.z,q.x-p.x);
- if(i===Math.floor(segments/2)-1)centerWallAngle=wall.rotation.y;
+ if(i===Math.floor(segments/2)-1)centerWallSegment=wall;
  const rail=add(new T.BoxGeometry(len+.1,.25,.8),topMat,mid.x,5.1,mid.z);rail.rotation.y=wall.rotation.y;
 }
 // 自製品牌字標：使用 CanvasTexture，避免外部圖片路徑與跨網域問題。
@@ -58,15 +58,14 @@ function brandPanel(w,h,x,y,z,rotation=0){
  const mat=new T.MeshBasicMaterial({map:tex,side:T.DoubleSide});
  const sign=add(new T.PlaneGeometry(w,h),mat,x,y,z);sign.rotation.y=rotation;return sign;
 }
-// 中外野：獨立懸掛式招牌，整塊離開弧形圍牆，防止牆體裁切文字兩端。
-// 球場內側方向是 (-X,+Z)；把招牌放在牆內 4.5 單位，並高於牆頂。
-// 中外野牆切線沿 (X,Z)=(+,+)；看板平面應沿相同切線。
-// 直接沿用中外野中央牆片的旋轉角度，不再手動猜測正負方向。
-const wallLogo=brandPanel(19,3.6,45.1,7.1,-45.1,centerWallAngle);
+// 直接以中外野中央牆片為父座標：所有看板的 X 軸都與牆片 X 軸相同。
+// 牆片 local -Z 指向球場內側，local +Y 指向上方；不再混用世界座標與旋轉角。
+const wallLogo=brandPanel(19,3.6,0,0,0);
+centerWallSegment.add(wallLogo);
+wallLogo.position.set(0,4.6,-4.45);
+wallLogo.rotation.set(0,0,0);
+const logoBacking=add(new T.BoxGeometry(20,4.2,.45),M(0x092636),0,4.6,-4.05,centerWallSegment);
 wallLogo.material.depthTest=true;
-const logoBacking=add(new T.BoxGeometry(20,4.2,.45),M(0x092636),45.5,7.1,-45.5);
-logoBacking.rotation.y=centerWallAngle;
-wallLogo.renderOrder=3;
 // 主審後方地面品牌字標。
 const groundBrand=brandPanel(13,3.4,-8.6,.085,8.6,0);
 groundBrand.rotation.set(-Math.PI/2,0,-Math.PI/4);
@@ -74,10 +73,9 @@ groundBrand.material.depthWrite=false;
 // 中外野電子計分板：模擬九局逐局計分、R/H/E、B/S/O、壘包及教學比分。
 const scoreCanvas=document.createElement('canvas');scoreCanvas.width=1536;scoreCanvas.height=900;
 const scoreCtx=scoreCanvas.getContext('2d'),scoreTex=new T.CanvasTexture(scoreCanvas);scoreTex.colorSpace=T.SRGBColorSpace;
-const scoreBack=add(new T.BoxGeometry(28,16.8,1),M(0x071824),49.2,19,-49.2);
-scoreBack.rotation.y=centerWallAngle;
-const scoreBoard=add(new T.PlaneGeometry(27,16),new T.MeshBasicMaterial({map:scoreTex,side:T.DoubleSide}),48.35,19,-48.35);
-scoreBoard.rotation.y=centerWallAngle;
+// local X 直接繼承牆片切線，絕不另設 rotation.y。
+const scoreBack=add(new T.BoxGeometry(28,16.8,1),M(0x071824),0,16.5,-.9,centerWallSegment);
+const scoreBoard=add(new T.PlaneGeometry(27,16),new T.MeshBasicMaterial({map:scoreTex,side:T.DoubleSide}),0,16.5,-1.55,centerWallSegment);
 function drawStadiumScore(){
  const ctx=scoreCtx,W=1536,H=900;
  ctx.fillStyle='#071522';ctx.fillRect(0,0,W,H);
