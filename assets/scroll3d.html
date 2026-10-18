@@ -98,13 +98,13 @@
   var fieldLabels=document.createElement('div');
   fieldLabels.id='field-labels';
   document.body.appendChild(fieldLabels);
-  var guide=[['球場導覽','向下滑動探索球場'],['內野與壘包','壘間距離 27.43 m；投手板距本壘 18.44 m'],['外野與全壘打牆','中外野參考距離 400 ft（121.92 m）'],['計分板','觀察逐局得分、安打與失誤'],['空中全景','俯瞰內野、外野與界外線']];
+  var guide=[['1號｜投手','投球、牽制與補位'],['2號｜捕手','接捕、配球與阻殺'],['3號｜一壘手','一壘守備與接傳球'],['4號｜二壘手','補位、滾地球與雙殺'],['5號｜三壘手','快速反應與長傳'],['6號｜游擊手','內野防守與雙殺轉傳'],['7號｜左外野手','飛球追接與回傳'],['8號｜中外野手','外野指揮與大範圍守備'],['9號｜右外野手','飛球追接與長傳'],['10｜完整球場','壘間 27.43 m · 投手板 18.44 m · 中外野 121.92 m']];
   var lastGuide=-1;
   function updateLabels(){
-    var i=cur<.13?0:cur<.38?1:cur<.64?2:cur<.84?3:4;
+    var i=Math.min(9,Math.floor(cur*10));
     if(i===lastGuide)return;
     lastGuide=i;
-    fieldLabels.textContent=(i+1)+' / 5  '+guide[i][0]+'｜'+guide[i][1];
+    fieldLabels.textContent=(i+1)+' / 10  '+guide[i][0]+'｜'+guide[i][1];
   }
   // 球場使用內建幾何模型，無需等待外部 GLB，避免載入後空白。
   var model=null;
