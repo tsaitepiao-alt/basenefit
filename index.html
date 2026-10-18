@@ -1265,7 +1265,9 @@ function route(){
     const videos=ANALYSIS_VIDEOS[id]||[];
     videoList.innerHTML=videos.map(v=>{
       const match=v[1].match(/[?&]v=([a-zA-Z0-9_-]{11})/);
-      const video=match?'<div style="width:100%;max-width:900px;aspect-ratio:16/9;background:#111;border-radius:12px;overflow:hidden;margin:12px 0"><iframe loading="lazy" title="'+v[0]+'" src="https://www.youtube-nocookie.com/embed/'+match[1]+'?rel=0&playsinline=1" style="width:100%;height:100%;border:0;display:block" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>':(v[1].includes('youtube.com/results?')?'<p class="req">此分類尚無已確認的影片，可透過下方搜尋入口尋找。</p>':'<div style="background:#102b39;color:#e7f5ee;padding:25px;border-radius:12px;margin:12px 0;max-width:900px"><b style="font-size:20px">⚾ MLB 守備影片</b><p style="margin:8px 0 0">已找到官方影片頁面，點下方按鈕觀看。本站不冒用未驗證的 YouTube 影片畫面。</p></div>');
+      const isSearch=v[1].includes('youtube.com/results?');
+      const embedSrc=match?'https://www.youtube-nocookie.com/embed/'+match[1]+'?rel=0':v[1];
+      const video=isSearch?'<p class="req">尚未找到可確認的慢動作影片</p>':'<div style="aspect-ratio:16/9;width:100%;max-width:900px;background:#111;border-radius:12px;overflow:hidden;margin:12px 0"><iframe title="'+v[0]+'" loading="lazy" src="'+embedSrc+'" allow="fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:0"></iframe></div>';
       return '<div class="card" style="padding:16px"><h2 style="margin-bottom:7px">'+v[0]+'</h2><p class="req">'+v[2]+'</p>'+video+'<a class="btn ghost" href="'+v[1]+'" target="_blank" rel="noopener noreferrer">'+(match?'▶ 在 YouTube 開啟':(v[1].includes('youtube.com/results?')?'🔎 搜尋 MLB 慢動作影片':'▶ 開啟 MLB 守備影片'))+'</a></div>';
     }).join('');
   }
