@@ -1,0 +1,63 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>basenefit｜3D 棒球規則教室</title><style>
+*{box-sizing:border-box}body{margin:0;background:#0b1725;color:#f4f7fa;font:15px/1.6 system-ui,"Noto Sans TC",sans-serif}.shell{max-width:1320px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:clamp(20px,3vw,30px);margin:4px 0}.hint{color:#a7c0ce;font-size:12px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px;margin-top:12px}.stage{position:relative;background:#142c3b;border:1px solid #36536a;border-radius:16px;overflow:hidden;height:min(68vh,620px);min-height:340px}#view{width:100%;height:100%;touch-action:none}.hud{position:absolute;left:12px;top:12px;background:#0a1826d9;border-radius:10px;padding:9px 13px;font-size:13px;pointer-events:none}.hud strong{color:#c9f34e;font-size:22px}.panel{background:#162737;border:1px solid #36536a;border-radius:16px;padding:14px}.score{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;text-align:center}.score div{background:#0a1a29;padding:7px 2px;border-radius:9px}.score b{display:block;color:#c9f34e;font-size:24px}.rules{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 0}button{border:1px solid #456275;background:#253d50;color:#fff;border-radius:9px;padding:9px 6px;cursor:pointer;font:inherit}button.active,button:hover{background:#c9f34e;color:#15201c;border-color:#c9f34e}button:focus-visible{outline:3px solid #fff}#explain{min-height:105px;color:#d8e7ed}#explain b{color:#c9f34e}#status{font-size:12px;color:#b4cbd9}.actions{display:flex;gap:6px;flex-wrap:wrap}.actions button{flex:1}.footer{color:#a9c1cb;font-size:12px;margin-top:12px}@media(max-width:850px){.layout{grid-template-columns:1fr}.stage{height:54vh;min-height:310px}.rules{grid-template-columns:repeat(3,1fr)}}
+</style></head><body><main class="shell"><div class="top"><div><h1>⚾ 3D 棒球互動規則教室</h1><div class="hint">單指旋轉 · 雙指縮放／平移 · 電腦滾輪縮放 · 選擇情境觀看動作</div></div><div class="actions"><button id="reset">重設視角</button><button id="top">俯視球場</button></div></div><div class="layout"><div class="stage"><div id="view"></div><div class="hud">示範場景 · <strong id="title">一壘安打</strong><div id="status">準備播放</div></div></div><aside class="panel"><div class="score"><div>得分<b id="runs">0</b></div><div>出局<b id="outs">0</b></div><div>好球<b id="strikes">0</b></div><div>壞球<b id="balls">0</b></div></div><h3>規則與動作示範</h3><div class="rules" id="rules"></div><div id="explain" aria-live="polite"></div><div class="actions"><button id="replay">▶ 重新播放</button><button id="pause">⏸ 暫停</button><button id="speed">速度 1×</button></div><p class="hint">計分板顯示各情境的示範結果；不是連續比賽計分。動畫為簡化教學，不代替正式裁判判決。</p></aside></div><p class="footer">basenefit · 棒球學習｜球員以程式化模型呈現，九位守備員依位置配置。適合手機及桌面瀏覽器。</p></main>
+<script type="module">
+import * as T from 'https://esm.sh/three@0.170.0';
+import {OrbitControls} from 'https://esm.sh/three@0.170.0/examples/jsm/controls/OrbitControls.js';
+const mount=document.querySelector('#view'),scene=new T.Scene();scene.background=new T.Color(0x102d43);scene.fog=new T.Fog(0x102d43,125,240);
+const camera=new T.PerspectiveCamera(48,1,.1,450);camera.position.set(46,57,66);
+const renderer=new T.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=T.SRGBColorSpace;renderer.shadowMap.enabled=true;mount.append(renderer.domElement);
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.target.set(8,0,-13);orbit.enableDamping=true;orbit.maxPolarAngle=Math.PI/2.08;orbit.minDistance=17;orbit.maxDistance=145;
+scene.add(new T.HemisphereLight(0xe9f5ff,0x324b37,2));const sun=new T.DirectionalLight(0xffffff,2.3);sun.position.set(20,65,15);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-90;sun.shadow.camera.right=90;sun.shadow.camera.top=90;sun.shadow.camera.bottom=-90;scene.add(sun);
+const M=c=>new T.MeshStandardMaterial({color:c,roughness:.78}),green=M(0x2a8051),dirt=M(0xb98959),white=M(0xf8f6e9),navy=M(0x17364b),skin=M(0xe3ad8a),blue=M(0x4ba9e9),gold=M(0xffd052),red=M(0xf17458);
+function add(g,m,x=0,y=0,z=0,parent=scene){const o=new T.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+add(new T.PlaneGeometry(280,280),green,0,-.15,0).rotation.x=-Math.PI/2;
+function surface(points,m,y){const s=new T.Shape();s.moveTo(points[0][0],-points[0][1]);points.slice(1).forEach(p=>s.lineTo(p[0],-p[1]));s.closePath();add(new T.ShapeGeometry(s),m,0,y,0).rotation.x=-Math.PI/2}
+surface([[0,0],[18,0],[18,-18],[0,-18]],dirt,.015);surface([[4,-4],[14,-4],[14,-14],[4,-14]],green,.028);
+const home=new T.Vector3(0,0,0),one=new T.Vector3(18,0,0),two=new T.Vector3(18,0,-18),three=new T.Vector3(0,0,-18),base=[home,one,two,three];
+function line(a,b,m=white,w=.15){const d=b.clone().sub(a),mid=a.clone().add(b).multiplyScalar(.5);const o=add(new T.BoxGeometry(w,.05,d.length()),m,mid.x,.15,mid.z);o.rotation.y=Math.atan2(d.x,d.z)}
+for(let i=0;i<4;i++)line(base[i],base[(i+1)%4]);line(home,new T.Vector3(85,0,0));line(home,new T.Vector3(0,0,-85));
+for(const p of [one,two,three])add(new T.BoxGeometry(1.5,.2,1.5),white,p.x,.28,p.z).rotation.y=Math.PI/4;
+add(new T.CylinderGeometry(.85,.85,.16,5),white,0,.26,0).rotation.y=Math.PI/4;
+add(new T.CylinderGeometry(3.1,3.1,.15,40),dirt,9,.05,-9);add(new T.BoxGeometry(1.2,.13,.4),white,9,.2,-9);
+for(let i=0;i<8;i++){const a=i/8*Math.PI/2;const r=65;const x=r*Math.cos(a),z=-r*Math.sin(a);if(i)line(new T.Vector3(x,0,z),new T.Vector3(r*Math.cos((i-1)/8*Math.PI/2),0,-r*Math.sin((i-1)/8*Math.PI/2)),navy,.8)}
+function person(color,x,z){const g=new T.Group();add(new T.CylinderGeometry(.58,.75,2,10),color,0,2,0,g);add(new T.SphereGeometry(.57,12,10),skin,0,3.38,0,g);add(new T.SphereGeometry(.61,12,8,0,Math.PI*2,0,Math.PI/2),navy,0,3.65,0,g);for(const dx of [-.37,.37]){add(new T.CylinderGeometry(.18,.23,1.35,8),navy,dx,.7,0,g);add(new T.CylinderGeometry(.15,.18,1.5,8),color,dx*2,2.05,0,g).rotation.z=dx>0?-.55:.55}g.position.set(x,.1,z);scene.add(g);return g}
+const positions=[[9,-9],[1,3],[18,1],[19,-17],[0,-19],[8,-20],[29,-36],[10,-46],[-18,-34]];
+const fielders=positions.map(([x,z])=>person(blue,x,z)),runner=person(gold,0,1.4),ball=add(new T.SphereGeometry(.38,12,12),white,9,2,-9);
+const bat=add(new T.CylinderGeometry(.1,.24,4,10),dirt,-1.1,2.2,1.5);bat.rotation.z=-.5;
+const cases={
+single:['一壘安打','球落地後打者安全抵達一壘。',[home,one],0,0,0,0,'hit'],
+double:['二壘安打','打者依序踩過一壘、二壘。',[home,one,two],0,0,0,0,'hit'],
+triple:['三壘安打','打者依序踩過一、二、三壘。',[home,one,two,three],0,0,0,0,'hit'],
+homer:['全壘打','無人上壘的全壘打，打者跑完四壘得 1 分。',[home,one,two,three,home],1,0,0,0,'homer'],
+walk:['四壞保送','累積四顆壞球，打者獲得一壘。',[home,one],0,0,0,4,'pitch'],
+strike:['三振出局','第三好球由捕手合法接捕，打者出局。',[home],0,1,3,0,'pitch'],
+fly:['飛球接殺','飛球落地前被守備員合法接住，打者出局。',[home],0,1,0,0,'fly'],
+ground:['滾地出局','守備員接球傳一壘，球比打者先到，完成封殺。',[home,new T.Vector3(12,0,0)],0,1,0,0,'ground'],
+steal:['盜二壘','一壘跑者在投球時起跑，安全盜上二壘。',[one,two],0,0,0,0,'steal'],
+doubleplay:['雙殺守備','示範無人出局、一壘有人：滾地球形成二壘封殺，再傳一壘完成雙殺。',[home,new T.Vector3(11,0,0)],0,2,0,0,'doubleplay'],
+sacrifice:['犧牲觸擊','無人出局、一壘有人：打者觸擊出局，跑者推進二壘。',[home,new T.Vector3(12,0,0)],0,1,0,0,'sacrifice'],
+tag:['觸殺出局','跑者離壘時，持球守備員以球或持球手套觸及跑者。',[one,new T.Vector3(18,0,-9)],0,1,0,0,'tag']
+};
+const $=id=>document.getElementById(id),rules=$('rules');let selected='single',start=performance.now(),paused=false,pauseAt=0,speed=1,finished=false;
+Object.entries(cases).forEach(([k,v])=>{const b=document.createElement('button');b.textContent=v[0];b.dataset.key=k;b.onclick=()=>choose(k);rules.append(b)});
+function choose(k){selected=k;start=performance.now();paused=false;finished=false;$('pause').textContent='⏸ 暫停';const c=cases[k];$('title').textContent=c[0];$('explain').innerHTML='<b>'+c[0]+'</b><p>'+c[1]+'</p>';$('status').textContent='動畫播放中';for(const id of ['runs','outs','strikes','balls'])$(id).textContent='0';rules.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.key===k));}
+$('replay').onclick=()=>choose(selected);$('pause').onclick=()=>{if(paused){start+=performance.now()-pauseAt;paused=false}else{pauseAt=performance.now();paused=true}$('pause').textContent=paused?'▶ 繼續':'⏸ 暫停'};
+$('speed').onclick=()=>{speed=speed===1? .5:speed===.5?2:1;$('speed').textContent='速度 '+speed+'×';choose(selected)};
+$('reset').onclick=()=>{camera.position.set(46,57,66);orbit.target.set(8,0,-13);orbit.update()};
+$('top').onclick=()=>{camera.position.set(9,90,-9);orbit.target.set(9,0,-9);orbit.update()};
+function resize(){const w=mount.clientWidth,h=mount.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}new ResizeObserver(resize).observe(mount);resize();
+function along(path,t){if(path.length===1)return path[0].clone();const n=path.length-1,f=Math.min(n-.00001,t*n),i=Math.floor(f),u=f-i;return path[i].clone().lerp(path[i+1],u)}
+function loop(now){requestAnimationFrame(loop);const c=cases[selected],time=(paused?pauseAt:now)-start,duration=Math.max(2300,(c[2].length-1)*1200)/speed,t=Math.min(1,Math.max(0,time/duration)),kind=c[7],pitch=kind==='pitch'||kind==='steal',hit=kind==='hit'||kind==='homer',fly=kind==='fly',ground=kind==='ground'||kind==='doubleplay'||kind==='sacrifice'||kind==='tag';
+let rt=t;if(pitch)rt=Math.max(0,(t-.45)/.55);else if(hit||fly||ground)rt=Math.max(0,(t-.22)/.78);
+const rp=along(c[2],rt);runner.position.set(rp.x,.1+Math.abs(Math.sin(now*.013))*((rt>0&&rt<1)? .13:0),rp.z+(rt===0&&selected!=='steal'?.9:0));
+if(c[2].length>1){const dest=along(c[2],Math.min(1,rt+.02));runner.rotation.y=Math.atan2(dest.x-rp.x,dest.z-rp.z)}
+const pitcher=fielders[0];pitcher.rotation.x=(pitch||hit||fly||ground)?Math.sin(Math.min(1,t*3)*Math.PI)*.18:0;
+bat.rotation.z=-.5+(hit||fly||ground?Math.sin(Math.min(1,t*5)*Math.PI)*1.3:0);
+if(pitch){const u=Math.min(1,t*2.2);ball.position.set(9*(1-u),1.7+u*.5,-9*(1-u));}
+else if(hit||fly||ground){const u=Math.min(1,t*2.6),z=-u*(hit?(kind==='homer'?75:38):fly?35:22),x=u*(kind==='homer'?38:kind==='ground'?12:18);ball.position.set(x,kind==='homer'?2+u*(1-u)*55:fly?1+u*(1-u)*24:kind==='ground'?.45:2+u*(1-u)*12,z)}
+else if(kind==='doubleplay'||kind==='sacrifice'||kind==='tag'){ball.position.set(9,1.4,-9)}
+if(!finished&&t===1){finished=true;['runs','outs','strikes','balls'].forEach((id,i)=>$(id).textContent=c[i+3]);$('status').textContent='示範完成 · 可重新播放'}
+orbit.update();renderer.render(scene,camera)}
+choose('single');requestAnimationFrame(loop);
+</script></body></html>
