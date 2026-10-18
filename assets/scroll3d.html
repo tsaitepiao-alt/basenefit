@@ -168,20 +168,8 @@
   });
   var model=null;
 
-  new THREE.GLTFLoader().load('baseball_stadium.glb',function(gl){
-    model=gl.scene;
-    var b=new THREE.Box3().setFromObject(model), c=new THREE.Vector3(), s=new THREE.Vector3();
-    b.getCenter(c); b.getSize(s);
-    model.position.x-=c.x; model.position.z-=c.z;         // 置中
-    scene.add(model);
-    // 隱藏 GLB 中常見的反向 3D 文字物件，改由正向的畫面標籤取代。
-    model.traverse(function(o){
-      if(o.isMesh&&/(text|label|letter|word|font|文字|標示)/i.test(o.name||''))o.visible=false;
-    });
-    // 避免新地面與既有模型重疊；保留原有看台、外野牆等模型。
-    document.getElementById('load').classList.add('off');
-    window.__ready=true;
-  },undefined,function(){ document.getElementById('load').textContent='模型載入失敗'; });
+  document.getElementById('load').classList.add('off');
+  window.__ready=true;
 
   var controls=new THREE.OrbitControls(camera,cv);
   camera.position.set(0,225,-225);
