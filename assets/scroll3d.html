@@ -63,75 +63,52 @@
   var camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,1,4000);
   scene.add(new THREE.HemisphereLight(0xffffff,0x688d65,1.7));
   var dir=new THREE.DirectionalLight(0xfff6df,2.0); dir.position.set(180,320,120); scene.add(dir);
-  // 日間球場：外圍草地、紅土內野、鮮明界線與壘包，與 GLB 場景疊加。
-  var field=new THREE.Group(); scene.add(field);
-  var grass=new THREE.Mesh(new THREE.PlaneGeometry(1700,1700),new THREE.MeshLambertMaterial({color:0x155b32}));
-  grass.rotation.x=-Math.PI/2;grass.position.y=-1.5;field.add(grass);
-  function groundShape(points,color,y){
-    var sh=new THREE.Shape();points.forEach(function(p,i){if(!i)sh.moveTo(p[0],-p[1]);else sh.lineTo(p[0],-p[1]);});sh.closePath();
-    var m=new THREE.Mesh(new THREE.ShapeGeometry(sh),new THREE.MeshBasicMaterial({color:color,side:THREE.DoubleSide,depthWrite:false}));
+  // 單一座標系：本壘 (0,0)，一壘在畫面右側，外野朝 +Z。
+  var field=new THREE.Group();scene.add(field);
+  var green=new THREE.MeshLambertMaterial({color:0x185d36});
+  var clay=new THREE.MeshLambertMaterial({color:0xb65031,side:THREE.DoubleSide});
+  var white=new THREE.MeshBasicMaterial({color:0xf5f3e9});
+  function plane(shape,material,y){
+    var m=new THREE.Mesh(new THREE.ShapeGeometry(shape),material);
     m.rotation.x=-Math.PI/2;m.position.y=y;field.add(m);return m;
   }
-  function stripe(a,b,color,width,y){
-    var v1=new THREE.Vector3(a[0],y,a[1]),v2=new THREE.Vector3(b[0],y,b[1]),d=v2.clone().sub(v1);
-    var mesh=new THREE.Mesh(new THREE.BoxGeometry(width,.18,d.length()),new THREE.MeshBasicMaterial({color:color}));
-    mesh.position.copy(v1.add(v2).multiplyScalar(.5));mesh.rotation.y=Math.atan2(d.x,d.z);field.add(mesh);
+  function polygon(points,mat,y){
+    var sh=new THREE.Shape();points.forEach(function(p,i){i?sh.lineTo(p[0],-p[1]):sh.moveTo(p[0],-p[1]);});sh.closePath();return plane(sh,mat,y);
   }
-  // 參考真實球場：深綠棋盤割草紋、弧形紅土內野及外野牆。
-  var turfCanvas=document.createElement('canvas');turfCanvas.width=turfCanvas.height=512;
-  var ctx=turfCanvas.getContext('2d');
-  ctx.fillStyle='#165b35';ctx.fillRect(0,0,512,512);
-  var step=64;
-  for(var yy=0;yy<8;yy++)for(var xx=0;xx<8;xx++){
-    ctx.fillStyle=(xx+yy)%2?'#1a683b':'#11512f';
-    ctx.fillRect(xx*step,yy*step,step,step);
+  function line(a,b,width,y,mat){
+    var dx=b[0]-a[0],dz=b[1]-a[1],m=new THREE.Mesh(new THREE.BoxGeometry(width,.07,Math.hypot(dx,dz)),mat||white);
+    m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2);m.rotation.y=Math.atan2(dx,dz);field.add(m);
   }
-  var turfTexture=new THREE.CanvasTexture(turfCanvas);
-  turfTexture.wrapS=turfTexture.wrapT=THREE.RepeatWrapping;
-  turfTexture.repeat.set(16,16);
-  grass.material=new THREE.MeshLambertMaterial({map:turfTexture,side:THREE.DoubleSide});
-  // 弧形內野紅土區與內野草坪。
-  var dirtOutline=[[0,-12],[-63,63]];
-  for(var ai=0;ai<=80;ai++){
-    var aa=Math.PI*.75-ai*Math.PI*.5/80;
-    dirtOutline.push([Math.cos(aa)*89,Math.sin(aa)*89]);
+  var turf=document.createElement('canvas');turf.width=turf.height=512;
+  var tx=turf.getContext('2d');tx.fillStyle='#185b37';tx.fillRect(0,0,512,512);
+  for(var i=0;i<8;i++)for(var j=0;j<8;j++){tx.fillStyle=(i+j)%2?'#1c6b40':'#125130';tx.fillRect(i*64,j*64,64,64);}
+  var texture=new THREE.CanvasTexture(turf);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(10,10);
+  var grass=new THREE.Mesh(new THREE.PlaneGeometry(360,360),new THREE.MeshLambertMaterial({map:texture}));
+  grass.rotation.x=-Math.PI/2;grass.position.set(0,-.14,85);field.add(grass);
+  // 內野紅土弧形區，外野草皮在紅土外側。
+  var d=new THREE.Shape();d.moveTo(0,12);d.lineTo(-62,-62);
+  for(var k=0;k<=80;k++){var angle=Math.PI*.75-k*Math.PI*.5/80;d.lineTo(Math.cos(angle)*89,-Math.sin(angle)*89);}
+  d.lineTo(62,-62);d.lineTo(0,12);d.closePath();plane(d,clay,.02);
+  polygon([[0,7],[-24,27.43],[0,51],[24,27.43]],green,.08);
+  // 投手丘圓形紅土及投手板。
+  var mound=new THREE.Mesh(new THREE.CylinderGeometry(5.5,5.5,.3,64),clay);mound.position.set(0,.17,18.44);field.add(mound);
+  var plate=new THREE.Mesh(new THREE.BoxGeometry(.61,.08,.152),white);plate.position.set(0,.38,18.44);field.add(plate);
+  var bases=[[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]];
+  for(var bi=1;bi<4;bi++){var base=new THREE.Mesh(new THREE.BoxGeometry(.8,.14,.8),white);base.position.set(bases[bi][0],.3,bases[bi][1]);base.rotation.y=Math.PI/4;field.add(base);}
+  polygon([[0,-.5],[-.22,-.15],[-.22,.22],[.22,.22],[.22,-.15]],white,.31);
+  for(var li=0;li<4;li++)line(bases[li],bases[(li+1)%4],.19,.27,white);
+  line([0,0],[-104,104],.22,.29);line([0,0],[104,104],.22,.29);
+  // 打擊區
+  var batter=[[-2.1,-1.5],[-.8,-1.5],[.8,-1.5],[2.1,-1.5]];
+  [-1,1].forEach(function(sign){var x=sign*1.45;line([x-.6,-2.2],[x+.6,-2.2],.1,.3);line([x-.6,1.1],[x+.6,1.1],.1,.3);line([x-.6,-2.2],[x-.6,1.1],.1,.3);line([x+.6,-2.2],[x+.6,1.1],.1,.3);});
+  // 弧形外野牆，統一朝向與尺寸。
+  var wallMat=new THREE.MeshLambertMaterial({color:0x104c40});
+  for(var w=0;w<100;w++){var aa=Math.PI*.25+w*Math.PI*.5/100,bb=Math.PI*.25+(w+1)*Math.PI*.5/100;
+    var p=[Math.cos(aa)*148,Math.sin(aa)*148],q=[Math.cos(bb)*148,Math.sin(bb)*148];
+    var dx=q[0]-p[0],dz=q[1]-p[1];
+    var wall=new THREE.Mesh(new THREE.BoxGeometry(.7,5,Math.hypot(dx,dz)+.1),wallMat);
+    wall.position.set((p[0]+q[0])/2,2.4,(p[1]+q[1])/2);wall.rotation.y=Math.atan2(dx,dz);field.add(wall);
   }
-  dirtOutline.push([63,63],[0,-12]);
-  groundShape(dirtOutline,0xb55332,-.93);
-  groundShape([[0,7],[-25,27.43],[0,52],[25,27.43]],0x185d36,-.82);
-  // 外野牆：沿左外野到右外野的弧形綠色牆面。
-  var wallMat=new THREE.MeshLambertMaterial({color:0x0c5146});
-  var topMat=new THREE.MeshBasicMaterial({color:0xf0c65b});
-  for(var wi=0;wi<80;wi++){
-    var wa=Math.PI*.25+wi*Math.PI*.5/80,wb=Math.PI*.25+(wi+1)*Math.PI*.5/80;
-    var v1=new THREE.Vector3(Math.cos(wa)*149,0,Math.sin(wa)*149),v2=new THREE.Vector3(Math.cos(wb)*149,0,Math.sin(wb)*149);
-    var wd=v1.distanceTo(v2),ang=Math.atan2(v2.z-v1.z,v2.x-v1.x);
-    var wall=new THREE.Mesh(new THREE.BoxGeometry(wd+.12,6,1.3),wallMat);
-    wall.position.copy(v1.clone().add(v2).multiplyScalar(.5));wall.position.y=2;wall.rotation.y=-ang;field.add(wall);
-    var top=new THREE.Mesh(new THREE.BoxGeometry(wd+.12,.22,1.45),topMat);
-    top.position.copy(wall.position);top.position.y=5.1;top.rotation.y=-ang;field.add(top);
-  }
-  // 看台階梯與座席：沿外野牆外緣排列，保留原始 GLB 建築。
-  var standMat=[new THREE.MeshLambertMaterial({color:0x7d3436}),new THREE.MeshLambertMaterial({color:0x3b5555})];
-  for(var tier=0;tier<4;tier++)for(var si=0;si<68;si++){
-    var sa=Math.PI*.25+si*Math.PI*.5/68,sb=Math.PI*.25+(si+1)*Math.PI*.5/68;
-    var radius=155+tier*7;
-    var q1=new THREE.Vector3(Math.cos(sa)*radius,0,Math.sin(sa)*radius);
-    var q2=new THREE.Vector3(Math.cos(sb)*radius,0,Math.sin(sb)*radius);
-    var seat=new THREE.Mesh(new THREE.BoxGeometry(q1.distanceTo(q2)+.4,1.5,6),standMat[(si+tier)%2]);
-    seat.position.copy(q1.clone().add(q2).multiplyScalar(.5));seat.position.y=2+tier*2.5;
-    seat.rotation.y=-Math.atan2(q2.z-q1.z,q2.x-q1.x);
-    field.add(seat);
-  }
-  [[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]].forEach(function(p,i,arr){stripe(p,arr[(i+1)%4],0xffffff,.55,-.7);});
-  stripe([0,0],[-115,115],0xffffff,.65,-.7);
-  stripe([0,0],[115,115],0xffffff,.65,-.7);
-  var mound=new THREE.Mesh(new THREE.CylinderGeometry(5.3,5.3,.4,48),new THREE.MeshLambertMaterial({color:0xa94728}));
-  mound.position.set(0,-.55,18.44);field.add(mound);
-  [[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]].forEach(function(p){
-    var base=new THREE.Mesh(new THREE.BoxGeometry(2.3,.25,2.3),new THREE.MeshBasicMaterial({color:0xffffff}));
-    base.position.set(p[0],-.48,p[1]);base.rotation.y=Math.PI/4;field.add(base);
-  });
   var fieldLabels=document.createElement('div');
   fieldLabels.id='field-labels';
   fieldLabels.textContent='點選球場上的位置，查看守備介紹與尺寸。';
