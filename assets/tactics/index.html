@@ -90,7 +90,7 @@
           <section class="panel scenario-panel">
             <div class="panel-heading"><div><span class="eyebrow">TRAINING DECK</span><h2>局面演練</h2></div><span class="shortcut-key">1–6</span></div>
             <p class="panel-description">不必等待比賽自然發生。載入關鍵局面，練習選擇與處置。</p>
-            <div class="scenario-list" id="scenario-list">
+            <label class="compact-label" for="scenario-picker">演練情境</label><select class="quick-select" id="scenario-picker"><option value="opening">開局觀察</option><option value="fullCount">滿壘滿球數</option><option value="doublePlay">雙殺守備</option><option value="sacrifice">高壓推進</option><option value="walkoff">九下守成</option><option value="extras">延長決勝</option></select><div class="scenario-list" id="scenario-list">
               <button class="scenario active" data-scenario="opening" type="button" aria-label="情境 01：開局觀察"><span class="scenario-number">01</span><span><strong>開局觀察</strong><small>1 局上 · 無人出局</small></span><i>↗</i></button>
               <button class="scenario" data-scenario="fullCount" type="button" aria-label="情境 02：滿壘滿球數"><span class="scenario-number">02</span><span><strong>滿壘滿球數</strong><small>3–2 · 1 出局</small></span><i>↗</i></button>
               <button class="scenario" data-scenario="doublePlay" type="button" aria-label="情境 03：雙殺守備"><span class="scenario-number">03</span><span><strong>雙殺守備</strong><small>一壘有人 · 0 出局</small></span><i>↗</i></button>
@@ -124,7 +124,7 @@
             <div class="panel-heading"><div><span class="eyebrow" id="command-eyebrow">OFFENSIVE PLAN</span><h2 id="command-title">打擊決策</h2></div><span class="decision-chip" id="decision-side">學員進攻</span></div>
             <p class="panel-description" id="command-description">依球數和壘上跑者，選擇這一球的進攻意圖。</p>
             <div class="offense-controls" id="offense-controls">
-              <div class="strategy-buttons" role="group" aria-label="打擊策略">
+              <label class="compact-label" for="strategy-picker">打擊策略</label><select class="quick-select" id="strategy-picker"><option value="take">觀察／選球</option><option value="contact">接觸打擊</option><option value="power">強攻長打</option><option value="bunt">犧牲短打</option><option value="steal">盜壘</option></select><div class="strategy-buttons" role="group" aria-label="打擊策略">
                 <button class="strategy-button selected" data-strategy="take" type="button"><span class="strategy-icon">◌</span><strong>觀察</strong><small>選球／等失投</small></button>
                 <button class="strategy-button" data-strategy="contact" type="button"><span class="strategy-icon">⌁</span><strong>接觸</strong><small>扎實放進場</small></button>
                 <button class="strategy-button" data-strategy="power" type="button"><span class="strategy-icon">✦</span><strong>強攻</strong><small>追求長打</small></button>
@@ -189,6 +189,20 @@
       <p class="help-note">採教學完整制：包含 B/S/O、壘包、R/H/E、四壞／觸身、安打、短打、犧飛、失誤、雙殺、盜壘、暴投、延長賽與再見分等情境。</p>
     </dialog>
 
-    <script type="module" src="./js/app.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded',function(){
+  [['scenario-picker','data-scenario'],['strategy-picker','data-strategy']].forEach(function(pair){
+    var select=document.getElementById(pair[0]);
+    select.addEventListener('change',function(){
+      var btn=Array.from(document.querySelectorAll('['+pair[1]+']')).find(function(b){return b.getAttribute(pair[1])===select.value;});
+      if(btn)btn.click();
+    });
+    document.addEventListener('click',function(e){
+      var btn=e.target.closest('['+pair[1]+']');
+      if(btn)select.value=btn.getAttribute(pair[1]);
+    });
+  });
+});
+</script><script type="module" src="./js/app.js"></script>
   </body>
 </html>
