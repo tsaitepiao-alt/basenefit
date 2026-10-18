@@ -56,30 +56,48 @@ function brandPanel(w,h,x,y,z,rotation=0){
  const mat=new T.MeshBasicMaterial({map:tex,side:T.DoubleSide});
  const sign=add(new T.PlaneGeometry(w,h),mat,x,y,z);sign.rotation.y=rotation;return sign;
 }
-// 中外野全壘打牆：品牌字標與上方獨立立體計分板。
-// 看板從牆面往球場內側移出，避免被牆體遮住一半。
-const wallLogo=brandPanel(19,3.5,48.5,3.05,-48.5,Math.PI/4);
+// 中外野：獨立懸掛式招牌，整塊離開弧形圍牆，防止牆體裁切文字兩端。
+// 球場內側方向是 (-X,+Z)；把招牌放在牆內 4.5 單位，並高於牆頂。
+const wallLogo=brandPanel(19,3.6,45.5,7.1,-45.5,-Math.PI/4);
 wallLogo.material.depthTest=true;
-// 主審後方：品牌字標平貼地面，非豎立廣告牌。
+const logoBacking=add(new T.BoxGeometry(20,4.2,.45),M(0x092636),45.7,7.1,-45.7);
+logoBacking.rotation.y=-Math.PI/4;
+wallLogo.renderOrder=3;
+// 主審後方地面品牌字標。
 const groundBrand=brandPanel(13,3.4,-8.6,.085,8.6,0);
 groundBrand.rotation.set(-Math.PI/2,0,-Math.PI/4);
 groundBrand.material.depthWrite=false;
-// 球場計分板位於中外野牆上方，顯示目前教學情境的得分、出局與好壞球。
-const scoreCanvas=document.createElement('canvas');scoreCanvas.width=1024;scoreCanvas.height=512;
+// 中外野電子計分板：模擬九局逐局計分、R/H/E、B/S/O、壘包及教學比分。
+const scoreCanvas=document.createElement('canvas');scoreCanvas.width=1536;scoreCanvas.height=900;
 const scoreCtx=scoreCanvas.getContext('2d'),scoreTex=new T.CanvasTexture(scoreCanvas);scoreTex.colorSpace=T.SRGBColorSpace;
-const scoreBack=add(new T.BoxGeometry(22,11.5,1.2),M(0x071824),49.2,12,-49.2);
-scoreBack.rotation.y=Math.PI/4;
-// 計分板顯示面略往球場內側，避免與背板共面造成遮擋。
-const scoreBoard=add(new T.PlaneGeometry(21,10.5),new T.MeshBasicMaterial({map:scoreTex,side:T.DoubleSide}),48.65,12,-48.65);
-scoreBoard.rotation.y=Math.PI/4;
+const scoreBack=add(new T.BoxGeometry(28,16.8,1),M(0x071824),49.2,19,-49.2);
+scoreBack.rotation.y=-Math.PI/4;
+const scoreBoard=add(new T.PlaneGeometry(27,16),new T.MeshBasicMaterial({map:scoreTex,side:T.DoubleSide}),48.4,19,-48.4);
+scoreBoard.rotation.y=-Math.PI/4;
 function drawStadiumScore(){
- const ctx=scoreCtx;ctx.fillStyle='#061724';ctx.fillRect(0,0,1024,512);
- ctx.strokeStyle='#c9f34e';ctx.lineWidth=12;ctx.strokeRect(12,12,1000,488);
- ctx.textAlign='center';ctx.fillStyle='#c9f34e';ctx.font='bold 78px system-ui';ctx.fillText('basenefit',512,105);
- ctx.fillStyle='#d7e8f0';ctx.font='bold 45px system-ui';ctx.fillText('3D BASEBALL · RULES',512,170);
- ctx.fillStyle='#b8c8d3';ctx.font='bold 39px system-ui';ctx.fillText('RUNS         OUTS        BALLS       STRIKES',512,255);
- ctx.fillStyle='#ffffff';ctx.font='bold 108px monospace';
- ctx.fillText([document.getElementById('runs')?.textContent||'0',document.getElementById('outs')?.textContent||'0',document.getElementById('balls')?.textContent||'0',document.getElementById('strikes')?.textContent||'0'].join('       '),512,393);
+ const ctx=scoreCtx,W=1536,H=900;
+ ctx.fillStyle='#071522';ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='#c9f34e';ctx.lineWidth=13;ctx.strokeRect(14,14,W-28,H-28);
+ ctx.textAlign='left';ctx.textBaseline='middle';
+ ctx.fillStyle='#c9f34e';ctx.font='bold 91px system-ui';ctx.fillText('basenefit',65,103);
+ ctx.fillStyle='#a9bfce';ctx.font='bold 34px system-ui';ctx.fillText('BASEBALL LEARNING STADIUM',670,102);
+ ctx.fillStyle='#14374b';ctx.fillRect(50,172,1436,318);
+ ctx.fillStyle='#d5e9f0';ctx.font='bold 40px monospace';
+ const cols=[400,505,610,715,820,925,1030,1135,1240,1350,1440,1510];
+ ['1','2','3','4','5','6','7','8','9','R','H','E'].forEach((label,i)=>{ctx.textAlign='center';ctx.fillText(label,cols[i],219)});
+ const rows=[['AWAY','0','0','1','0','0','0','0','0','0','1','4','0'],['HOME','0','2','0','0','0','0','0','0','0','2','5','0']];
+ rows.forEach((row,j)=>{
+  const y=316+j*112;ctx.fillStyle=j?'#c9f34e':'#ffffff';ctx.textAlign='left';ctx.font='bold 55px system-ui';ctx.fillText(row[0],80,y);
+  ctx.font='bold 52px monospace';row.slice(1).forEach((v,i)=>{ctx.textAlign='center';ctx.fillText(v,cols[i],y)});
+ });
+ ctx.fillStyle='#d9e6ef';ctx.font='bold 51px system-ui';ctx.textAlign='left';ctx.fillText('INNING  3 ▲',72,566);
+ const runs=document.getElementById('runs')?.textContent||'0',outs=document.getElementById('outs')?.textContent||'0',balls=document.getElementById('balls')?.textContent||'0',strikes=document.getElementById('strikes')?.textContent||'0';
+ ctx.fillStyle='#c9f34e';ctx.font='bold 54px monospace';ctx.fillText('R '+runs+'   B '+balls+'   S '+strikes+'   O '+outs,610,566);
+ // 壘包菱形及示意燈號
+ const diamond=[[1340,580],[1390,530],[1440,580],[1390,630]];
+ ctx.fillStyle='#e5c86b';ctx.beginPath();diamond.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();ctx.strokeStyle='#d6e8ed';ctx.lineWidth=8;ctx.stroke();
+ ctx.fillStyle='#0b2939';ctx.font='bold 38px system-ui';ctx.textAlign='center';ctx.fillText('LIVE RULES DEMO',768,710);
+ ctx.fillStyle='#92b4c6';ctx.font='bold 32px system-ui';ctx.fillText('HIT  •  RUN  •  FIELD  •  LEARN',768,777);
  scoreTex.needsUpdate=true;
 }
 drawStadiumScore();
