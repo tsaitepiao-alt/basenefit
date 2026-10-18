@@ -111,6 +111,18 @@
     var top=new THREE.Mesh(new THREE.BoxGeometry(wd+.12,.22,1.45),topMat);
     top.position.copy(wall.position);top.position.y=5.1;top.rotation.y=-ang;field.add(top);
   }
+  // 看台階梯與座席：沿外野牆外緣排列，保留原始 GLB 建築。
+  var standMat=[new THREE.MeshLambertMaterial({color:0x7d3436}),new THREE.MeshLambertMaterial({color:0x3b5555})];
+  for(var tier=0;tier<4;tier++)for(var si=0;si<68;si++){
+    var sa=Math.PI*.25+si*Math.PI*.5/68,sb=Math.PI*.25+(si+1)*Math.PI*.5/68;
+    var radius=155+tier*7;
+    var q1=new THREE.Vector3(Math.cos(sa)*radius,0,Math.sin(sa)*radius);
+    var q2=new THREE.Vector3(Math.cos(sb)*radius,0,Math.sin(sb)*radius);
+    var seat=new THREE.Mesh(new THREE.BoxGeometry(q1.distanceTo(q2)+.4,1.5,6),standMat[(si+tier)%2]);
+    seat.position.copy(q1.clone().add(q2).multiplyScalar(.5));seat.position.y=2+tier*2.5;
+    seat.rotation.y=-Math.atan2(q2.z-q1.z,q2.x-q1.x);
+    field.add(seat);
+  }
   // 以場地本壘位於 (0,0,0)、外野朝 +Z 的標準座標製作覆蓋層。
   groundShape([[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]],0xa94728,-.95);
   groundShape([[-13.7,13.7],[-27.43,27.43],[0,54.86],[27.43,27.43],[13.7,13.7]],0x155b32,-.88);
@@ -175,8 +187,8 @@
   },undefined,function(){ document.getElementById('load').textContent='模型載入失敗'; });
 
   var controls=new THREE.OrbitControls(camera,cv);
-  camera.position.set(0,195,-160);
-  controls.target.set(0,0,48);
+  camera.position.set(0,225,-225);
+  controls.target.set(0,0,66);
   controls.enablePan=true;
   controls.enableDamping=true;
   controls.dampingFactor=.08;
