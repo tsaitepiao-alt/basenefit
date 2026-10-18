@@ -30,7 +30,7 @@ for(let i=0;i<segments;i++){
  const p=new T.Vector3(radius*Math.cos(a),0,-radius*Math.sin(a)),q=new T.Vector3(radius*Math.cos(b),0,-radius*Math.sin(b));
  const len=p.distanceTo(q),mid=p.clone().add(q).multiplyScalar(.5);
  const wall=add(new T.BoxGeometry(len+.1,5,.65),wallMat,mid.x,2.5,mid.z);
- wall.rotation.y=Math.atan2(q.z-p.z,q.x-p.x);
+ wall.rotation.y=-Math.atan2(q.z-p.z,q.x-p.x);
  const rail=add(new T.BoxGeometry(len+.1,.25,.8),topMat,mid.x,5.1,mid.z);rail.rotation.y=wall.rotation.y;
 }
 for(const p of [new T.Vector3(radius,0,0),new T.Vector3(0,0,-radius)]){
