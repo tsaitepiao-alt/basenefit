@@ -160,11 +160,21 @@ function animateDefense(kind,t,now){
  }else if(selected==='doubleplay'){
    // 游擊手接滾地球→二壘手踩二壘→二壘手轉傳一壘。
    const second=fielders[3];
-   if(t>.38){second.position.lerp(new T.Vector3(18,.1,-18),smooth((t-.38)/.26));}
-   if(t>=.5&&t<.73){
-     throwBall(new T.Vector3(11,2.5,-16),new T.Vector3(18,2.3,-18),(t-.5)/.23,1.7);
-   }else if(t>=.73){
-     throwBall(new T.Vector3(18,2.3,-18),new T.Vector3(18,2.2,0),(t-.73)/.22,3);
+   if(t>.3){second.position.copy(second.userData.home).lerp(new T.Vector3(18,.1,-18),smooth((t-.3)/.23));}
+   if(t<.38){
+     // 擊球沿地面直線滾向游擊手正面，不偏離守備員接球點。
+     const u=smooth(Math.max(0,(t-.12)/.26));
+     ball.position.set(11*u,.42,-16*u);
+   }else if(t<.43){
+     ball.position.set(11,2.15,-16); // 游擊手接穩球
+   }else if(t<.61){
+     throwBall(new T.Vector3(11,2.5,-16),new T.Vector3(18,2.3,-18),(t-.43)/.18,1.7);
+   }else if(t<.66){
+     ball.position.set(18,2.3,-18); // 二壘手接球並踩二壘
+   }else if(t<.84){
+     throwBall(new T.Vector3(18,2.3,-18),new T.Vector3(18,2.2,0),(t-.66)/.18,3);
+   }else{
+     ball.position.set(18,2.2,0); // 一壘手接球，打者尚未抵達
    }
  }else if(selected==='sacrifice'){
    // 觸擊球在投手前滾動，投手撿起後傳一壘。
@@ -186,7 +196,7 @@ strike:['三振出局','打者揮棒落空，球通過球棒進入捕手手套�
 fly:['飛球接殺','打者擊出高飛球，中外野手移位，在落地前接住形成飛球出局。',[home],0,1,0,0,'fly'],
 ground:['滾地出局','游擊手接住滾地球後傳一壘，球先到一壘手完成出局。',[home,new T.Vector3(12,0,0)],0,1,0,0,'ground'],
 steal:['盜二壘','一壘跑者起跑盜二壘；捕手接球後立即傳向二壘，跑者示範安全上壘。',[one,two],0,0,0,0,'steal'],
-doubleplay:['雙殺守備','一壘有人：游擊手接滾地球傳二壘，二壘手踩壘封殺跑者，再轉傳一壘完成雙殺。',[home,new T.Vector3(11,0,0)],0,2,0,0,'doubleplay'],
+doubleplay:['雙殺守備','球正面滾向游擊手；游擊手接球傳二壘，球先於一壘跑者到達；二壘手踩壘後轉傳一壘，球也先於打者抵達，完成 6-4-3 雙殺。',[home,new T.Vector3(11,0,0)],0,2,0,0,'doubleplay'],
 sacrifice:['犧牲觸擊','一壘有跑者，打者將球點到投手前方，投手撿球傳一壘使打者出局，一壘跑者推進二壘。',[home,new T.Vector3(12,0,0)],0,1,0,0,'sacrifice'],
 tag:['觸殺出局','跑者從一壘衝向二壘，捕手接球後傳二壘手，二壘手接球並持球觸及尚未安全上壘的跑者，判觸殺出局。',[one,new T.Vector3(16.6,0,-16.6)],0,1,0,0,'tag']
 };
@@ -204,19 +214,24 @@ let rt=t;if(pitch)rt=Math.max(0,(t-.45)/.55);else if(hit||fly||ground)rt=Math.ma
 // 犧牲觸擊及雙殺：原有跑者從一壘向二壘移動。
 leadRunner.visible=selected==='sacrifice'||selected==='doubleplay';
 if(leadRunner.visible){
- const advance=selected==='sacrifice'?smooth((t-.25)/.65):smooth((t-.23)/.42);
+ const advance=selected==='sacrifice'?smooth((t-.25)/.65):Math.min(.92,smooth((t-.2)/.53)*.92);
  const p=one.clone().lerp(two,advance);
  leadRunner.position.set(p.x,.1,p.z);
  leadRunner.rotation.y=Math.atan2(two.x-one.x,two.z-one.z);
 }
 const rp=along(c[2],rt);
+if(selected==='doubleplay'){
+ // 打者於一壘傳球到達 (.84) 後仍距一壘一段距離。
+ const batterProgress=Math.min(.92,smooth((t-.24)/.76)*.92);
+ rp.copy(home).lerp(one,batterProgress);
+}
 if(selected==='tag'){
  // 跑者由一壘盜向二壘，接近二壘時遭持球二壘手觸殺。
  const u=smooth((t-.17)/.63);
  rp.copy(one).lerp(new T.Vector3(16.6,0,-16.6),u);
 }
 runner.position.set(rp.x,.1+Math.abs(Math.sin(now*.013))*((rt>0&&rt<1)? .13:0),rp.z+(rt===0&&selected!=='steal'&&selected!=='tag'?.9:0));
-if(c[2].length>1){const dest=along(c[2],Math.min(1,rt+.02));runner.rotation.y=Math.atan2(dest.x-rp.x,dest.z-rp.z)}
+if(c[2].length>1){const dest=along(c[2],Math.min(1,rt+.02));runner.rotation.y=selected==='doubleplay'?Math.atan2(one.x-home.x,one.z-home.z):Math.atan2(dest.x-rp.x,dest.z-rp.z)}
 const pitcher=fielders[0];
 // 三振情境：明確揮棒落空；球先穿過本壘才進捕手手套。
 const swing=selected==='strike'||hit||fly||ground&&selected!=='sacrifice';
