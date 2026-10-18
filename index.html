@@ -726,8 +726,7 @@
         <div class="card">
           <div class="hrow"><h2>投球：六階段分解</h2><span class="pill">PITCHING</span></div>
           <div class="medibox" id="mb-ytPitch"></div>
-          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作）；下面是本站自繪的動作分期示意圖，兩者對照著看。</p>
-          <div class="seq" id="seq-pitch"></div>
+          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作），搭配下面四個重點一起看。</p>
           <ul class="keys">
             <li><b>力量來自下半身</b>：不是手臂用力，是「後腳推、胯部轉」帶動上半身。</li>
             <li><b>出手點固定</b>：每次都在同一個位置放球，控球才會穩。</li>
@@ -740,8 +739,7 @@
         <div class="card">
           <div class="hrow"><h2>打擊：五階段分解</h2><span class="pill">HITTING</span></div>
           <div class="medibox" id="mb-ytHit"></div>
-          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作）；下面是本站自繪的動作分期示意圖。</p>
-          <div class="seq" id="seq-hit"></div>
+          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作），搭配下面四個重點一起看。</p>
           <ul class="keys">
             <li><b>髖先動、手最後</b>：用身體轉，不是用手拉。</li>
             <li><b>眼睛跟到最後</b>：頭不要跟著球轉開，視線留在擊球點。</li>
@@ -773,8 +771,7 @@
         <div class="card">
           <div class="hrow"><h2>守備：四階段分解</h2><span class="pill">FIELDING</span></div>
           <div class="medibox" id="mb-ytField"></div>
-          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作）；下面是本站自繪的動作分期示意圖。</p>
-          <div class="seq" id="seq-field"></div>
+          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作），搭配下面四個重點一起看。</p>
           <ul class="keys">
             <li><b>先踏第一步</b>：球一被打到，腳比手先動。</li>
             <li><b>正面接、手握緊</b>：手套放在鼻子前方，用兩隻手收球。</li>
@@ -1678,13 +1675,6 @@ const FIELD = [
   {cap:"④ 轉傳", cue:"墊步、胸口高度平傳", p:{head:[66,32],neck:[66,46],pelvis:[66,88],
      arms:[[[80,40],[88,20]],[[56,60],[50,76]]], legs:[[[54,120],[60,158]],[[78,116],[92,142]]]}},
 ];
-
-// 畫出三組分解圖
-[["seq-pitch", PITCH, "投球分解", "pitch"], ["seq-hit", HIT, "打擊分解", "hit"], ["seq-field", FIELD, "守備分解", "field"]]
-  .forEach(([id, list, label, key]) => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = list.map((f, i) => frameSVG(f.p, f.cap, f.cue, `${label}第 ${i+1} 格`, MOTION[key][i], BALLS[key][i])).join("");
-  });
 
 /* ---- 圖示小工具 ---- */
 function arrow(x1,y1,x2,y2,cls){
