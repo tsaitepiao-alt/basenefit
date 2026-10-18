@@ -103,6 +103,10 @@
   .who{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
   .avatar{width:26px;height:26px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-size:12px;font-weight:700;color:#1b1b19}
   .wrap{padding:26px;max-width:1080px;width:100%}
+  /* 3D互動球場專用寬版：取消主內容 1080px 限制，延伸至右側視窗邊緣。 */
+  body:has(#page-scroll3d.show) .wrap{max-width:none;padding:18px 18px 28px;width:100%}
+  #page-scroll3d>.card{width:100%;max-width:none}
+  #page-scroll3d #fscroll{height:min(86vh,1000px)!important;min-height:650px}
   .page{display:none}
   .page.show{display:block}
 
@@ -935,7 +939,7 @@
         <p class="lead">往下滾，鏡頭就跟著飛——從本壘後方起飛、繞過內野、飛到全壘打牆外，數據文字一張一張淡入。這是「<b>滾動驅動 3D 場景</b>」（scroll-reactive / scrollytelling）的做法：一個 GLB 模型 ＋ 一條鏡頭路徑 ＋ 滾動進度，不用影片、不用逐格動畫檔。</p>
         <div class="card" style="padding:10px">
           <iframe id="fscroll" src="assets/scroll3d.html?v=2" title="3D互動球場" loading="lazy"
-                  style="width:100%;height:min(82vh,860px);border:0;border-radius:12px;background:#0b0f0c;display:block"></iframe>
+                  style="width:100%;height:min(86vh,1000px);min-height:650px;border:0;border-radius:12px;background:#c8e4ed;display:block"></iframe>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
             <button class="btn lime" onclick="document.getElementById('fscroll').src='assets/scroll3d.html?v='+Date.now()">重新載入</button>
             <button class="btn ghost" onclick="window.open('assets/scroll3d.html','_blank')">全螢幕開啟</button>
