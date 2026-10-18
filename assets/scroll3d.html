@@ -131,14 +131,14 @@
   // 以 HTML 顯示所有新標示，避免背面文字鏡像與 3D 文字旋轉錯誤。
   var fieldLabels=document.createElement('div');
   fieldLabels.id='field-labels';
-  fieldLabels.innerHTML='<span>本壘 HOME</span><span>一壘 1B</span><span>二壘 2B</span><span>三壘 3B</span><span>投手丘 MOUND</span>';
+  fieldLabels.innerHTML='<span>本壘 HOME</span><span>三壘 3B</span><span>二壘 2B</span><span>一壘 1B</span><span>投手丘 MOUND</span>';
   document.body.appendChild(fieldLabels);
   var labelPoints=[[0,2,0],[-27.43,2,27.43],[0,2,54.86],[27.43,2,27.43],[0,2,18.44]];
   function updateLabels(){
     var spans=fieldLabels.children;
     labelPoints.forEach(function(p,i){
       var v=new THREE.Vector3(p[0],p[1],p[2]).project(camera);
-      var visible=v.z>-1&&v.z<1;
+      var visible=v.z>-1&&v.z<1&&cur>.12&&cur<.86;
       spans[i].style.display=visible?'block':'none';
       spans[i].style.left=((v.x+1)*50)+'%';
       spans[i].style.top=((-v.y+1)*50)+'%';
