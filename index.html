@@ -318,8 +318,8 @@
             </button>
           </div>
           <div class="navsub">
-            <a href="#/field3d" data-page="field3d" class="sub"><span class="mi">🏟</span><span class="nt"><b>3D 互動球場</b><em>3D FIELD</em></span></a>
-            <a href="#/scroll3d" data-page="scroll3d" class="sub"><span class="mi">🎢</span><span class="nt"><b>滾動式 3D</b><em>SCROLL 3D</em></span></a>
+            <a href="#/field3d" data-page="field3d" class="sub"><span class="mi">🏟</span><span class="nt"><b>3D互動規則教室</b><em>3D RULES</em></span></a>
+            <a href="#/scroll3d" data-page="scroll3d" class="sub"><span class="mi">🎢</span><span class="nt"><b>3D互動球場</b><em>3D FIELD</em></span></a>
             <a href="#/tactics" data-page="tactics" class="sub"><span class="mi">⚔</span><span class="nt"><b>戰術小遊戲</b><em>TACTICS GAME</em></span></a>
           </div>
         </div>
@@ -888,7 +888,7 @@
       <!-- ========== 3D 互動學習 ========== -->
       <section class="page" id="page-field3d">
         <div class="eyebrow">3D INTERACTIVE</div>
-        <h2 class="page-title">3D 互動學習</h2>
+        <h2 class="page-title">3D互動規則教室</h2>
         <p class="lead">這個單元正在<b>重新建構</b>，完成後會直接在這裡上線。</p>
         <!-- 舊版 3D 球場暫時下架（等 Codex 做出較完整的版本再放回來）。
              要恢復：把下面這段註解解開、刪掉紅字公告區塊即可。
@@ -931,10 +931,10 @@
 
       <section class="page" id="page-scroll3d">
         <div class="eyebrow">SCROLL 3D</div>
-        <h2 class="page-title">滾動式 3D 球場</h2>
+        <h2 class="page-title">3D互動球場</h2>
         <p class="lead">往下滾，鏡頭就跟著飛——從本壘後方起飛、繞過內野、飛到全壘打牆外，數據文字一張一張淡入。這是「<b>滾動驅動 3D 場景</b>」（scroll-reactive / scrollytelling）的做法：一個 GLB 模型 ＋ 一條鏡頭路徑 ＋ 滾動進度，不用影片、不用逐格動畫檔。</p>
         <div class="card" style="padding:10px">
-          <iframe id="fscroll" src="assets/scroll3d.html?v=1" title="滾動式 3D 球場" loading="lazy"
+          <iframe id="fscroll" src="assets/scroll3d.html?v=1" title="3D互動球場" loading="lazy"
                   style="width:100%;height:min(82vh,860px);border:0;border-radius:12px;background:#0b0f0c;display:block"></iframe>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
             <button class="btn lime" onclick="document.getElementById('fscroll').src='assets/scroll3d.html?v='+Date.now()">重新載入</button>
@@ -1308,7 +1308,7 @@ function go(h){ location.hash = h; }
 
 /* ============ 路由 ============ */
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
-                diagrams:"圖解教室", field3d:"3D 互動學習", scroll3d:"滾動式 3D 球場", tactics:"戰術小遊戲", analysis:"動作解析", quiz:"棒球小考",
+                diagrams:"圖解教室", field3d:"3D互動規則教室", scroll3d:"3D互動球場", tactics:"戰術小遊戲", analysis:"動作解析", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", install:"雲端安裝", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
