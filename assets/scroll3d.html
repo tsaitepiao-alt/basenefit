@@ -90,15 +90,15 @@
   turfTexture.wrapS=turfTexture.wrapT=THREE.RepeatWrapping;
   turfTexture.repeat.set(16,16);
   grass.material=new THREE.MeshLambertMaterial({map:turfTexture,side:THREE.DoubleSide});
-  // 外野大扇形草坪與紅土交界採平滑弧線。
-  var dirtOutline=[[-116,116]];
-  for(var theta=Math.PI*.75;theta>=Math.PI*.25;theta-=Math.PI/100){
-    dirtOutline.push([Math.cos(theta)*92,Math.sin(theta)*92]);
+  // 弧形內野紅土區與內野草坪。
+  var dirtOutline=[[0,-12],[-63,63]];
+  for(var ai=0;ai<=80;ai++){
+    var aa=Math.PI*.75-ai*Math.PI*.5/80;
+    dirtOutline.push([Math.cos(aa)*89,Math.sin(aa)*89]);
   }
-  dirtOutline.push([116,116],[0,-9]);
-  groundShape(dirtOutline,0xb95533,-.91);
-  // 投手丘及內野草坪保留草地對比，形成真實球場內野輪廓。
-  groundShape([[0,3],[-27.43,27.43],[0,54.86],[27.43,27.43]],0x195f38,-.84);
+  dirtOutline.push([63,63],[0,-12]);
+  groundShape(dirtOutline,0xb55332,-.93);
+  groundShape([[0,7],[-25,27.43],[0,52],[25,27.43]],0x185d36,-.82);
   // 外野牆：沿左外野到右外野的弧形綠色牆面。
   var wallMat=new THREE.MeshLambertMaterial({color:0x0c5146});
   var topMat=new THREE.MeshBasicMaterial({color:0xf0c65b});
