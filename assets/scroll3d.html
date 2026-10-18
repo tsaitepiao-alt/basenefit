@@ -28,7 +28,7 @@
   .card .big{font:800 34px/1.1 ui-monospace,Menlo,monospace;color:#cbf24c;letter-spacing:1px;margin:6px 0}
   .card ul{margin:8px 0 0 18px;font-size:14px;color:#c3ccb8}
   .card li{margin:3px 0}
-  #hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:5;font-size:12px;color:#a9b79c;
+  #hint{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:5;font-size:12px;color:#a9b79c;
     letter-spacing:1px;animation:bob 2.2s ease-in-out infinite}
   @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
   #load{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;
@@ -55,14 +55,14 @@
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   renderer.setSize(innerWidth,innerHeight);
   var scene=new THREE.Scene();
-  scene.background=new THREE.Color(0xc8e4ed);
-  scene.fog=new THREE.Fog(0xc8e4ed,850,1800);
+  scene.background=new THREE.Color(0xb7d8e7);
+  scene.fog=new THREE.Fog(0xb7d8e7,850,1800);
   var camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,1,4000);
   scene.add(new THREE.HemisphereLight(0xffffff,0x688d65,1.7));
   var dir=new THREE.DirectionalLight(0xfff6df,2.0); dir.position.set(180,320,120); scene.add(dir);
   // 日間球場：外圍草地、紅土內野、鮮明界線與壘包，與 GLB 場景疊加。
   var field=new THREE.Group(); scene.add(field);
-  var grass=new THREE.Mesh(new THREE.PlaneGeometry(1700,1700),new THREE.MeshLambertMaterial({color:0x4c9a60}));
+  var grass=new THREE.Mesh(new THREE.PlaneGeometry(1700,1700),new THREE.MeshLambertMaterial({color:0x155b32}));
   grass.rotation.x=-Math.PI/2;grass.position.y=-1.5;field.add(grass);
   function groundShape(points,color,y){
     var sh=new THREE.Shape();points.forEach(function(p,i){if(!i)sh.moveTo(p[0],-p[1]);else sh.lineTo(p[0],-p[1]);});sh.closePath();
@@ -75,12 +75,12 @@
     mesh.position.copy(v1.add(v2).multiplyScalar(.5));mesh.rotation.y=Math.atan2(d.x,d.z);field.add(mesh);
   }
   // 以場地本壘位於 (0,0,0)、外野朝 +Z 的標準座標製作覆蓋層。
-  groundShape([[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]],0xb75c39,-.95);
-  groundShape([[-13.7,13.7],[-27.43,27.43],[0,54.86],[27.43,27.43],[13.7,13.7]],0x438e55,-.88);
+  groundShape([[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]],0xa94728,-.95);
+  groundShape([[-13.7,13.7],[-27.43,27.43],[0,54.86],[27.43,27.43],[13.7,13.7]],0x155b32,-.88);
   [[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]].forEach(function(p,i,arr){stripe(p,arr[(i+1)%4],0xffffff,.55,-.7);});
   stripe([0,0],[-115,115],0xffffff,.65,-.7);
   stripe([0,0],[115,115],0xffffff,.65,-.7);
-  var mound=new THREE.Mesh(new THREE.CylinderGeometry(5.3,5.3,.4,48),new THREE.MeshLambertMaterial({color:0xb75c39}));
+  var mound=new THREE.Mesh(new THREE.CylinderGeometry(5.3,5.3,.4,48),new THREE.MeshLambertMaterial({color:0xa94728}));
   mound.position.set(0,-.55,18.44);field.add(mound);
   [[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]].forEach(function(p){
     var base=new THREE.Mesh(new THREE.BoxGeometry(2.3,.25,2.3),new THREE.MeshBasicMaterial({color:0xffffff}));
