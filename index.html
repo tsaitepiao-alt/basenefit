@@ -328,7 +328,20 @@
           </div>
         </div>
 
-        <a href="#/analysis" data-page="analysis"><span class="mi">🎬</span><span class="nt"><b>動作解析</b><em>MOTION ANALYSIS</em></span></a>
+        <div class="navfold" data-fold="analysis">
+          <div class="navrow"><button class="grpbtn" onclick="toggleFold(this)" aria-expanded="false" aria-label="展開或收合 動作解析"><span class="mi">🎬</span><span class="nt"><b>動作解析</b><em>MOTION ANALYSIS</em></span><span class="chev">▸</span></button></div>
+          <div class="navsub">
+            <a href="#/analysis-pitcher" data-page="analysis-pitcher" class="sub"><span class="mi">⚾</span><span class="nt"><b>投手</b><em>PITCHER</em></span></a>
+            <a href="#/analysis-catcher" data-page="analysis-catcher" class="sub"><span class="mi">⚾</span><span class="nt"><b>捕手</b><em>CATCHER</em></span></a>
+            <a href="#/analysis-first" data-page="analysis-first" class="sub"><span class="mi">⚾</span><span class="nt"><b>一壘手</b><em>FIRST BASE</em></span></a>
+            <a href="#/analysis-second" data-page="analysis-second" class="sub"><span class="mi">⚾</span><span class="nt"><b>二壘手</b><em>SECOND BASE</em></span></a>
+            <a href="#/analysis-third" data-page="analysis-third" class="sub"><span class="mi">⚾</span><span class="nt"><b>三壘手</b><em>THIRD BASE</em></span></a>
+            <a href="#/analysis-shortstop" data-page="analysis-shortstop" class="sub"><span class="mi">⚾</span><span class="nt"><b>遊擊手</b><em>SHORTSTOP</em></span></a>
+            <a href="#/analysis-outfield" data-page="analysis-outfield" class="sub"><span class="mi">⚾</span><span class="nt"><b>外野手</b><em>OUTFIELDER</em></span></a>
+            <a href="#/analysis-batter" data-page="analysis-batter" class="sub"><span class="mi">⚾</span><span class="nt"><b>打擊手</b><em>BATTER</em></span></a>
+            <a href="#/analysis-runner" data-page="analysis-runner" class="sub"><span class="mi">⚾</span><span class="nt"><b>跑壘員</b><em>BASERUNNER</em></span></a>
+          </div>
+        </div>
 
         <div class="navfold" data-fold="student">
           <div class="navrow">
@@ -721,6 +734,7 @@
 
       <!-- ========== 6. 動作解析 ========== -->
       <section class="page" id="page-analysis">
+        <div id="analysis-role-panel" class="card" style="display:none;border-color:#b9d69b;background:#f3f8ec"></div>
         <div class="eyebrow">PRO FORM BREAKDOWN</div>
         <h2 class="page-title">把職業級動作，拆成看得懂的步驟。</h2>
         <p class="lead">投、打、守三類動作的重點整理，搭配官方影片一起看；圖解與 3D 軌跡解析在左側「圖解教室」「3D 互動學習」。</p>
@@ -1298,16 +1312,23 @@ function toast(m){ const t = document.getElementById("toast"); t.textContent = m
 function go(h){ location.hash = h; }
 
 /* ============ 路由 ============ */
+const ANALYSIS_ROLES={"analysis-pitcher":{"name":"投手","en":"PITCHER","desc":"投球動作、重心轉移、出手點與補位"},"analysis-catcher":{"name":"捕手","en":"CATCHER","desc":"接捕、擋球、傳二壘與觸殺"},"analysis-first":{"name":"一壘手","en":"FIRST BASE","desc":"接傳球、踩壘、牽制與補位"},"analysis-second":{"name":"二壘手","en":"SECOND BASE","desc":"接滾地球、轉傳與雙殺補位"},"analysis-third":{"name":"三壘手","en":"THIRD BASE","desc":"反應接球、強勁滾地球與傳一壘"},"analysis-shortstop":{"name":"遊擊手","en":"SHORTSTOP","desc":"左右移動、正面接球與6-4-3雙殺"},"analysis-outfield":{"name":"外野手","en":"OUTFIELDER","desc":"飛球判斷、落點追蹤、接球與回傳"},"analysis-batter":{"name":"打擊手","en":"BATTER","desc":"站姿、跨步、揮棒、擊球與收棒"},"analysis-runner":{"name":"跑壘員","en":"BASERUNNER","desc":"起跑、離壘、轉彎、滑壘與回壘"}};
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
                 diagrams:"圖解教室", field3d:"3D互動規則教室", scroll3d:"3D互動球場", tactics:"戰術小遊戲", analysis:"動作解析", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", install:"雲端安裝", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
-  const page = TITLES[p] ? p : "home";
+  const role = ANALYSIS_ROLES[p];
+  const page = role ? "analysis" : (TITLES[p] ? p : "home");
+  const rolePanel=document.getElementById("analysis-role-panel");
+  if(rolePanel){
+    rolePanel.style.display=role?"block":"none";
+    if(role)rolePanel.innerHTML='<div class="eyebrow">'+role.en+'</div><h2 style="font-size:25px;margin:8px 0">'+role.name+'｜動作解析</h2><p class="lead" style="margin:0">重點訓練：'+role.desc+'。以下保留原本的投球、打擊與守備解析內容，方便交叉學習。</p>';
+  }
   document.querySelectorAll(".page").forEach(el => el.classList.toggle("show", el.id === "page-" + page));
-  document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.page === page));
-  syncFolds(page);
-  document.getElementById("crumb").textContent = TITLES[page];
+  document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.page === (role ? p : page)));
+  syncFolds(role ? p : page);
+  document.getElementById("crumb").textContent = role ? "動作解析 / "+role.name : TITLES[page];
   toggleMenu(false);
   window.scrollTo({top:0});
   render();
@@ -1325,7 +1346,7 @@ function syncFolds(page){
   document.querySelectorAll(".navfold").forEach(f => {
     const hit = f.querySelector('a[data-page="' + page + '"]');
     if (hit && hit.classList.contains("sub")) f.classList.add("open");   // 正在看子頁面 → 自動展開
-    const b = f.querySelector(".foldbtn");
+    const b = f.querySelector(".foldbtn, .grpbtn");
     if (b) b.setAttribute("aria-expanded", f.classList.contains("open") ? "true" : "false");
   });
 }
