@@ -57,7 +57,9 @@ function brandPanel(w,h,x,y,z,rotation=0){
  const sign=add(new T.PlaneGeometry(w,h),mat,x,y,z);sign.rotation.y=rotation;return sign;
 }
 // 中外野全壘打牆：品牌字標與上方獨立立體計分板。
-brandPanel(20,4.1,49.2,3.0,-49.2,-Math.PI/4);
+// 看板從牆面往球場內側移出，避免被牆體遮住一半。
+const wallLogo=brandPanel(19,3.5,48.5,3.05,-48.5,Math.PI/4);
+wallLogo.material.depthTest=true;
 // 主審後方：品牌字標平貼地面，非豎立廣告牌。
 const groundBrand=brandPanel(13,3.4,-8.6,.085,8.6,0);
 groundBrand.rotation.set(-Math.PI/2,0,-Math.PI/4);
@@ -65,10 +67,11 @@ groundBrand.material.depthWrite=false;
 // 球場計分板位於中外野牆上方，顯示目前教學情境的得分、出局與好壞球。
 const scoreCanvas=document.createElement('canvas');scoreCanvas.width=1024;scoreCanvas.height=512;
 const scoreCtx=scoreCanvas.getContext('2d'),scoreTex=new T.CanvasTexture(scoreCanvas);scoreTex.colorSpace=T.SRGBColorSpace;
-const scoreBoard=add(new T.PlaneGeometry(21,10.5),new T.MeshBasicMaterial({map:scoreTex,side:T.DoubleSide}),49.2,12,-49.2);
-scoreBoard.rotation.y=-Math.PI/4;
 const scoreBack=add(new T.BoxGeometry(22,11.5,1.2),M(0x071824),49.2,12,-49.2);
-scoreBack.rotation.y=-Math.PI/4;
+scoreBack.rotation.y=Math.PI/4;
+// 計分板顯示面略往球場內側，避免與背板共面造成遮擋。
+const scoreBoard=add(new T.PlaneGeometry(21,10.5),new T.MeshBasicMaterial({map:scoreTex,side:T.DoubleSide}),48.65,12,-48.65);
+scoreBoard.rotation.y=Math.PI/4;
 function drawStadiumScore(){
  const ctx=scoreCtx;ctx.fillStyle='#061724';ctx.fillRect(0,0,1024,512);
  ctx.strokeStyle='#c9f34e';ctx.lineWidth=12;ctx.strokeRect(12,12,1000,488);
