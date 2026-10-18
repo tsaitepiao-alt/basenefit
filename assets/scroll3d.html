@@ -43,16 +43,7 @@
 <div id="topbar"><b>basenefit · 3D互動球場</b><a href="../index.html#/scroll3d">← 回到球場</a></div>
 <div id="load">LOADING 3D…</div>
 
-<section data-side="left"><div class="card" data-fade><div class="eb">1 / 10 · DEFENSIVE POSITION</div><h2>1 號｜投手</h2><p>投球、牽制與守備補位</p></div></section>
-<section data-side="right"><div class="card" data-fade><div class="eb">2 / 10 · DEFENSIVE POSITION</div><h2>2 號｜捕手</h2><p>接捕、配球與阻殺</p></div></section>
-<section data-side="left"><div class="card" data-fade><div class="eb">3 / 10 · DEFENSIVE POSITION</div><h2>3 號｜一壘手</h2><p>接傳球與守住一壘</p></div></section>
-<section data-side="right"><div class="card" data-fade><div class="eb">4 / 10 · DEFENSIVE POSITION</div><h2>4 號｜二壘手</h2><p>補位、滾地球與雙殺</p></div></section>
-<section data-side="left"><div class="card" data-fade><div class="eb">5 / 10 · DEFENSIVE POSITION</div><h2>5 號｜三壘手</h2><p>快速反應與長傳</p></div></section>
-<section data-side="right"><div class="card" data-fade><div class="eb">6 / 10 · DEFENSIVE POSITION</div><h2>6 號｜游擊手</h2><p>內野防守與雙殺轉傳</p></div></section>
-<section data-side="left"><div class="card" data-fade><div class="eb">7 / 10 · DEFENSIVE POSITION</div><h2>7 號｜左外野手</h2><p>飛球追接與回傳</p></div></section>
-<section data-side="right"><div class="card" data-fade><div class="eb">8 / 10 · DEFENSIVE POSITION</div><h2>8 號｜中外野手</h2><p>外野指揮與大範圍守備</p></div></section>
-<section data-side="left"><div class="card" data-fade><div class="eb">9 / 10 · DEFENSIVE POSITION</div><h2>9 號｜右外野手</h2><p>飛球追接與長傳</p></div></section>
-<section data-side="right"><div class="card" data-fade><div class="eb">10 / 10 · FIELD OVERVIEW</div><h2>完整球場尺寸</h2><p>壘間 27.43 m · 投手板距本壘 18.44 m · 中外野參考距離 121.92 m</p></div></section>
+<div id="hint">拖曳旋轉 · 滾輪縮放 · 點選場上位置查看介紹</div>
 <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
@@ -96,15 +87,35 @@
   });
   var fieldLabels=document.createElement('div');
   fieldLabels.id='field-labels';
+  fieldLabels.textContent='點選球場上的位置，查看守備介紹與尺寸。';
   document.body.appendChild(fieldLabels);
-  var guide=[["1 號｜投手","投球、牽制與守備補位"],["2 號｜捕手","接捕、配球與阻殺"],["3 號｜一壘手","接傳球與守住一壘"],["4 號｜二壘手","補位、滾地球與雙殺"],["5 號｜三壘手","快速反應與長傳"],["6 號｜游擊手","內野防守與雙殺轉傳"],["7 號｜左外野手","飛球追接與回傳"],["8 號｜中外野手","外野指揮與大範圍守備"],["9 號｜右外野手","飛球追接與長傳"],["10 號｜球場全景","壘間 27.43 m · 投手板距本壘 18.44 m · 中外野參考距離 121.92 m"]];
-  var lastGuide=-1;
-  function updateLabels(){
-    var i=Math.min(9,Math.floor(cur*10));
-    if(i===lastGuide)return;
-    lastGuide=i;
-    fieldLabels.textContent=(i+1)+' / 10  '+guide[i][0]+'｜'+guide[i][1];
-  }
+  var spots=[
+    {name:'1 號｜投手',info:'投手丘：投球、牽制與守備補位。投手板至本壘尖端 18.44 公尺。',x:0,z:18.44},
+    {name:'2 號｜捕手',info:'本壘後方：接捕、配球、阻殺及指揮守備。',x:0,z:-5},
+    {name:'3 號｜一壘手',info:'一壘附近：接傳球、牽制及防守一壘線。',x:-27.43,z:27.43},
+    {name:'4 號｜二壘手',info:'一、二壘間：防守滾地球、補位與雙殺。',x:-12,z:42},
+    {name:'5 號｜三壘手',info:'三壘附近：處理強勁滾地球、短打及長傳。',x:27.43,z:27.43},
+    {name:'6 號｜游擊手',info:'二、三壘間：守備範圍廣，負責雙殺轉傳。',x:12,z:42},
+    {name:'7 號｜左外野手',info:'左外野：接飛球、追球與回傳內野。',x:-73,z:92},
+    {name:'8 號｜中外野手',info:'中外野：大範圍防守、指揮外野及回傳。',x:0,z:121.92},
+    {name:'9 號｜右外野手',info:'右外野：接飛球，支援三壘與本壘長傳。',x:73,z:92},
+    {name:'球場尺寸',info:'壘間 27.43 公尺；投手板至本壘 18.44 公尺；中外野參考距離 121.92 公尺。',x:0,z:60}
+  ];
+  var markers=[];
+  spots.forEach(function(p,i){
+    var marker=new THREE.Mesh(new THREE.SphereGeometry(i===9?3.2:2.3,16,12),new THREE.MeshBasicMaterial({color:i===9?0xffd05a:0xffffff,transparent:true,opacity:.95,depthTest:false}));
+    marker.position.set(p.x,3.5,p.z);marker.userData.spot=i;field.add(marker);markers.push(marker);
+  });
+  var raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
+  cv.addEventListener('click',function(e){
+    var box=cv.getBoundingClientRect();
+    pointer.set((e.clientX-box.left)/box.width*2-1,-(e.clientY-box.top)/box.height*2+1);
+    raycaster.setFromCamera(pointer,camera);
+    var hits=raycaster.intersectObjects(markers,false);
+    if(!hits.length)return;
+    var p=spots[hits[0].object.userData.spot];
+    fieldLabels.textContent=p.name+'｜'+p.info;
+  });
   var model=null;
 
   new THREE.GLTFLoader().load('baseball_stadium.glb',function(gl){
