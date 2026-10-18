@@ -90,14 +90,7 @@
           <section class="panel scenario-panel">
             <div class="panel-heading"><div><span class="eyebrow">TRAINING DECK</span><h2>局面演練</h2></div><span class="shortcut-key">1–6</span></div>
             <p class="panel-description">不必等待比賽自然發生。載入關鍵局面，練習選擇與處置。</p>
-            <label class="compact-label" for="scenario-picker">演練情境</label><select class="quick-select" id="scenario-picker"><option value="opening">開局觀察</option><option value="fullCount">滿壘滿球數</option><option value="doublePlay">雙殺守備</option><option value="sacrifice">高壓推進</option><option value="walkoff">九下守成</option><option value="extras">延長決勝</option></select><div class="scenario-list" id="scenario-list">
-              <button class="scenario active" data-scenario="opening" type="button" aria-label="情境 01：開局觀察"><span class="scenario-number">01</span><span><strong>開局觀察</strong><small>1 局上 · 無人出局</small></span><i>↗</i></button>
-              <button class="scenario" data-scenario="fullCount" type="button" aria-label="情境 02：滿壘滿球數"><span class="scenario-number">02</span><span><strong>滿壘滿球數</strong><small>3–2 · 1 出局</small></span><i>↗</i></button>
-              <button class="scenario" data-scenario="doublePlay" type="button" aria-label="情境 03：雙殺守備"><span class="scenario-number">03</span><span><strong>雙殺守備</strong><small>一壘有人 · 0 出局</small></span><i>↗</i></button>
-              <button class="scenario" data-scenario="sacrifice" type="button" aria-label="情境 04：高壓推進"><span class="scenario-number">04</span><span><strong>高壓推進</strong><small>三壘有人 · 1 出局</small></span><i>↗</i></button>
-              <button class="scenario" data-scenario="walkoff" type="button" aria-label="情境 05：九下守成"><span class="scenario-number">05</span><span><strong>九下守成</strong><small>1 分差 · 一三壘</small></span><i>↗</i></button>
-              <button class="scenario" data-scenario="extras" type="button" aria-label="情境 06：延長決勝"><span class="scenario-number">06</span><span><strong>延長決勝</strong><small>第 10 局 · 二壘有人</small></span><i>↗</i></button>
-            </div>
+            <label class="compact-label" for="scenario-picker">演練情境</label><select class="quick-select" id="scenario-picker"><option value="opening">開局觀察</option><option value="fullCount">滿壘滿球數</option><option value="doublePlay">雙殺守備</option><option value="sacrifice">高壓推進</option><option value="walkoff">九下守成</option><option value="extras">延長決勝</option></select><div id="scenario-list" hidden aria-hidden="true"><button data-scenario="opening" type="button" class="active"></button><button data-scenario="fullCount" type="button"></button><button data-scenario="doublePlay" type="button"></button><button data-scenario="sacrifice" type="button"></button><button data-scenario="walkoff" type="button"></button><button data-scenario="extras" type="button"></button></div>
           </section>
           <section class="panel coach-panel">
             <div class="panel-heading"><div><span class="eyebrow">COACHING SIGNAL</span><h2>即時建議</h2></div><span class="coach-icon">⌁</span></div>
@@ -124,13 +117,7 @@
             <div class="panel-heading"><div><span class="eyebrow" id="command-eyebrow">OFFENSIVE PLAN</span><h2 id="command-title">打擊決策</h2></div><span class="decision-chip" id="decision-side">學員進攻</span></div>
             <p class="panel-description" id="command-description">依球數和壘上跑者，選擇這一球的進攻意圖。</p>
             <div class="offense-controls" id="offense-controls">
-              <label class="compact-label" for="strategy-picker">打擊策略</label><select class="quick-select" id="strategy-picker"><option value="take">觀察／選球</option><option value="contact">接觸打擊</option><option value="power">強攻長打</option><option value="bunt">犧牲短打</option><option value="steal">盜壘</option></select><div class="strategy-buttons" role="group" aria-label="打擊策略">
-                <button class="strategy-button selected" data-strategy="take" type="button"><span class="strategy-icon">◌</span><strong>觀察</strong><small>選球／等失投</small></button>
-                <button class="strategy-button" data-strategy="contact" type="button"><span class="strategy-icon">⌁</span><strong>接觸</strong><small>扎實放進場</small></button>
-                <button class="strategy-button" data-strategy="power" type="button"><span class="strategy-icon">✦</span><strong>強攻</strong><small>追求長打</small></button>
-                <button class="strategy-button" data-strategy="bunt" type="button"><span class="strategy-icon">⌇</span><strong>短打</strong><small>推進跑者</small></button>
-                <button class="strategy-button" data-strategy="steal" type="button"><span class="strategy-icon">⇢</span><strong>盜壘</strong><small>製造壓力</small></button>
-              </div>
+              <label class="compact-label" for="strategy-picker">打擊策略</label><select class="quick-select" id="strategy-picker"><option value="take">觀察／選球</option><option value="contact">接觸打擊</option><option value="power">強攻長打</option><option value="bunt">犧牲短打</option><option value="steal">盜壘</option></select><div class="strategy-buttons" hidden aria-hidden="true"><button class="strategy-button selected" data-strategy="take" type="button"></button><button class="strategy-button" data-strategy="contact" type="button"></button><button class="strategy-button" data-strategy="power" type="button"></button><button class="strategy-button" data-strategy="bunt" type="button"></button><button class="strategy-button" data-strategy="steal" type="button"></button></div>
               <button class="primary-action" id="offense-play-button" type="button"><span>執行打席</span><kbd>SPACE</kbd></button>
             </div>
             <div class="defense-controls hidden" id="defense-controls">
