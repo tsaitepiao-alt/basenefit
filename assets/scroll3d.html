@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>滾動式 3D 球場 · basenefit</title>
+<title>3D互動球場 · basenefit</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{background:#0b0f0c;color:#f2f5ee;font:16px/1.8 -apple-system,"PingFang TC",system-ui,sans-serif;overflow-x:hidden}
+  body{background:#d9e8d7;color:#f2f5ee;font:16px/1.8 -apple-system,"PingFang TC",system-ui,sans-serif;overflow-x:hidden}
   #cv{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
   #topbar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;
     padding:14px 18px;background:linear-gradient(180deg,rgba(8,12,9,.85),transparent);pointer-events:none}
   #topbar b{color:#cbf24c;letter-spacing:.5px}
   #topbar a{pointer-events:auto;color:#dfe6d6;text-decoration:none;font-size:13px;border:1px solid rgba(203,242,76,.4);
     border-radius:999px;padding:6px 13px;background:rgba(12,18,14,.6)}
+  #field-labels{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}#field-labels span{position:absolute;transform:translate(-50%,-50%);padding:3px 8px;border-radius:6px;background:rgba(15,54,45,.83);border:1px solid #d9f5ad;color:#fff;font:bold 12px system-ui;white-space:nowrap;text-shadow:0 1px 2px #000}
   #prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#cbf24c,#8fd7a0);z-index:6;width:0}
   section{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;padding:0 22px}
   section[data-side="left"]{justify-content:flex-start}
@@ -31,7 +32,7 @@
     letter-spacing:1px;animation:bob 2.2s ease-in-out infinite}
   @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
   #load{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;
-    background:#0b0f0c;color:#cbf24c;font:600 14px/1 ui-monospace,Menlo,monospace;letter-spacing:2px}
+    background:#d9e8d7;color:#295542;font:600 14px/1 ui-monospace,Menlo,monospace;letter-spacing:2px}
   #load.off{opacity:0;pointer-events:none;transition:opacity .6s}
   @media(max-width:600px){.card{padding:18px 18px}.card h2{font-size:22px}.big{font-size:28px}}
 </style>
@@ -39,7 +40,7 @@
 <body>
 <div id="prog"></div>
 <canvas id="cv"></canvas>
-<div id="topbar"><b>basenefit · 3D 互動學習</b><a href="../index.html#/field3d">← 回到球場</a></div>
+<div id="topbar"><b>basenefit · 3D互動球場</b><a href="../index.html#/scroll3d">← 回到球場</a></div>
 <div id="load">LOADING 3D…</div>
 
 <section data-side="center">
@@ -82,7 +83,7 @@
     <div class="eb">04 · OVERVIEW</div>
     <h2>整個球場，一眼看完</h2>
     <p>這就是滾動驅動 3D 的效果：一個 GLB 模型 ＋ 一條鏡頭路徑 ＋ 滾動進度，不需要影片、不需要逐格動畫檔。</p>
-    <p style="margin-top:10px"><a href="../index.html#/field3d" style="color:#cbf24c">回 3D 互動球場 →</a></p>
+    <p style="margin-top:10px"><a href="../index.html#/scroll3d" style="color:#cbf24c">3D互動球場首頁 →</a></p>
   </div>
 </section>
 
@@ -96,11 +97,53 @@
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   renderer.setSize(innerWidth,innerHeight);
   var scene=new THREE.Scene();
-  scene.background=new THREE.Color(0x0b0f0c);
-  scene.fog=new THREE.Fog(0x0b0f0c,700,1500);
+  scene.background=new THREE.Color(0xc8e4ed);
+  scene.fog=new THREE.Fog(0xc8e4ed,850,1800);
   var camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,1,4000);
-  scene.add(new THREE.HemisphereLight(0xdfeee0,0x2b3327,1.1));
-  var dir=new THREE.DirectionalLight(0xffffff,1.5); dir.position.set(180,320,120); scene.add(dir);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x688d65,1.7));
+  var dir=new THREE.DirectionalLight(0xfff6df,2.0); dir.position.set(180,320,120); scene.add(dir);
+  // 日間球場：外圍草地、紅土內野、鮮明界線與壘包，與 GLB 場景疊加。
+  var field=new THREE.Group(); scene.add(field);
+  var grass=new THREE.Mesh(new THREE.PlaneGeometry(1700,1700),new THREE.MeshLambertMaterial({color:0x4c9a60}));
+  grass.rotation.x=-Math.PI/2;grass.position.y=-1.5;field.add(grass);
+  function groundShape(points,color,y){
+    var sh=new THREE.Shape();points.forEach(function(p,i){if(!i)sh.moveTo(p[0],-p[1]);else sh.lineTo(p[0],-p[1]);});sh.closePath();
+    var m=new THREE.Mesh(new THREE.ShapeGeometry(sh),new THREE.MeshBasicMaterial({color:color,side:THREE.DoubleSide,depthWrite:false}));
+    m.rotation.x=-Math.PI/2;m.position.y=y;field.add(m);return m;
+  }
+  function stripe(a,b,color,width,y){
+    var v1=new THREE.Vector3(a[0],y,a[1]),v2=new THREE.Vector3(b[0],y,b[1]),d=v2.clone().sub(v1);
+    var mesh=new THREE.Mesh(new THREE.BoxGeometry(width,.18,d.length()),new THREE.MeshBasicMaterial({color:color}));
+    mesh.position.copy(v1.add(v2).multiplyScalar(.5));mesh.rotation.y=Math.atan2(d.x,d.z);field.add(mesh);
+  }
+  // 以場地本壘位於 (0,0,0)、外野朝 +Z 的標準座標製作覆蓋層。
+  groundShape([[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]],0xb75c39,-.95);
+  groundShape([[-13.7,13.7],[-27.43,27.43],[0,54.86],[27.43,27.43],[13.7,13.7]],0x438e55,-.88);
+  [[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]].forEach(function(p,i,arr){stripe(p,arr[(i+1)%4],0xffffff,.55,-.7);});
+  stripe([0,0],[-115,115],0xffffff,.65,-.7);
+  stripe([0,0],[115,115],0xffffff,.65,-.7);
+  var mound=new THREE.Mesh(new THREE.CylinderGeometry(5.3,5.3,.4,48),new THREE.MeshLambertMaterial({color:0xb75c39}));
+  mound.position.set(0,-.55,18.44);field.add(mound);
+  [[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]].forEach(function(p){
+    var base=new THREE.Mesh(new THREE.BoxGeometry(2.3,.25,2.3),new THREE.MeshBasicMaterial({color:0xffffff}));
+    base.position.set(p[0],-.48,p[1]);base.rotation.y=Math.PI/4;field.add(base);
+  });
+  // 以 HTML 顯示所有新標示，避免背面文字鏡像與 3D 文字旋轉錯誤。
+  var fieldLabels=document.createElement('div');
+  fieldLabels.id='field-labels';
+  fieldLabels.innerHTML='<span>本壘 HOME</span><span>一壘 1B</span><span>二壘 2B</span><span>三壘 3B</span><span>投手丘 MOUND</span>';
+  document.body.appendChild(fieldLabels);
+  var labelPoints=[[0,2,0],[27.43,2,27.43],[0,2,54.86],[-27.43,2,27.43],[0,2,18.44]];
+  function updateLabels(){
+    var spans=fieldLabels.children;
+    labelPoints.forEach(function(p,i){
+      var v=new THREE.Vector3(p[0],p[1],p[2]).project(camera);
+      var visible=v.z>-1&&v.z<1;
+      spans[i].style.display=visible?'block':'none';
+      spans[i].style.left=((v.x+1)*50)+'%';
+      spans[i].style.top=((-v.y+1)*50)+'%';
+    });
+  }
   var model=null;
 
   new THREE.GLTFLoader().load('baseball_stadium.glb',function(gl){
@@ -109,6 +152,11 @@
     b.getCenter(c); b.getSize(s);
     model.position.x-=c.x; model.position.z-=c.z;         // 置中
     scene.add(model);
+    // 隱藏 GLB 中常見的反向 3D 文字物件，改由正向的畫面標籤取代。
+    model.traverse(function(o){
+      if(o.isMesh&&/(text|label|letter|word|font|文字|標示)/i.test(o.name||''))o.visible=false;
+    });
+    // 避免新地面與既有模型重疊；保留原有看台、外野牆等模型。
     document.getElementById('load').classList.add('off');
     window.__ready=true;
   },undefined,function(){ document.getElementById('load').textContent='模型載入失敗'; });
@@ -178,6 +226,7 @@
       model.rotation.y=Math.sin(cur*Math.PI)*0.16;  // 滾動時微微轉
       model.position.y=b*0;                          // 保持貼地（保留參數方便微調）
     }
+    updateLabels();
     renderer.render(scene,camera);
   })();
 })();
