@@ -39,12 +39,14 @@ function onDeckCircle(side){const center=acrossPlate.clone().multiplyScalar(side
 onDeckCircle(-1);onDeckCircle(1);
 // 全壘打牆：位於界內扇形外緣；黃線標示牆頂、兩端界外標竿。
 const wallMat=M(0x184b63),topMat=M(0xf5d351),poleMat=M(0xffdb35),radius=70,segments=36;
+let centerWallAngle=0;
 for(let i=0;i<segments;i++){
  const a=i/segments*Math.PI/2,b=(i+1)/segments*Math.PI/2;
  const p=new T.Vector3(radius*Math.cos(a),0,-radius*Math.sin(a)),q=new T.Vector3(radius*Math.cos(b),0,-radius*Math.sin(b));
  const len=p.distanceTo(q),mid=p.clone().add(q).multiplyScalar(.5);
  const wall=add(new T.BoxGeometry(len+.1,5,.65),wallMat,mid.x,2.5,mid.z);
  wall.rotation.y=-Math.atan2(q.z-p.z,q.x-p.x);
+ if(i===Math.floor(segments/2)-1)centerWallAngle=wall.rotation.y;
  const rail=add(new T.BoxGeometry(len+.1,.25,.8),topMat,mid.x,5.1,mid.z);rail.rotation.y=wall.rotation.y;
 }
 // 自製品牌字標：使用 CanvasTexture，避免外部圖片路徑與跨網域問題。
@@ -59,8 +61,7 @@ function brandPanel(w,h,x,y,z,rotation=0){
 // 中外野：獨立懸掛式招牌，整塊離開弧形圍牆，防止牆體裁切文字兩端。
 // 球場內側方向是 (-X,+Z)；把招牌放在牆內 4.5 單位，並高於牆頂。
 // 中外野牆切線沿 (X,Z)=(+,+)；看板平面應沿相同切線。
-// 中外野牆位於 x=-z；牆面切線沿 (+x,+z)，法線朝球場內 (-x,+z)。
-const centerWallAngle=-Math.PI/4;
+// 直接沿用中外野中央牆片的旋轉角度，不再手動猜測正負方向。
 const wallLogo=brandPanel(19,3.6,45.1,7.1,-45.1,centerWallAngle);
 wallLogo.material.depthTest=true;
 const logoBacking=add(new T.BoxGeometry(20,4.2,.45),M(0x092636),45.5,7.1,-45.5);
