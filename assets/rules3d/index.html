@@ -61,11 +61,12 @@ function brandPanel(w,h,x,y,z,rotation=0){
 // 直接以中外野中央牆片為父座標：所有看板的 X 軸都與牆片 X 軸相同。
 // 牆片 local -Z 指向球場內側，local +Y 指向上方；不再混用世界座標與旋轉角。
 const wallLogo=brandPanel(19,3.6,0,0,0);
-centerWallSegment.add(wallLogo);
-wallLogo.position.set(0,4.6,-4.45);
-wallLogo.rotation.set(0,0,0);
-const logoBacking=add(new T.BoxGeometry(20,4.2,.45),M(0x092636),0,4.6,-4.05,centerWallSegment);
+scene.add(wallLogo);
+wallLogo.position.set(48.3,7.6,-48.3);
+wallLogo.rotation.set(0,-Math.PI/4,0);
+const logoBacking=add(new T.BoxGeometry(20,4.2,.45),M(0x092636),48.55,7.6,-48.55);
 wallLogo.material.depthTest=true;
+logoBacking.rotation.y=-Math.PI/4;
 // 主審後方地面品牌字標。
 const groundBrand=brandPanel(13,3.4,-8.6,.085,8.6,0);
 groundBrand.rotation.set(-Math.PI/2,0,-Math.PI/4);
@@ -74,8 +75,10 @@ groundBrand.material.depthWrite=false;
 const scoreCanvas=document.createElement('canvas');scoreCanvas.width=1536;scoreCanvas.height=900;
 const scoreCtx=scoreCanvas.getContext('2d'),scoreTex=new T.CanvasTexture(scoreCanvas);scoreTex.colorSpace=T.SRGBColorSpace;
 // local X 直接繼承牆片切線，絕不另設 rotation.y。
-const scoreBack=add(new T.BoxGeometry(28,16.8,1),M(0x071824),0,16.5,-.9,centerWallSegment);
-const scoreBoard=add(new T.PlaneGeometry(27,16),new T.MeshBasicMaterial({map:scoreTex,side:T.DoubleSide}),0,16.5,-1.55,centerWallSegment);
+const scoreBack=add(new T.BoxGeometry(28,16.8,1),M(0x071824),49.8,19,-49.8);
+const scoreBoard=add(new T.PlaneGeometry(27,16),new T.MeshBasicMaterial({map:scoreTex,side:T.DoubleSide}),49.3,19,-49.3);
+scoreBack.rotation.y=-Math.PI/4;
+scoreBoard.rotation.y=-Math.PI/4;
 function drawStadiumScore(){
  const ctx=scoreCtx,W=1536,H=900;
  ctx.fillStyle='#071522';ctx.fillRect(0,0,W,H);
