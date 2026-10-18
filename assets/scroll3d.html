@@ -127,7 +127,7 @@
   ];
   var markers=[];
   spots.forEach(function(p,i){
-    var marker=new THREE.Mesh(new THREE.SphereGeometry(i===9?1.8:1.3,16,12),new THREE.MeshBasicMaterial({color:i===9?0xffd05a:0xffffff,transparent:true,opacity:.5,depthTest:false}));
+    var marker=new THREE.Mesh(new THREE.SphereGeometry(i===9?7:6,16,12),new THREE.MeshBasicMaterial({color:i===9?0xffd05a:0xffffff,transparent:true,opacity:0,depthWrite:false}));
     marker.position.set(p.x,3.5,p.z);marker.userData.spot=i;field.add(marker);markers.push(marker);
   });
   var raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
@@ -146,8 +146,8 @@
   window.__ready=true;
 
   var controls=new THREE.OrbitControls(camera,cv);
-  camera.position.set(0,225,-225);
-  controls.target.set(0,0,66);
+  camera.position.set(0,195,-175);
+  controls.target.set(0,0,62);
   controls.enablePan=true;
   controls.enableDamping=true;
   controls.dampingFactor=.08;
