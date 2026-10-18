@@ -1671,40 +1671,21 @@ function diamond(extra, vb="0 0 220 210", home=[110,190], labels){
 
 /* ---- 場地與守位 ---- */
 (function fieldDiagram(){
-  const el = document.getElementById("dia-field");
-  if (!el) return;
-  // [x, y, 號碼, 名稱, 標籤x, 標籤y]
-  const P = [[216,210,"1","投手",216,240], [210,318,"2","捕手",210,348], [318,198,"3","一壘手",318,226],
-             [258,152,"4","二壘手",258,180], [162,152,"6","游擊手",162,180], [102,198,"5","三壘手",102,226],
-             [96,64,"7","左外野",96,92], [210,40,"8","中外野",210,68], [324,64,"9","右外野",324,92]];
-  let extra = "";
-  P.forEach(([x,y,n,name,lx,ly]) => {
-    extra += `<circle cx="${x}" cy="${y}" r="13" fill="#fff" stroke="#232320" stroke-width="2.4"/>`;
-    extra += `<text class="txb" x="${x}" y="${y+5}" text-anchor="middle" font-size="13">${n}</text>`;
-    extra += `<text class="tx" x="${lx}" y="${ly}" text-anchor="middle" font-size="12">${name}</text>`;
-  });
-  el.innerHTML = `<svg class="chart" viewBox="0 0 430 372">
-    <path class="ln2" d="M 210,292 L 40,122"/><path class="ln2" d="M 210,292 L 380,122"/>
-    <path class="ln2" d="M 74,122 A 206 206 0 0 1 346,122"/>
-    <path class="ln2" d="M 210,292 L 210,72"/>
-    <!-- 壘包 -->
-    <rect class="home" x="311" y="191" width="14" height="14" transform="rotate(45 318 198)"/>
-    <text class="tx" x="348" y="212" text-anchor="middle" font-size="11">一壘壘包</text>
-    <rect class="home" x="203" y="145" width="14" height="14" transform="rotate(45 210 152)"/>
-    <text class="tx" x="210" y="132" text-anchor="middle" font-size="11">二壘壘包</text>
-    <rect class="home" x="95" y="191" width="14" height="14" transform="rotate(45 102 198)"/>
-    <text class="tx" x="70" y="212" text-anchor="middle" font-size="11">三壘壘包</text>
-    <!-- 本壘板與打擊區 -->
-    <rect class="home" x="203" y="285" width="14" height="14" transform="rotate(45 210 292)"/>
-    <text class="tx" x="150" y="298" text-anchor="end" font-size="11">本壘板</text>
-    <rect class="home" x="156" y="272" width="38" height="40" rx="3" stroke-dasharray="4 3" fill="none"/>
-    <text class="tx" x="175" y="266" text-anchor="middle" font-size="10.5">右打擊區</text>
-    <rect class="home" x="226" y="272" width="38" height="40" rx="3" stroke-dasharray="4 3" fill="none"/>
-    <text class="tx" x="245" y="266" text-anchor="middle" font-size="10.5">左打擊區</text>
-    ${extra}
-  </svg>`;
+ const el=document.getElementById("dia-field");if(!el)return;
+ const P=[[210,208,"1","投手"],[210,332,"2","捕手"],[331,212,"3","一壘手"],[269,150,"4","二壘手"],[91,212,"5","三壘手"],[151,150,"6","游擊手"],[94,70,"7","左外野"],[210,45,"8","中外野"],[326,70,"9","右外野"]];
+ const badge=P.map(([x,y,n,name])=>{const c=Number(n)>=7?"#255e8a":Number(n)<=2?"#a64c32":"#26774f";const labelY=Number(n)>=7?y+33:y+30;return '<g><circle cx="'+x+'" cy="'+y+'" r="15" fill="'+c+'" stroke="#fff" stroke-width="2.5"/><text x="'+x+'" y="'+(y+5)+'" fill="#fff" text-anchor="middle" font-size="15" font-weight="800">'+n+'</text><text class="tx" x="'+x+'" y="'+labelY+'" text-anchor="middle" font-size="12">'+name+'</text></g>'}).join('');
+ const base=(x,y)=>'<rect x="'+(x-7)+'" y="'+(y-7)+'" width="14" height="14" fill="#fff" stroke="#825e38" stroke-width="2"/>';
+ const plate='<polygon points="201,283 219,283 219,293 210,302 201,293" fill="#fff" stroke="#825e38" stroke-width="2.3"/>';
+ el.innerHTML='<svg class="chart" viewBox="0 0 430 385" role="img" aria-label="棒球守備位置：四色分類球員數字，四個壘位、五角形本壘板、壘線及外野弧線">'
+ +'<path d="M210 292 L38 120 M210 292 L382 120" fill="none" stroke="#f5f5ec" stroke-width="2.5"/>'
+ +'<path d="M74 122 A206 206 0 0 1 346 122" fill="none" stroke="#e9e6ce" stroke-width="2.5" stroke-dasharray="7 6"/>'
+ +'<path d="M210 292 L318 198 L210 152 L102 198 Z" fill="#cba77a" fill-opacity=".13" stroke="#fff" stroke-width="2.8"/>'
+ +base(318,198)+base(210,152)+base(102,198)+plate
+ +'<text class="tx" x="352" y="198" font-size="11">一壘包</text><text class="tx" x="210" y="125" text-anchor="middle" font-size="11">二壘包</text><text class="tx" x="42" y="198" font-size="11">三壘包</text><text class="tx" x="150" y="299" text-anchor="end" font-size="11">本壘板</text>'
+ +'<rect x="160" y="268" width="35" height="44" rx="2" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="5 3"/><rect x="225" y="268" width="35" height="44" rx="2" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="5 3"/>'
+ +'<text class="tx" x="176" y="262" text-anchor="middle" font-size="10">右打擊區</text><text class="tx" x="242" y="262" text-anchor="middle" font-size="10">左打擊區</text>'
+ +badge+'<text class="tx" x="210" y="379" text-anchor="middle" font-size="11">🟠 投捕　🟢 內野　🔵 外野｜虛線：外野弧線</text></svg>';
 })();
-
 /* ---- 好球帶與九宮格 ---- */
 (function zoneDiagram(){
   const el = document.getElementById("dia-zone");
@@ -1725,7 +1706,7 @@ function diamond(extra, vb="0 0 220 210", home=[110,190], labels){
     </svg></div>`;
   const zone2 = `<div class="dia"><h3>內角、外角與站位</h3><p class="req">打者站的位置決定內外角；越想打內角，站位就要離本壘板近一點。</p>
     <svg class="chart" viewBox="0 0 220 175">
-      <rect class="home" x="96" y="58" width="28" height="54" rx="3"/>
+      <polygon class="home" points="96,58 124,58 124,95 110,111 96,95"/>
       <text class="tx" x="110" y="132" text-anchor="middle">本壘板</text>
       <rect class="home" x="28" y="50" width="46" height="68" rx="4" stroke-dasharray="4 3"/>
       <text class="tx" x="51" y="140" text-anchor="middle">右打者站位</text>
