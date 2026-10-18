@@ -249,3 +249,26 @@ dialog { max-width: min(560px, calc(100% - 28px)); border: 1px solid rgba(128,21
   .result-modal { padding: 26px 18px 18px; }
   .result-score { font-size: 32px; }
 }
+
+/* Compact tactics cockpit: maximize field width, keep controls visible. */
+.app-shell{width:calc(100% - 20px);max-width:1900px}
+.main-grid{grid-template-columns:minmax(160px,.53fr) minmax(0,2.7fr) minmax(240px,.83fr)}
+.compact-label{display:block;margin:8px 0 4px;font-size:11px;color:#a9c8df}
+.quick-select{display:block;width:100%;min-height:40px;padding:8px 34px 8px 12px;border:1px solid #59cde4;border-radius:9px;background:#0b2741;color:#f2faff;font:600 13px system-ui;cursor:pointer}
+.scenario-list,.strategy-buttons{display:none!important}
+.scenario-panel,.command-panel{padding:12px}
+.scenario-panel .panel-description{display:none}
+.field-frame,.field-3d{min-height:var(--field-height)}
+@media(max-width:1220px){.main-grid{grid-template-columns:minmax(0,2fr) minmax(235px,.78fr);grid-template-areas:"field commands" "scenario commands"}}
+@media(max-width:850px){
+ .app-shell{width:calc(100% - 12px);--field-height:clamp(300px,45svh,510px)}
+ .main-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"field" "commands" "scenario";gap:6px}
+ .field-frame,.field-3d{height:var(--field-height);min-height:var(--field-height)}
+ .right-rail{position:static}
+ .command-panel{padding:9px}
+ .scenario-panel{padding:8px}
+ .scenario-panel .panel-heading,.scenario-panel .panel-description{display:none}
+ .scenario-panel .compact-label{margin-top:0}
+ .offense-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,.65fr);gap:8px;align-items:end}
+ .offense-controls .primary-action{margin-top:0}
+}
