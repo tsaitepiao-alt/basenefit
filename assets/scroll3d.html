@@ -137,6 +137,7 @@
   var controls=new THREE.OrbitControls(camera,cv);
   camera.position.set(0,195,-160);
   controls.target.set(0,0,48);
+  controls.enablePan=true;
   controls.enableDamping=true;
   controls.dampingFactor=.08;
   controls.minDistance=30;
