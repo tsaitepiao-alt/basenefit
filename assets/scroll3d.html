@@ -79,12 +79,17 @@
     var dx=b[0]-a[0],dz=b[1]-a[1],m=new THREE.Mesh(new THREE.BoxGeometry(width,.07,Math.hypot(dx,dz)),mat||white);
     m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2);m.rotation.y=Math.atan2(dx,dz);field.add(m);
   }
+  // 草皮僅繪製全壘打牆內的扇形場地，不延伸至牆外。
   var turf=document.createElement('canvas');turf.width=turf.height=512;
   var tx=turf.getContext('2d');tx.fillStyle='#185b37';tx.fillRect(0,0,512,512);
-  for(var i=0;i<8;i++)for(var j=0;j<8;j++){tx.fillStyle=(i+j)%2?'#1c6b40':'#125130';tx.fillRect(i*64,j*64,64,64);}
-  var texture=new THREE.CanvasTexture(turf);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(10,10);
-  var grass=new THREE.Mesh(new THREE.PlaneGeometry(360,360),new THREE.MeshLambertMaterial({map:texture}));
-  grass.rotation.x=-Math.PI/2;grass.position.set(0,-.14,85);field.add(grass);
+  for(var i=0;i<4;i++)for(var j=0;j<4;j++){tx.fillStyle=(i+j)%2?'#1b623b':'#155633';tx.fillRect(i*128,j*128,128,128);}
+  var texture=new THREE.CanvasTexture(turf);
+  texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(2,2);
+  var turfShape=new THREE.Shape();turfShape.moveTo(0,0);turfShape.lineTo(-104.65,-104.65);
+  for(var t=0;t<=120;t++){var ang=Math.PI*.75-t*Math.PI*.5/120;turfShape.lineTo(Math.cos(ang)*148,-Math.sin(ang)*148);}
+  turfShape.lineTo(104.65,-104.65);turfShape.closePath();
+  var grass=plane(turfShape,new THREE.MeshLambertMaterial({map:texture,side:THREE.DoubleSide}),-.14);
+  // 球場外維持乾淨背景，避免綠色格子鋪滿畫面。
   // 內野紅土弧形區，外野草皮在紅土外側。
   var d=new THREE.Shape();d.moveTo(0,12);d.lineTo(-62,-62);
   for(var k=0;k<=80;k++){var angle=Math.PI*.75-k*Math.PI*.5/80;d.lineTo(Math.cos(angle)*89,-Math.sin(angle)*89);}
@@ -92,10 +97,7 @@
   polygon([[0,7],[-24,27.43],[0,51],[24,27.43]],green,.08);
   // 投手丘圓形紅土及投手板。
   var mound=new THREE.Mesh(new THREE.CylinderGeometry(5.5,5.5,.3,64),clay);mound.position.set(0,.17,18.44);field.add(mound);
-  var plate=new THREE.Mesh(new THREE.BoxGeometry(.61,.08,.152),white);plate.position.set(0,.38,18.44);field.add(plate);
   var bases=[[0,0],[-27.43,27.43],[0,54.86],[27.43,27.43]];
-  for(var bi=1;bi<4;bi++){var base=new THREE.Mesh(new THREE.BoxGeometry(.8,.14,.8),white);base.position.set(bases[bi][0],.3,bases[bi][1]);base.rotation.y=Math.PI/4;field.add(base);}
-  polygon([[0,-.5],[-.22,-.15],[-.22,.22],[.22,.22],[.22,-.15]],white,.31);
   for(var li=0;li<4;li++)line(bases[li],bases[(li+1)%4],.19,.27,white);
   line([0,0],[-104,104],.22,.29);line([0,0],[104,104],.22,.29);
   // 打擊區
