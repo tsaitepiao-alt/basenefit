@@ -20,21 +20,40 @@ for(let i=0;i<4;i++)line(base[i],base[(i+1)%4]);line(home,new T.Vector3(85,0,0))
 for(const p of [one,two,three])add(new T.BoxGeometry(1.5,.2,1.5),white,p.x,.28,p.z).rotation.y=Math.PI/4;
 add(new T.CylinderGeometry(.85,.85,.16,5),white,0,.26,0).rotation.y=Math.PI/4;
 add(new T.CylinderGeometry(3.1,3.1,.15,40),dirt,9,.05,-9);add(new T.BoxGeometry(1.2,.13,.4),white,9,.2,-9);
-for(let i=0;i<8;i++){const a=i/8*Math.PI/2;const r=65;const x=r*Math.cos(a),z=-r*Math.sin(a);if(i)line(new T.Vector3(x,0,z),new T.Vector3(r*Math.cos((i-1)/8*Math.PI/2),0,-r*Math.sin((i-1)/8*Math.PI/2)),navy,.8)}
+// 打擊區：本壘兩側各一個打者區，後方配置捕手區與主審。
+function outlineRect(x0,z0,x1,z1){const p=[new T.Vector3(x0,0,z0),new T.Vector3(x1,0,z0),new T.Vector3(x1,0,z1),new T.Vector3(x0,0,z1)];p.forEach((v,i)=>line(v,p[(i+1)%4],white,.13))}
+outlineRect(-4,-1.4,-1,3.6);outlineRect(1,-1.4,4,3.6);outlineRect(-1.3,3.8,1.3,6.3);
+// 全壘打牆：位於界內扇形外緣；黃線標示牆頂、兩端界外標竿。
+const wallMat=M(0x184b63),topMat=M(0xf5d351),poleMat=M(0xffdb35),radius=70,segments=36;
+for(let i=0;i<segments;i++){
+ const a=i/segments*Math.PI/2,b=(i+1)/segments*Math.PI/2;
+ const p=new T.Vector3(radius*Math.cos(a),0,-radius*Math.sin(a)),q=new T.Vector3(radius*Math.cos(b),0,-radius*Math.sin(b));
+ const len=p.distanceTo(q),mid=p.clone().add(q).multiplyScalar(.5);
+ const wall=add(new T.BoxGeometry(len+.1,5,.65),wallMat,mid.x,2.5,mid.z);
+ wall.rotation.y=Math.atan2(q.z-p.z,q.x-p.x);
+ const rail=add(new T.BoxGeometry(len+.1,.25,.8),topMat,mid.x,5.1,mid.z);rail.rotation.y=wall.rotation.y;
+}
+for(const p of [new T.Vector3(radius,0,0),new T.Vector3(0,0,-radius)]){
+ add(new T.CylinderGeometry(.19,.19,13,10),poleMat,p.x,6.5,p.z);
+}
 function person(color,x,z){const g=new T.Group();add(new T.CylinderGeometry(.58,.75,2,10),color,0,2,0,g);add(new T.SphereGeometry(.57,12,10),skin,0,3.38,0,g);add(new T.SphereGeometry(.61,12,8,0,Math.PI*2,0,Math.PI/2),navy,0,3.65,0,g);for(const dx of [-.37,.37]){add(new T.CylinderGeometry(.18,.23,1.35,8),navy,dx,.7,0,g);add(new T.CylinderGeometry(.15,.18,1.5,8),color,dx*2,2.05,0,g).rotation.z=dx>0?-.55:.55}g.position.set(x,.1,z);scene.add(g);return g}
 // 九名守備員：投、捕、一、二、三、游、左、中、右。每個情境會跑位、接球、傳球。
-const positions=[[9,-9],[0,3],[19,1],[19,-17],[0,-19],[8,-20],[-18,-34],[10,-46],[29,-36]];
+const positions=[[9,-9],[0,3],[19,1],[19,-17],[0,-19],[8,-20],[16,-49],[40,-43],[49,-16]];
 const fielders=positions.map(([x,z])=>person(blue,x,z)),runner=person(gold,0,1.4),ball=add(new T.SphereGeometry(.38,12,12),white,9,2,-9);
+// 主審站在捕手後方，使用深色制服與面罩，保持在捕手後方。
+const umpire=person(M(0x1b222a),0,7.3);
+const mask=add(new T.BoxGeometry(1.1,.85,.12),M(0x303941),0,3.35,-.51,umpire);
+for(const x of [-.38,0,.38])add(new T.BoxGeometry(.045,.75,.08),white,x,3.35,-.6,umpire);
 const bat=add(new T.CylinderGeometry(.1,.24,4,10),dirt,-1.1,2.2,1.5);bat.rotation.z=-.5;
 const glove=M(0x9b5936);
 fielders.forEach((p,i)=>{p.userData.parts=p.children.filter(o=>o.geometry?.type==='CylinderGeometry');const g=add(new T.SphereGeometry(.43,10,8),glove,-1.15,2.35,.4,p);g.name='glove';p.userData.glove=g;p.userData.home=new T.Vector3(positions[i][0],.1,positions[i][1])});
 const smooth=u=>{u=Math.max(0,Math.min(1,u));return u*u*(3-2*u)};
 const lerpPoint=(a,b,u)=>a.clone().lerp(b,smooth(u));
 const defensivePlans={
-single:{fielder:6,target:[-9,-24],throwTo:3},double:{fielder:7,target:[12,-37],throwTo:3},
-triple:{fielder:8,target:[34,-33],throwTo:4},homer:{fielder:8,target:[39,-50],throwTo:null},
+single:{fielder:6,target:[16,-32],throwTo:3},double:{fielder:7,target:[30,-37],throwTo:3},
+triple:{fielder:8,target:[42,-26],throwTo:3},homer:{fielder:8,target:[56,-25],throwTo:null},
 walk:{fielder:1,target:[0,3],throwTo:null},strike:{fielder:1,target:[0,3],throwTo:null},
-fly:{fielder:7,target:[13,-32],throwTo:null},ground:{fielder:5,target:[11,-18],throwTo:2},
+fly:{fielder:7,target:[34,-39],throwTo:null},ground:{fielder:5,target:[11,-18],throwTo:2},
 steal:{fielder:1,target:[0,3],throwTo:3},doubleplay:{fielder:5,target:[11,-16],throwTo:3},
 sacrifice:{fielder:0,target:[6,-5],throwTo:2},tag:{fielder:3,target:[18,-9],throwTo:null}
 };
@@ -42,10 +61,10 @@ function animateDefense(kind,t,now){
  const plan=defensivePlans[selected],f=fielders[plan.fielder],target=new T.Vector3(plan.target[0],.1,plan.target[1]);
  fielders.forEach((p,i)=>{
   const h=p.userData.home,active=i===plan.fielder,backup=(i===3||i===2||i===4||i===7)&&i!==plan.fielder;
-  const move=active?smooth((t-.12)/.43):backup?smooth((t-.28)/.42)*.35:0;
-  const dest=active?target:(i===3?new T.Vector3(18,.1,-18):i===2?new T.Vector3(18,.1,0):i===4?new T.Vector3(0,.1,-18):new T.Vector3(10,.1,-35));
+  const move=active?smooth((t-.12)/.43):backup&&i<6?smooth((t-.28)/.42)*.35:0;
+  const dest=active?target:(i>=6?h.clone():i===3?new T.Vector3(18,.1,-18):i===2?new T.Vector3(18,.1,0):i===4?new T.Vector3(0,.1,-18):new T.Vector3(10,.1,-35));
   p.position.copy(h).lerp(dest,move);
-  const running=active&&t>.12&&t<.56||backup&&t>.28&&t<.7;
+  const running=active&&t>.12&&t<.56||backup&&i<6&&t>.28&&t<.7;
   const phase=now*.018+i*1.7;
   const legs=p.children.filter(o=>o.geometry?.type==='CylinderGeometry'&&o.position.y<1.5);
   legs.forEach((leg,j)=>leg.rotation.x=running?Math.sin(phase+j*Math.PI)*.65:0);
