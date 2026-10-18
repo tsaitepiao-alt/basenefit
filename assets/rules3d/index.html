@@ -34,6 +34,9 @@ function plateRect(sideOffset,forwardOffset,width,length){
  [a,b,c,d].forEach((p,i,arr)=>line(p,arr[(i+1)%4],white,.13));
 }
 plateRect(-2.5,0,2.4,5.3);plateRect(2.5,0,2.4,5.3);plateRect(0,-4.5,2.7,2.4);
+// 左右兩個打擊準備區（on-deck circles），設於本壘後方兩側。
+function onDeckCircle(side){const center=acrossPlate.clone().multiplyScalar(side*9).add(towardPitcher.clone().multiplyScalar(-7));const pts=[];for(let i=0;i<=64;i++){const a=i/64*Math.PI*2;pts.push(new T.Vector3(center.x+Math.cos(a)*2.65,0,center.z+Math.sin(a)*2.65))}for(let i=0;i<64;i++)line(pts[i],pts[i+1],white,.16)}
+onDeckCircle(-1);onDeckCircle(1);
 // 全壘打牆：位於界內扇形外緣；黃線標示牆頂、兩端界外標竿。
 const wallMat=M(0x184b63),topMat=M(0xf5d351),poleMat=M(0xffdb35),radius=70,segments=36;
 for(let i=0;i<segments;i++){
@@ -44,6 +47,18 @@ for(let i=0;i<segments;i++){
  wall.rotation.y=-Math.atan2(q.z-p.z,q.x-p.x);
  const rail=add(new T.BoxGeometry(len+.1,.25,.8),topMat,mid.x,5.1,mid.z);rail.rotation.y=wall.rotation.y;
 }
+// 自製品牌字標：使用 CanvasTexture，避免外部圖片路徑與跨網域問題。
+function brandPanel(w,h,x,y,z,rotation=0){
+ const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=256;
+ const ctx=canvas.getContext('2d');ctx.fillStyle='#0b2637';ctx.fillRect(0,0,1024,256);
+ ctx.fillStyle='#c9f34e';ctx.font='bold 116px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('basenefit',512,127);
+ const tex=new T.CanvasTexture(canvas);tex.colorSpace=T.SRGBColorSpace;
+ const mat=new T.MeshBasicMaterial({map:tex,side:T.DoubleSide});
+ const sign=add(new T.PlaneGeometry(w,h),mat,x,y,z);sign.rotation.y=rotation;return sign;
+}
+// 中外野牆及主審後方品牌標誌。
+brandPanel(20,5.1,49.2,3.2,-49.2,-Math.PI/4);
+brandPanel(12,3.3,-8.4,3.1,8.4,-Math.PI/4);
 for(const p of [new T.Vector3(radius,0,0),new T.Vector3(0,0,-radius)]){
  add(new T.CylinderGeometry(.19,.19,13,10),poleMat,p.x,6.5,p.z);
 }
@@ -67,7 +82,7 @@ const smooth=u=>{u=Math.max(0,Math.min(1,u));return u*u*(3-2*u)};
 const lerpPoint=(a,b,u)=>a.clone().lerp(b,smooth(u));
 const defensivePlans={
 single:{fielder:6,target:[16,-32],throwTo:3},double:{fielder:7,target:[30,-37],throwTo:3},
-triple:{fielder:8,target:[42,-26],throwTo:3},homer:{fielder:8,target:[56,-25],throwTo:null},
+triple:{fielder:8,target:[49,-25],throwTo:3},homer:{fielder:8,target:[56,-25],throwTo:null},
 walk:{fielder:1,target:[0,3],throwTo:null},strike:{fielder:1,target:[0,3],throwTo:null},
 fly:{fielder:7,target:[34,-39],throwTo:null},ground:{fielder:5,target:[11,-18],throwTo:2},
 steal:{fielder:1,target:[0,3],throwTo:3},doubleplay:{fielder:5,target:[11,-16],throwTo:3},
@@ -94,9 +109,9 @@ function animateDefense(kind,t,now){
   }else{p.rotation.x=0;if(i===1)p.rotation.y=Math.atan2(towardPitcher.x,towardPitcher.z);p.userData.glove.position.y=2.35}
  });
  // 接球後依情境傳球：球沿著接球員→目標壘包的拋物線飛行。
- if(plan.throwTo!==null&&t>.65){
+ if(plan.throwTo!==null&&t>(selected==='triple'?.84:.65)){
   const to=base[plan.throwTo],from=target.clone();from.y=2.6;
-  const u=smooth((t-.65)/.29);
+  const u=smooth((t-(selected==='triple'?.84:.65))/(selected==='triple'?.16:.29));
   ball.position.copy(from.lerp(new T.Vector3(to.x,1.6,to.z),u));
   ball.position.y+=Math.sin(Math.PI*u)*3.3;
  }
@@ -104,11 +119,11 @@ function animateDefense(kind,t,now){
 const cases={
 single:['一壘安打','球落地後打者安全抵達一壘。',[home,one],0,0,0,0,'hit'],
 double:['二壘安打','打者依序踩過一壘、二壘。',[home,one,two],0,0,0,0,'hit'],
-triple:['三壘安打','打者依序踩過一、二、三壘。',[home,one,two,three],0,0,0,0,'hit'],
+triple:['三壘安打','球飛向右外野，右外野手追球回傳；打者搶先踩上三壘形成三壘安打。',[home,one,two,three],0,0,0,0,'hit'],
 homer:['全壘打','無人上壘的全壘打，打者跑完四壘得 1 分。',[home,one,two,three,home],1,0,0,0,'homer'],
 walk:['四壞保送','累積四顆壞球，打者獲得一壘。',[home,one],0,0,0,4,'pitch'],
-strike:['三振出局','第三好球由捕手合法接捕，打者出局。',[home],0,1,3,0,'pitch'],
-fly:['飛球接殺','飛球落地前被守備員合法接住，打者出局。',[home],0,1,0,0,'fly'],
+strike:['三振出局','打者揮棒落空，球通過球棒進入捕手手套；第三好球由捕手合法接捕，打者出局。',[home],0,1,3,0,'pitch'],
+fly:['飛球接殺','打者擊出高飛球，中外野手移位，在落地前接住形成飛球出局。',[home],0,1,0,0,'fly'],
 ground:['滾地出局','守備員接球傳一壘，球比打者先到，完成封殺。',[home,new T.Vector3(12,0,0)],0,1,0,0,'ground'],
 steal:['盜二壘','一壘跑者在投球時起跑，安全盜上二壘。',[one,two],0,0,0,0,'steal'],
 doubleplay:['雙殺守備','示範無人出局、一壘有人：滾地球形成二壘封殺，再傳一壘完成雙殺。',[home,new T.Vector3(11,0,0)],0,2,0,0,'doubleplay'],
@@ -128,9 +143,26 @@ function loop(now){requestAnimationFrame(loop);const c=cases[selected],time=(pau
 let rt=t;if(pitch)rt=Math.max(0,(t-.45)/.55);else if(hit||fly||ground)rt=Math.max(0,(t-.22)/.78);
 const rp=along(c[2],rt);runner.position.set(rp.x,.1+Math.abs(Math.sin(now*.013))*((rt>0&&rt<1)? .13:0),rp.z+(rt===0&&selected!=='steal'?.9:0));
 if(c[2].length>1){const dest=along(c[2],Math.min(1,rt+.02));runner.rotation.y=Math.atan2(dest.x-rp.x,dest.z-rp.z)}
-const pitcher=fielders[0];bat.rotation.z=-.5+(hit||fly||ground?Math.sin(Math.min(1,t*5)*Math.PI)*1.3:0);
-if(pitch){const u=Math.min(1,t*2.2);ball.position.set(9*(1-u),1.7+u*.5,-9*(1-u));}
-else if(hit||fly||ground){const u=Math.min(1,t*2.6),z=-u*(hit?(kind==='homer'?75:38):fly?35:22),x=u*(kind==='homer'?38:kind==='ground'?12:18);ball.position.set(x,kind==='homer'?2+u*(1-u)*55:fly?1+u*(1-u)*24:kind==='ground'?.45:2+u*(1-u)*12,z)}
+const pitcher=fielders[0];
+// 三振情境：明確揮棒落空；球先穿過本壘才進捕手手套。
+const swing=selected==='strike'||hit||fly||ground;
+const swingPhase=Math.max(0,Math.min(1,(t-.18)/.25));
+bat.rotation.z=-.5+(swing?Math.sin(swingPhase*Math.PI)*1.65:0);
+hitter.rotation.y=Math.atan2(towardPitcher.x,towardPitcher.z)+(swing?Math.sin(swingPhase*Math.PI)*.42:0);
+if(pitch){const u=Math.min(1,t*2.2);ball.position.set(9*(1-u),1.7+u*.5,-9*(1-u));if(selected==='strike'&&u>.82)ball.position.y=1.5;}
+else if(hit||fly||ground){
+ const u=Math.min(1,t*2.6);
+ if(selected==='triple'){
+   // 右外野方向，跑者抵達三壘後守備員才完成回傳。
+   const v=Math.min(1,t/.62);ball.position.set(49*v,1.2+Math.sin(Math.PI*v)*15,-25*v);
+ }else if(selected==='fly'){
+   // 高飛球拋物線：最高約 27 單位，落在中外野手附近。
+   const v=Math.min(1,t/.72);ball.position.set(34*v,2+Math.sin(Math.PI*v)*27,-39*v);
+ }else{
+   const z=-u*(hit?(kind==='homer'?75:38):22),x=u*(kind==='homer'?38:kind==='ground'?12:18);
+   ball.position.set(x,kind==='homer'?2+u*(1-u)*55:kind==='ground'?.45:2+u*(1-u)*12,z);
+ }
+}
 else{ball.position.set(9,1.4,-9)}
 animateDefense(kind,t,now);
 if(!finished&&t===1){finished=true;['runs','outs','strikes','balls'].forEach((id,i)=>$(id).textContent=c[i+3]);$('status').textContent='示範完成 · 可重新播放'}
