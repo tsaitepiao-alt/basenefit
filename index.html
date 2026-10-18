@@ -104,7 +104,7 @@
   .avatar{width:26px;height:26px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-size:12px;font-weight:700;color:#1b1b19}
   .wrap{padding:26px;max-width:1080px;width:100%}
   /* 3D互動球場專用寬版：取消主內容 1080px 限制，延伸至右側視窗邊緣。 */
-  body:has(#page-scroll3d.show) .wrap{max-width:none;padding:18px 18px 28px;width:100%}
+  body:has(#page-scroll3d.show) .wrap,body:has(#page-field3d.show) .wrap{max-width:none;padding:18px 18px 28px;width:100%}
   #page-scroll3d>.card{width:100%;max-width:none}
   #page-scroll3d #fscroll{height:min(86vh,1000px)!important;min-height:650px}
   .page{display:none}
@@ -893,26 +893,13 @@
       <section class="page" id="page-field3d">
         <div class="eyebrow">3D INTERACTIVE</div>
         <h2 class="page-title">3D互動規則教室</h2>
-        <p class="lead">這個單元正在<b>重新建構</b>，完成後會直接在這裡上線。</p>
-        <!-- 舊版 3D 球場暫時下架（等 Codex 做出較完整的版本再放回來）。
-             要恢復：把下面這段註解解開、刪掉紅字公告區塊即可。
-        <div class="card" style="padding:10px">
-          <iframe id="f3d" src="assets/baseball3d.html?embed=1&v=4" title="棒球 3D 互動學習" loading="lazy"
-                  style="width:100%;height:min(78vh,780px);border:0;border-radius:12px;background:#0d1017;display:block"></iframe>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <button class="btn lime" onclick="document.getElementById('f3d').src='assets/baseball3d.html?embed=1&v='+Date.now()">重新載入球場</button>
-            <button class="btn ghost" onclick="window.open('assets/baseball3d.html','_blank')">全螢幕開啟</button>
-            <button class="btn ghost" onclick="go('#/tactics')">⚔ 玩戰術小遊戲</button>
-          </div>
-          <p class="req" style="margin-top:8px">操作：拖曳＝旋轉｜滾輪或雙指＝縮放｜右鍵拖曳＝平移。畫面下方有「重設視角／俯視圖／下載 GLB」，右上可展開規格表。</p>
-        </div>
-        -->
+        <p class="lead">選擇棒球規則情境，觀看 3D 守備、傳球、跑壘與出局判定動畫。</p>
         <div class="card" style="padding:12px;border:1px solid #c8d7b1;border-radius:16px;background:#111e29">
           <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;color:#e9f7dd">
             <strong>⚾ 3D 棒球互動規則教室</strong>
             <a class="btn lime sm" href="assets/rules3d/index.html" target="_blank" rel="noopener">⛶ 全螢幕開啟</a>
           </div>
-          <iframe id="rules3d-frame" title="3D 棒球規則互動教學球場" src="assets/rules3d/index.html?v=18" loading="lazy" allowfullscreen style="display:block;width:100%;height:min(88vh,920px);min-height:610px;border:0;border-radius:12px;background:#0b1725"></iframe>
+          <iframe id="rules3d-frame" title="3D 棒球規則互動教學球場" src="assets/rules3d/index.html?v=21" loading="lazy" allowfullscreen style="display:block;width:100%;height:min(88vh,920px);min-height:610px;border:0;border-radius:12px;background:#0b1725"></iframe>
           <p style="color:#d8e7dd;font-size:12px;margin:8px 2px 0">手機可觸控旋轉與縮放；右側或下方選擇規則、觀看跑壘及球路示範。建議使用全螢幕體驗。</p>
         </div>
       </section>
