@@ -566,8 +566,8 @@
       <!-- ========== 3. 能力評估 ========== -->
       <section class="page" id="page-assessment">
         <div class="eyebrow">BUILD YOUR BASELINE</div>
-        <h2 class="page-title">先留下你的第一次評估</h2>
-        <p class="lead">三項簡單測試，記錄你現在的起點。之後每 4 週再測一次，就能看到變化。</p>
+        <h2 class="page-title">棒球能力自我評估</h2>
+        <p class="lead">依年齡及守備位置完成九大能力自評，保留每次紀錄，觀察自己的進步。</p>
         <div class="card" id="as-baseball">
           <h2>⚾ 棒球九大能力自評</h2>
           <p class="req">每項 1–5 分：1 初學、2 尚不穩定、3 基本掌握、4 穩定、5 熟練。這是自我觀察，不代表正式技術檢定。</p>
@@ -580,26 +580,6 @@
           <div style="margin-top:14px"><button class="btn lime" onclick="saveBaseballAssessment()">儲存九大能力自評</button></div>
           <div id="as-radar" style="margin-top:16px"></div>
           <p class="req">建議每四週評估一次；規則與戰術可搭配本站測驗，傳接打跑等能力請以教練實測補充。不同年齡與測驗條件不直接排名。</p>
-        </div>
-        <div class="grid2">
-          <div class="card">
-            <div class="grid3">
-              <div><label>左腳平衡（秒）</label><input type="number" id="as-l" min="0" step="0.1" placeholder="0"></div>
-              <div><label>右腳平衡（秒）</label><input type="number" id="as-r" min="0" step="0.1" placeholder="0"></div>
-              <div><label>30 秒椅子坐站（次）</label><input type="number" id="as-chair" min="0" placeholder="0"></div>
-            </div>
-            <label>10 次目標傳球命中（次）</label>
-            <input type="number" id="as-pass" min="0" max="10" placeholder="0">
-            <label>測試條件與教練觀察</label>
-            <textarea id="as-note" placeholder="例如：赤腳、客廳地板、下午時段。左腳明顯比右腳不穩。"></textarea>
-            <div style="margin-top:14px"><button class="btn lime" onclick="saveAssessment()">儲存本次評估</button></div>
-          </div>
-          <div class="card">
-            <h2 style="margin-bottom:6px">一致，比數字重要</h2>
-            <div class="tip"><i>·</i><div>同樣的鞋子、同樣的地面、同樣的時段，數字才可比。</div></div>
-            <div class="tip"><i>·</i><div>這不是排名，是「你自己的基準線」。</div></div>
-            <div class="tip"><i>·</i><div>只跟自己比：4 週後再測一次同一組。</div></div>
-          </div>
         </div>
         <div class="card">
           <div class="hrow"><h2>評估紀錄</h2><span class="pill" id="as-count">0 筆</span></div>
