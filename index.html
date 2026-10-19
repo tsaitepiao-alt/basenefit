@@ -739,7 +739,7 @@
       <!-- ========== 6. 動作解析：MLB慢動作影片庫 ========== -->
       <section class="page" id="page-analysis">
         <div id="analysis-role-panel" class="card" style="display:none;border-color:#b9d69b;background:#f3f8ec"></div>
-        <div class="eyebrow">PRO FORM BREAKDOWN</div>
+        <div id="analysis-general-content"><div class="eyebrow">PRO FORM BREAKDOWN</div>
         <h2 class="page-title">把職業級動作，拆成看得懂的步驟。</h2>
         <p class="lead">投、打、守三類動作的重點整理，搭配官方影片一起看；圖解與 3D 軌跡解析在左側「圖解教室」「3D 互動學習」。</p>
 
@@ -812,6 +812,9 @@
             <li><b>拍影片對照</b>：上傳到「動作影片」，請教練逐格看。</li>
           </ul>
         </div>
+        </div>
+        <div id="analysis-video-list"></div>
+
       </section>
 
 <section class="page" id="page-english"><div class="eyebrow">BASEBALL ENGLISH</div><h2 class="page-title">⚾ 棒球英文圖文教室</h2><p class="lead">棒球場上的人物、位置、設施、裝備、動作與規則：中英文對照。點圖文卡片聽英文發音，學完直接考拼字。</p><div class="card"><h2>🏟️ 守備位置圖｜Field positions</h2><svg viewBox="0 0 520 370" aria-label="棒球場守備位置示意圖" style="width:100%;max-width:640px;background:#dbead8;border-radius:14px"><path d="M260 350 L35 125 Q260 -80 485 125 Z" fill="#7aaa70" stroke="white" stroke-width="4"/><path d="M260 340 L155 240 L260 135 L365 240 Z" fill="#b98454" stroke="white" stroke-width="3"/><g text-anchor="middle" font-size="15" font-weight="bold" fill="#102a1c"><text x="120" y="105">LF 左外野</text><text x="260" y="52">CF 中外野</text><text x="400" y="105">RF 右外野</text><text x="200" y="175">SS 游擊</text><text x="322" y="175">2B 二壘手</text><text x="110" y="253">3B 三壘手</text><text x="410" y="253">1B 一壘手</text><text x="260" y="255">P 投手</text><text x="260" y="365">C 捕手</text></g></svg><p class="req">示意圖供認識守備位置使用，非實際球員站位比例。</p></div><div class="card" style="display:flex;flex-wrap:wrap;gap:10px"><input id="eng-search" placeholder="搜尋中英文單字" oninput="renderEnglish()" style="flex:1;min-width:160px;padding:12px;border-radius:8px;border:1px solid #aaa"><select id="eng-category" onchange="renderEnglish()" style="padding:12px;border-radius:8px"><option value="all">全部分類</option></select><button class="btn lime" onclick="go('#/english-quiz')">📝 英文拼字考試</button></div><p id="eng-count" class="req"></p><div id="eng-list"></div></section>
@@ -1126,6 +1129,8 @@ function route(){
       }
     }
   }
+  const general=document.getElementById("analysis-general-content");
+  if(general)general.style.display=role?"none":"block";
   const videoList=document.getElementById("analysis-video-list");
   if(videoList){
     const id=role?p.slice("analysis-".length):"pitcher";
