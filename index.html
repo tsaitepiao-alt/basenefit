@@ -1374,18 +1374,35 @@ function route(){
 window.addEventListener("hashchange", route);
 
 /* ============ 選單折疊：子項目預設收起 ============ */
+function closeOtherFolds(keep){
+  document.querySelectorAll(".navfold.open").forEach(f => {
+    if (f === keep) return;
+    f.classList.remove("open");
+    const b = f.querySelector(".foldbtn, .grpbtn");
+    if (b) b.setAttribute("aria-expanded", "false");
+  });
+}
 function toggleFold(btn){
   const fold = btn.closest(".navfold");
   if (!fold) return;
-  const open = fold.classList.toggle("open");
-  btn.setAttribute("aria-expanded", open ? "true" : "false");
+  const willOpen = !fold.classList.contains("open");
+  closeOtherFolds(fold);                       // 手風琴：先收起其他下拉選單
+  fold.classList.toggle("open", willOpen);
+  btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+  if (willOpen) {                              // 展開後把選單本身捲進視窗，避免選不到下面的項目
+    try { fold.scrollIntoView({block: "nearest", behavior: "smooth"}); } catch(e) {}
+  }
 }
 function syncFolds(page){
+  let opened = null;
   document.querySelectorAll(".navfold").forEach(f => {
     const hit = f.querySelector('a[data-page="' + page + '"]');
-    if (hit && hit.classList.contains("sub")) f.classList.add("open");   // 正在看子頁面 → 自動展開
+    if (hit && hit.classList.contains("sub") && !opened) opened = f;   // 正在看子頁面 → 只展開所屬的那一個
+  });
+  document.querySelectorAll(".navfold").forEach(f => {
+    f.classList.toggle("open", f === opened);                          // 其餘一律收起
     const b = f.querySelector(".foldbtn, .grpbtn");
-    if (b) b.setAttribute("aria-expanded", f.classList.contains("open") ? "true" : "false");
+    if (b) b.setAttribute("aria-expanded", f === opened ? "true" : "false");
   });
 }
 
