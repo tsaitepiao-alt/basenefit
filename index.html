@@ -568,6 +568,19 @@
         <div class="eyebrow">BUILD YOUR BASELINE</div>
         <h2 class="page-title">先留下你的第一次評估</h2>
         <p class="lead">三項簡單測試，記錄你現在的起點。之後每 4 週再測一次，就能看到變化。</p>
+        <div class="card" id="as-baseball">
+          <h2>⚾ 棒球九大能力自評</h2>
+          <p class="req">每項 1–5 分：1 初學、2 尚不穩定、3 基本掌握、4 穩定、5 熟練。這是自我觀察，不代表正式技術檢定。</p>
+          <div class="grid2" style="margin:12px 0">
+            <div><label for="as-age">年齡組別</label><select id="as-age"><option>U8</option><option>U10</option><option selected>U12</option><option>U15</option><option>U18</option><option>成人</option></select></div>
+            <div><label for="as-role">主要守備位置</label><select id="as-role" onchange="renderAssessmentFields()"><option value="pitcher">投手</option><option value="catcher">捕手</option><option value="first">一壘手</option><option value="second">二壘手</option><option value="third">三壘手</option><option value="shortstop">游擊手</option><option value="outfield">外野手</option><option value="batter">打擊</option><option value="runner">跑壘</option></select></div>
+          </div>
+          <div id="as-skill-fields" class="grid2"></div>
+          <h3 style="margin:16px 0 8px">位置專屬能力</h3><div id="as-role-fields" class="grid2"></div>
+          <div style="margin-top:14px"><button class="btn lime" onclick="saveBaseballAssessment()">儲存九大能力自評</button></div>
+          <div id="as-radar" style="margin-top:16px"></div>
+          <p class="req">建議每四週評估一次；規則與戰術可搭配本站測驗，傳接打跑等能力請以教練實測補充。不同年齡與測驗條件不直接排名。</p>
+        </div>
         <div class="grid2">
           <div class="card">
             <div class="grid3">
@@ -1156,6 +1169,7 @@ function route(){
   toggleMenu(false);
   window.scrollTo({top:0});
   render();
+  if(page==="assessment"){renderAssessmentFields();renderBaseballRadar();}
   if(page==="english")renderEnglish();
   if(page==="english-quiz")engSetup();
 }
@@ -1262,11 +1276,9 @@ function render(){
     : `<p class="req" style="margin:0">目前沒有待觀察影片。</p>`;
 
   // 評估
+  renderBaseballRadar();
   document.getElementById("as-count").textContent = `${S.assessments.length} 筆`;
-  document.getElementById("as-list").innerHTML = S.assessments.length ? `
-    <table><thead><tr><th>日期</th><th>左腳平衡</th><th>右腳平衡</th><th>坐站</th><th>傳球命中</th><th>備註</th></tr></thead><tbody>
-    ${S.assessments.slice().reverse().map(a=>`<tr><td>${a.date}</td><td>${a.l}s</td><td>${a.r}s</td><td>${a.chair} 次</td><td>${a.pass}/10</td><td>${a.note||"—"}</td></tr>`).join("")}
-    </tbody></table>` : `<div class="empty">還沒有評估紀錄。上面填一次，就有了基準線。</div>`;
+  document.getElementById("as-list").innerHTML = S.assessments.length ? '<div style="display:grid;gap:8px">'+S.assessments.slice().reverse().map(a=>a.baseball?'<div class="tip"><i>⚾</i><div><b>'+a.date+'｜'+a.baseball.age+'｜'+a.baseball.roleName+'</b><div class="req">九大能力：'+BASEBALL_SKILLS.map(([k,n])=>n+' '+(a.baseball.skills[k]||'未評')).join(' · ')+'</div><div class="req">位置專屬：'+a.baseball.roleScores.map(x=>x.name+' '+(x.score||'未評')).join(' · ')+'</div></div></div>':'<div class="tip"><i>✓</i><div><b>'+a.date+'｜原有體能實測</b><div class="req">左腳 '+a.l+' 秒 · 右腳 '+a.r+' 秒 · 坐站 '+a.chair+' 次 · 傳球 '+a.pass+'/10</div><div class="req">'+(a.note||'')+'</div></div></div>').join('')+'</div>' : '<div class="empty">尚無評估紀錄</div>';
 
   // 進步追蹤
   document.getElementById("pg-sess").textContent = S.sessions.length;
@@ -1279,8 +1291,9 @@ function render(){
     `<div class="b"><div class="track"><span style="height:${m ? Math.max(6, Math.round(m/max*108)) : 0}px"></span></div>
      <div>週${"一二三四五六日"[i]}<br>${m} 分</div></div>`).join("");
 
-  const first = S.assessments[0], last = S.assessments[S.assessments.length-1];
-  if (S.assessments.length < 2){
+  const legacyAssessments=S.assessments.filter(a=>!a.baseball);
+  const first = legacyAssessments[0], last = legacyAssessments[legacyAssessments.length-1];
+  if (legacyAssessments.length < 2){
     document.getElementById("pg-cmp-pill").textContent = "還沒有第 2 次評估";
     document.getElementById("pg-cmp").innerHTML = `<div class="empty">先留下第一次評估，4 週後再測一次，就能看到前後差異。</div>`;
   } else {
@@ -1376,6 +1389,36 @@ function uploadVideo(){
   save(); render(); toast("已加入影片庫（待觀察）");
 }
 
+const BASEBALL_SKILLS=[["throw","傳球能力"],["catch","接球能力"],["hit","打擊能力"],["speed","跑壘速度"],["agility","敏捷反應"],["balance","身體協調"],["rules","棒球規則"],["tactics","戰術判斷"],["mental","心理素質"]];
+const BASEBALL_ROLE_SKILLS={pitcher:["控球穩定","投球節奏","牽制補位"],catcher:["接捕擋球","傳二壘","觸殺"],first:["接傳球踩壘","短彈跳處理","牽制接球"],second:["滾地球處理","雙殺轉傳","二壘補位"],third:["強勁滾地球","反應側移","長傳一壘"],shortstop:["左右移動","雙殺轉傳","守備站位"],outfield:["飛球判斷","回傳準確","中繼配合"],batter:["選球判斷","擊球穩定","揮棒控制"],runner:["起跑判斷","轉壘效率","滑壘技巧"]};
+function renderAssessmentFields(){
+ const box=document.getElementById("as-skill-fields"),role=document.getElementById("as-role-fields");if(!box||!role)return;
+ const field=(key,name)=>'<div><label for="as-skill-'+key+'">'+name+'</label><select id="as-skill-'+key+'" aria-label="'+name+'"><option value="">尚未評估</option>'+[1,2,3,4,5].map(n=>'<option value="'+n+'">'+n+' 分'+(['','｜初學','｜不穩定','｜基本掌握','｜穩定','｜熟練'][n])+'</option>').join('')+'</select></div>';
+ box.innerHTML=BASEBALL_SKILLS.map(([k,n])=>field(k,n)).join('');
+ role.innerHTML=(BASEBALL_ROLE_SKILLS[document.getElementById("as-role").value]||[]).map((n,i)=>field('role'+i,n)).join('');
+}
+function renderBaseballRadar(){
+ const el=document.getElementById("as-radar");if(!el)return;
+ const last=[...S.assessments].reverse().find(a=>a.baseball&&a.baseball.skills);
+ if(!last){el.innerHTML='<p class="req">完成第一次九大能力自評後，這裡會顯示雷達圖。</p>';return;}
+ const vals=BASEBALL_SKILLS.map(([k])=>Number(last.baseball.skills[k])||0);
+ const cx=180,cy=170,R=110,n=9,pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/n;return [cx+Math.cos(a)*r,cy+Math.sin(a)*r];};
+ const poly=v=>v.map((x,i)=>pt(i,R*x/5).join(',')).join(' ');
+ let svg='<svg viewBox="0 0 360 345" role="img" aria-label="九大能力自評雷達圖" style="width:100%;max-width:420px">';
+ for(let j=1;j<=5;j++)svg+='<polygon points="'+poly(Array(9).fill(j))+'" fill="none" stroke="#ccd7cd"/>';
+ BASEBALL_SKILLS.forEach((x,i)=>{let p=pt(i,R+24),q=pt(i,R);svg+='<line x1="180" y1="170" x2="'+q[0]+'" y2="'+q[1]+'" stroke="#d5dfd6"/><text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#334b3a">'+x[1].replace("能力","")+'</text>';});
+ svg+='<polygon points="'+poly(vals)+'" fill="#208b60" fill-opacity=".25" stroke="#208b60" stroke-width="2.5"/></svg>';
+ el.innerHTML='<h3>最近一次能力雷達圖</h3><p class="req">'+last.date+' · '+last.baseball.age+' · '+last.baseball.roleName+'（未填項目以 0 呈現）</p>'+svg;
+}
+function saveBaseballAssessment(){
+ const age=document.getElementById("as-age").value,role=document.getElementById("as-role").value;
+ const skills=Object.fromEntries(BASEBALL_SKILLS.map(([k])=>[k,document.getElementById("as-skill-"+k).value]));
+ if(!Object.values(skills).some(Boolean))return toast("請至少完成一項自評");
+ const roleScores=(BASEBALL_ROLE_SKILLS[role]||[]).map((name,i)=>({name,score:document.getElementById("as-skill-role"+i).value}));
+ S.assessments.push({date:new Date().toLocaleDateString("zh-TW"),baseball:{age,role,roleName:document.getElementById("as-role").selectedOptions[0].text,skills,roleScores}});
+ if(S.students[0])S.students[0].assessments=S.assessments.length;
+ save();render();toast("九大能力自評已儲存");
+}
 function saveAssessment(){
   const g = id => document.getElementById(id).value;
   if (!g("as-l") || !g("as-r")) return toast("至少填左右腳平衡");
