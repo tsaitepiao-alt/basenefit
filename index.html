@@ -1136,17 +1136,18 @@ function route(){
     const id=role?p.slice("analysis-".length):"pitcher";
     const videos=ANALYSIS_VIDEOS[id]||[];
     videoList.innerHTML='<div class="card" style="padding:14px;margin-bottom:12px"><strong>本位置學習重點</strong><p style="margin:8px 0 0">'+(ANALYSIS_SKILLS[id]||[]).join(' · ')+'</p></div>';
-    videoList.innerHTML+=videos.map(v=>{
+    videoList.innerHTML+='<div class="analysis-video-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px;align-items:start">'+videos.map(v=>{
       const match=v[1].match(/[?&]v=([a-zA-Z0-9_-]{11})/);
       const isSearch=v[1].includes('youtube.com/results?');
       const embedSrc=match?'https://www.youtube-nocookie.com/embed/'+match[1]+'?rel=0':v[1];
       const video=isSearch?'<p class="req">尚未找到可確認的慢動作影片</p>':match?'<div style="aspect-ratio:16/9;width:100%;max-width:900px;background:#111;border-radius:12px;overflow:hidden;margin:12px 0"><iframe title="'+v[0]+'" loading="lazy" src="'+embedSrc+'" allow="fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:0"></iframe></div>':'<p class="req">MLB 官方影片請點選下方連結觀看，避免顯示空白播放器。</p>';
       const note=(ANALYSIS_NOTES[id]||[])[videos.indexOf(v)];
       const explanation=id==='shortstop'?(note?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">'+note.map(x=>'<span style="padding:7px 12px;border-radius:20px;background:#e5f1db;color:#193b25;font-weight:700">✓ '+x+'</span>').join('')+'</div>':''):note?'<div style="margin:14px 0;padding:16px;border-radius:12px;background:#eef5e9;color:#193322"><strong>📝 中文動作重點講解</strong><p style="font-size:12px;margin:5px 0 10px">以下為教練式觀察提示，並非影片旁白或字幕的逐字翻譯。</p><ol style="padding-left:22px;margin:0">'+note.map(n=>'<li style="margin:6px 0">'+n+'</li>').join('')+'</ol><p style="font-size:12px;margin:10px 0 0">練習建議：先正常速度看一遍，再用 0.25× 或 0.5× 速度逐段觀察；避免直接模仿高強度投擲或滑壘。</p></div>':'';
-      const linkLabel=match?'▶ 開啟 YouTube 影片':(isSearch?'🔎 搜尋相關 MLB 影片':'▶ 開啟 MLB 官方影片');
-      const primaryLink='<a class="btn" href="'+v[1]+'" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:10px 0;background:#185d36;color:#fff;border-radius:10px;padding:10px 18px;text-decoration:none;font-weight:750">'+linkLabel+' ↗</a>';
-      return '<div class="card" style="padding:16px;margin-bottom:12px"><h3 style="margin:0 0 6px;font-size:17px">'+v[0]+'</h3><p class="req" style="margin:0">'+v[2]+'</p>'+primaryLink+'<details style="margin-top:6px"><summary style="cursor:pointer;font-weight:650;padding:8px 0">查看影片預覽與中文動作解析</summary>'+video+explanation+'</details></div>';
-    }).join('');
+      const cover=match?'https://img.youtube.com/vi/'+match[1]+'/hqdefault.jpg':null;
+      const visual=cover?'<img src="'+cover+'" alt="'+v[0]+' 影片縮圖" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">':'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 75%,#27734d 0%,#14503c 45%,#092b32 100%);color:#d8f6e8"><span style="font-size:42px">⚾</span><strong style="font-size:14px;letter-spacing:.08em">'+(isSearch?'BASEBALL VIDEO':'MLB OFFICIAL VIDEO')+'</strong></div>';
+      const tile='<a href="'+v[1]+'" target="_blank" rel="noopener noreferrer" aria-label="播放 '+v[0]+'" style="position:relative;display:block;width:100%;aspect-ratio:16/9;background:#0c3029;border-radius:12px;overflow:hidden;text-decoration:none;margin:10px 0 8px">'+visual+'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.76);border:2px solid white;color:white;font-size:29px;box-shadow:0 4px 20px #0008">▶</span><span style="position:absolute;bottom:0;left:0;right:0;padding:11px;background:linear-gradient(transparent,#000b);color:white;font-size:12px;font-weight:700">點選畫面觀看影片 ↗</span></a>';
+      return '<article class="card" style="padding:12px;min-width:0"><h3 style="margin:0 0 4px;font-size:15px;line-height:1.5">'+v[0]+'</h3><p class="req" style="margin:0">'+v[2]+'</p>'+tile+'<details><summary style="cursor:pointer;font-weight:650;padding:8px 0">中文動作解析</summary>'+explanation+'</details></article>';
+    }).join('')+'</div>';
   }
   document.querySelectorAll(".page").forEach(el => el.classList.toggle("show", el.id === "page-" + page));
   document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.page === (role ? p : page)));
