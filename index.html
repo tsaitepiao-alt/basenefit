@@ -347,6 +347,42 @@
   @keyframes tech-ambient{from{transform:translate3d(-3%,1%,0) rotate(-7deg)}to{transform:translate3d(4%,-3%,0) rotate(8deg)}}
   @media(prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
 
+
+  /* Dark cyber stadium palette: visual-only overrides */
+  :root{--bg:#07131b;--card:#11232c;--ink:#eaf6f4;--muted:#a2bdc2;--line:#2b4d56;--lime:#bdf45d;--lime-dark:#9acb41}
+  body{
+    color:var(--ink);background-color:#06121a;
+    background-image:
+      radial-gradient(ellipse 68% 60% at 88% 12%,rgba(0,207,191,.23),transparent 72%),
+      radial-gradient(ellipse 75% 65% at 18% 85%,rgba(75,130,255,.14),transparent 75%),
+      linear-gradient(130deg,#07121c 0%,#0a2029 53%,#06131d 100%);
+  }
+  body::before{
+    background-image:
+      linear-gradient(rgba(79,226,207,.15) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(79,226,207,.15) 1px,transparent 1px),
+      radial-gradient(circle,rgba(115,248,224,.34) 1px,transparent 2px);
+    opacity:.85;
+  }
+  body::after{
+    background:conic-gradient(from 35deg at 70% 45%,transparent 0deg,rgba(17,245,216,.14) 45deg,transparent 110deg,rgba(130,213,72,.09) 180deg,transparent 250deg);
+  }
+  .card{background:rgba(17,35,44,.94);border-color:rgba(101,222,206,.25);box-shadow:0 8px 32px rgba(0,0,0,.23),0 0 0 1px rgba(38,205,182,.045)}
+  .card:hover{border-color:rgba(101,222,206,.42)}
+  input,select,textarea{background-color:#142b34;color:#edf9f7;border-color:#3c6570}
+  input::placeholder,textarea::placeholder{color:#91a8ac}
+  .req,.lead{color:var(--muted)}
+  .tip,.stat{background-color:#17313a;border-color:#315660;color:var(--ink)}
+  .tip div,.stat div{color:inherit}
+  .disc{background-color:#173039;color:var(--ink);border-color:#315660}
+  th{background-color:#1c3841;color:#eaf6f4}
+  td{border-color:#34505a}
+  .empty{color:var(--muted)}
+  #as-baseball .req{color:var(--muted)}
+  #as-baseball svg text{fill:#c9e7df}
+  #as-baseball svg polygon[fill="none"],#as-baseball svg line{stroke:#52717a}
+  @media(prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
+
 </style>
 </head>
 <body>
