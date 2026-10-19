@@ -300,6 +300,53 @@
     .wrap{padding:18px;padding-top:22px}
     h1,.page-title{font-size:24px}
   }
+
+  /* Tech atmosphere — presentation only; no page content or interactions changed */
+  body{
+    background-color:#edf4f2;
+    background-image:
+      radial-gradient(ellipse 75% 55% at 92% 6%,rgba(64,203,185,.16),transparent 75%),
+      radial-gradient(ellipse 65% 65% at 5% 85%,rgba(145,202,88,.13),transparent 75%),
+      linear-gradient(125deg,#eef5f3 0%,#f5f8f4 48%,#e9f2f0 100%);
+    background-attachment:fixed;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(35,128,112,.065) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(35,128,112,.065) 1px,transparent 1px),
+      radial-gradient(circle,rgba(28,133,120,.15) 1px,transparent 1.7px);
+    background-size:42px 42px,42px 42px,84px 84px;
+    background-position:center center;
+    opacity:.75;
+    mask-image:linear-gradient(90deg,transparent 3%,#000 36%,#000 100%);
+    animation:tech-grid-drift 36s linear infinite;
+  }
+  body::after{
+    content:"";position:fixed;inset:-20%;pointer-events:none;z-index:0;
+    background:conic-gradient(from 35deg at 70% 45%,transparent 0deg,rgba(57,181,163,.055) 45deg,transparent 110deg,rgba(174,214,87,.05) 180deg,transparent 250deg);
+    filter:blur(32px);
+    animation:tech-ambient 24s ease-in-out infinite alternate;
+  }
+  .app{position:relative;z-index:1}
+  .side{
+    background-image:
+      radial-gradient(ellipse at 15% 5%,rgba(79,230,181,.12),transparent 48%),
+      repeating-linear-gradient(0deg,transparent 0 33px,rgba(129,235,191,.035) 34px 35px),
+      linear-gradient(160deg,#172623,#171c1c 58%,#1b211b);
+    border-right:1px solid rgba(113,230,189,.22);
+    box-shadow:6px 0 28px rgba(21,88,76,.11);
+  }
+  .side::before{
+    content:"";position:absolute;top:0;right:0;width:1px;height:100%;pointer-events:none;
+    background:linear-gradient(transparent,rgba(112,244,192,.7),transparent);
+    opacity:.6;
+  }
+  .card{box-shadow:0 8px 30px rgba(21,74,69,.055),0 1px 0 rgba(255,255,255,.6)}
+  @keyframes tech-grid-drift{from{background-position:0 0,0 0,0 0}to{background-position:42px 42px,42px 42px,84px 84px}}
+  @keyframes tech-ambient{from{transform:translate3d(-3%,1%,0) rotate(-7deg)}to{transform:translate3d(4%,-3%,0) rotate(8deg)}}
+  @media(prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
+
 </style>
 </head>
 <body>
