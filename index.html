@@ -419,6 +419,7 @@
             <a href="#/field3d" data-page="field3d" class="sub"><span class="mi">🏟</span><span class="nt"><b>3D互動規則教室</b><em>3D RULES</em></span></a>
             <a href="#/scroll3d" data-page="scroll3d" class="sub"><span class="mi">🎢</span><span class="nt"><b>3D互動球場</b><em>3D FIELD</em></span></a>
             <a href="#/tactics" data-page="tactics" class="sub"><span class="mi">⚔</span><span class="nt"><b>戰術小遊戲</b><em>TACTICS GAME</em></span></a>
+            <a href="#/homerun" data-page="homerun" class="sub"><span class="mi">🏟️</span><span class="nt"><b>3D全壘打挑戰</b><em>HOME RUN DERBY</em></span></a>
           </div>
         </div>
 
@@ -1011,6 +1012,8 @@
       </section>
 
       <!-- ========== 棒球戰術小遊戲 ========== -->
+      <section class="page" id="page-homerun"><div class="eyebrow">HOME RUN DERBY</div><h2 class="page-title">⚾ 3D 全壘打挑戰</h2><p class="lead">掌握投球時機、精準揮棒，挑戰十球全壘打！手機點畫面或按揮棒鍵即可操作。</p><iframe title="3D 全壘打挑戰" src="assets/homerun/index.html?v=1" loading="lazy" allow="fullscreen" style="width:100%;height:min(88vh,850px);min-height:580px;border:0;border-radius:16px;background:#061b31"></iframe></section>
+
       <section class="page" id="page-tactics">
         <div class="eyebrow">TACTICS GAME</div>
         <h2 class="page-title">棒球戰術小遊戲</h2>
@@ -1192,7 +1195,7 @@ const ANALYSIS_NOTES={"pitcher":[["觀察抬腿時軸心腳如何維持平衡","
 const ANALYSIS_SKILLS={"pitcher":["投球機制","軸心腳平衡","跨步與出手"],"catcher":["接捕與擋球","傳二壘","觸殺"],"first":["接傳球與踩壘","牽制","一壘撲接"],"second":["二壘補位","雙殺轉傳","滾地球腳步"],"third":["強勁滾地球","側移反應","長傳"],"shortstop":["左右移動","接球轉傳","6-4-3雙殺"],"outfield":["飛球判斷","長傳","中繼"],"batter":["站姿","揮棒路徑","擊球收棒"],"runner":["離壘起跑","盜壘","滑壘"]};
 const ANALYSIS_ROLES={"analysis-pitcher":{"name":"投手","en":"PITCHER","desc":"投球動作、重心轉移、出手點與補位"},"analysis-catcher":{"name":"捕手","en":"CATCHER","desc":"接捕、擋球、傳二壘與觸殺"},"analysis-first":{"name":"一壘手","en":"FIRST BASE","desc":"接傳球、踩壘、牽制與補位"},"analysis-second":{"name":"二壘手","en":"SECOND BASE","desc":"接滾地球、轉傳與雙殺補位"},"analysis-third":{"name":"三壘手","en":"THIRD BASE","desc":"反應接球、強勁滾地球與傳一壘"},"analysis-shortstop":{"name":"遊擊手","en":"SHORTSTOP","desc":"左右移動、正面接球與6-4-3雙殺"},"analysis-outfield":{"name":"外野手","en":"OUTFIELDER","desc":"飛球判斷、落點追蹤、接球與回傳"},"analysis-batter":{"name":"打擊手","en":"BATTER","desc":"站姿、跨步、揮棒、擊球與收棒"},"analysis-runner":{"name":"跑壘員","en":"BASERUNNER","desc":"起跑、離壘、轉彎、滑壘與回壘"}};
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
-                diagrams:"圖解教室", field3d:"3D互動規則教室", scroll3d:"3D互動球場", tactics:"戰術小遊戲", analysis:"動作解析", english:"棒球英文", "english-quiz":"棒球英文考試", quiz:"棒球小考",
+                diagrams:"圖解教室", field3d:"3D互動規則教室", scroll3d:"3D互動球場", tactics:"戰術小遊戲", homerun:"3D全壘打挑戰", analysis:"動作解析", english:"棒球英文", "english-quiz":"棒球英文考試", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
