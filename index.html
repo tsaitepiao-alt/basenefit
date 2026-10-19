@@ -748,14 +748,7 @@
 
         <div class="card">
           <div class="hrow"><h2>投球：六階段分解</h2><span class="pill">PITCHING</span></div>
-          <div style="display:flex;justify-content:center;margin:12px 0">
-            <video controls playsinline preload="metadata" poster="assets/pitching-poster.jpg"
-                   style="width:100%;max-width:400px;aspect-ratio:720/1280;border-radius:14px;background:#000;border:1px solid var(--line)">
-              <source src="assets/pitching-zh-final.mp4" type="video/mp4">
-              你的瀏覽器不支援影片播放，<a href="assets/pitching-zh-final.mp4">點此下載</a>。
-            </video>
-          </div>
-          <p class="req" style="margin:0 0 10px"><b>中文旁白分解（33 秒）</b>：軀幹不是「用力轉」，而是<b>先往目標送、再讓它轉</b>。</p>
+
           <div class="medibox" id="mb-ytPitch"></div>
           <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作），搭配下面四個重點一起看。</p>
           <ul class="keys">
@@ -1343,7 +1336,13 @@ function route(){
   const rolePanel=document.getElementById("analysis-role-panel");
   if(rolePanel){
     rolePanel.style.display=role?"block":"none";
-    if(role)rolePanel.innerHTML='<div class="card" style="background:#f3f8ec;border-color:#b9d69b"><div class="eyebrow">'+role.en+'</div><h2 style="font-size:25px;margin:8px 0">'+role.name+'｜MLB 慢動作影片</h2><p class="lead" style="margin:0">觀看重點：'+role.desc+'</p></div>';
+    if(role){
+      rolePanel.innerHTML='<div class="card" style="background:#f3f8ec;border-color:#b9d69b"><div class="eyebrow">'+role.en+'</div><h2 style="font-size:25px;margin:8px 0">'+role.name+'｜MLB 慢動作影片</h2><p class="lead" style="margin:0">觀看重點：'+role.desc+'</p></div>';
+      // 只有投手加中文旁白分解影片；其他野手／打擊手不加
+      if(p==='analysis-pitcher'){
+        rolePanel.innerHTML+='<div class="card" style="margin-top:14px;padding:16px"><h2 style="font-size:19px;margin:0 0 10px">投球：先送、再轉（中文旁白分解）</h2><div style="display:flex;justify-content:center"><video controls playsinline preload="metadata" poster="assets/pitching-poster.jpg" style="width:100%;max-width:400px;aspect-ratio:720/1280;border-radius:14px;background:#000;border:1px solid var(--line)"><source src="assets/pitching-zh-final.mp4" type="video/mp4">你的瀏覽器不支援影片播放。</video></div><p class="req" style="margin:10px 0 0">軀幹不是「用力轉」，而是<b>先往目標送、再讓它轉</b>。</p></div>';
+      }
+    }
   }
   const videoList=document.getElementById("analysis-video-list");
   if(videoList){
