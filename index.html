@@ -239,6 +239,8 @@
   .uprole input{display:none}
   .yt{position:relative;padding-top:56.25%;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
   .yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .ytv{max-width:360px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000}
+  .ytv video{width:100%;display:block}
   .credit{font-size:11px;color:#8b8f86;line-height:1.8;margin-top:8px}
   .photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
   @media(max-width:900px){ .photo-grid{grid-template-columns:1fr} }
@@ -2403,7 +2405,7 @@ const SLOTS = {
   ready:  {label:"＋ 上傳守備預備姿勢照片"},
   ground: {label:"＋ 上傳接滾地球照片"},
   ytPitch:{type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）"},
-  ytHit:  {type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）"},
+  ytHit:  {type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）", def:"assets/videos/hitting-drill-63s.mp4"},
   ytField:{type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）"},
 };
 
@@ -2419,7 +2421,11 @@ function mediaHTML(key){
 }
 
 function ytHTML(key){
-  const cfg = SLOTS[key], v = (S.media || {})[key];
+  const cfg = SLOTS[key], own = (S.media || {})[key], v = own || cfg.def;
+  if (v && /\.(mp4|webm|mov)(\?|$)/i.test(v)) {
+    const rm = own ? `<p class="req" style="margin:8px 0 0">已使用自訂影片　<button class="btn ghost sm" onclick="removeMedia('${key}')">移除影片</button></p>` : "";
+    return `<div class="ytv"><video src="${v}" controls playsinline preload="metadata"></video></div>${rm}`;
+  }
   if (v) return `<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${v}" title="YouTube 影片" loading="lazy" allowfullscreen></iframe></div>
     <p class="req" style="margin:8px 0 0">已嵌入影片　<button class="btn ghost sm" onclick="removeMedia('${key}')">移除影片</button></p>`;
   return `<div class="uprole" onclick="askYt('${key}')">${cfg.label || "＋ 貼 YouTube 影片連結"}</div>`;
