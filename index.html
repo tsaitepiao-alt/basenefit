@@ -737,25 +737,87 @@
 
       <!-- ========== 6. 動作解析：MLB慢動作影片庫 ========== -->
       <section class="page" id="page-analysis">
-        <div class="eyebrow">MLB SLOW MOTION LIBRARY</div>
-        <h2 class="page-title">MLB 職業球員慢動作解析</h2>
+        <div id="analysis-role-panel" class="card" style="display:none;border-color:#b9d69b;background:#f3f8ec"></div>
+        <div class="eyebrow">PRO FORM BREAKDOWN</div>
+        <h2 class="page-title">把職業級動作，拆成看得懂的步驟。</h2>
+        <p class="lead">投、打、守三類動作的重點整理，搭配官方影片一起看；圖解與 3D 軌跡解析在左側「圖解教室」「3D 互動學習」。</p>
 
-        <div class="card" style="margin-bottom:18px">
-          <div class="hrow"><h2>投球：先送、再轉</h2><span class="pill">PITCHING</span></div>
-          <div style="display:flex;justify-content:center;margin-bottom:12px">
+        <div class="disc"><b>為什麼不放職棒球員的照片？</b>因為照片本身有著作權，<b>把臉打馬賽克或 P 圖並不能解除</b>，而且公開展示還可能涉及肖像權。合法做法有三種：<b>① 貼官方 YouTube 影片</b>（上面每張卡片都能貼）<b>② 使用開放授權的照片</b>（本站已用 Wikimedia Commons 的 CC 授權照片並標註來源）<b>③ 上傳你自己的照片</b>（圖解教室每張圖都能「＋ 換成你的照片」）。</div>
+
+        <div class="card">
+          <div class="hrow"><h2>投球：六階段分解</h2><span class="pill">PITCHING</span></div>
+          <div style="display:flex;justify-content:center;margin:12px 0">
             <video controls playsinline preload="metadata" poster="assets/pitching-poster.jpg"
                    style="width:100%;max-width:400px;aspect-ratio:720/1280;border-radius:14px;background:#000;border:1px solid var(--line)">
               <source src="assets/pitching-zh-final.mp4" type="video/mp4">
               你的瀏覽器不支援影片播放，<a href="assets/pitching-zh-final.mp4">點此下載</a>。
             </video>
           </div>
-          <p class="req" style="margin:0 0 8px"><b>中文旁白分解（33 秒）</b>：軀幹不是「用力轉」，而是<b>先往目標送、再讓它轉</b>。看完再往下對照職業球員的慢動作。</p>
-          <p class="credit">原片：<b>@TOPVELOCITY</b>（已移除原片片尾廣告）｜中文字幕、旁白與剪輯：basenefit 整理</p>
+          <p class="req" style="margin:0 0 10px"><b>中文旁白分解（33 秒）</b>：軀幹不是「用力轉」，而是<b>先往目標送、再讓它轉</b>。</p>
+          <div class="medibox" id="mb-ytPitch"></div>
+          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作），搭配下面四個重點一起看。</p>
+          <ul class="keys">
+            <li><b>力量來自下半身</b>：不是手臂用力，是「後腳推、胯部轉」帶動上半身。</li>
+            <li><b>出手點固定</b>：每次都在同一個位置放球，控球才會穩。</li>
+            <li><b>收尾要完整</b>：隨勢做完再站起來，避免手肘硬撐。</li>
+            <li><b>不要急</b>：抬腿時重心留在後腳，先穩住再往前。</li>
+          </ul>
+          <div style="margin-top:12px"><button class="btn ghost sm" onclick="go('#/pitch')">🎯 看投球 3D 軌跡解析</button></div>
         </div>
-        <p class="lead">從左側選擇守備位置，觀看已找到的 YouTube 慢動作影片；尚未確認有合適影片的位置只提供 YouTube 搜尋入口，不放不相關的舊教材。</p>
-        <div id="analysis-role-panel"></div>
-        <div id="analysis-video-list"></div>
-        <p class="req">影片屬於原發布者，本站僅提供 YouTube 原始連結；是否可播放及是否包含慢動作，以影片實際內容為準。</p>
+
+        <div class="card">
+          <div class="hrow"><h2>打擊：五階段分解</h2><span class="pill">HITTING</span></div>
+          <div class="medibox" id="mb-ytHit"></div>
+          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作），搭配下面四個重點一起看。</p>
+          <ul class="keys">
+            <li><b>髖先動、手最後</b>：用身體轉，不是用手拉。</li>
+            <li><b>眼睛跟到最後</b>：頭不要跟著球轉開，視線留在擊球點。</li>
+            <li><b>擊球點在前腳內側</b>：太晚打會被擠壓、太早打會拉到界外。</li>
+            <li><b>收棒別斷</b>：延伸做完，棒子繞到背後。</li>
+          </ul>
+          <div style="margin-top:12px"><button class="btn ghost sm" onclick="go('#/hitting')">🏏 看打擊 3D 軌跡解析</button></div>
+        </div>
+
+        <div class="card">
+          <div class="hrow"><h2>打擊：棒頭路徑「垂直 vs 平」</h2><span class="pill">BAT PATH</span></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;align-items:start">
+            <div style="position:relative;width:100%;max-width:360px;aspect-ratio:9/16;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000">
+              <iframe src="https://www.instagram.com/reel/DcMrr-uif-2/embed/" title="棒頭路徑：垂直 vs 平（Eric Kozak）" loading="lazy" scrolling="no" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
+            </div>
+            <div>
+              <p class="req" style="margin-top:0">同一顆球，<b>棒頭從哪裡進來</b>，決定你要「修多少方向」。這支影片用餵球機把兩種棒頭路徑放在一起對照。</p>
+              <ul class="keys">
+                <li><b>陡（垂直）路徑</b>：擊球窗口窄，一旦投球的<b>水平進壘角（HAA）</b>改變，就必須大幅修正揮棒方向才能打到球 → <b>容錯低</b>。</li>
+                <li><b>平的路徑</b>：棒頭與球的來向更接近，需要修正的方向少 → 比較好「跟到底」、也比較能打反方向。</li>
+                <li><b>影片對照</b>：⬆️ 開角（open angle）餵球 → 打<b>反方向（oppo）</b>；⬇️ 閉角（closed angle）→ 打<b>拉打（pull-side）</b>。</li>
+                <li><b>怎麼練</b>：用發球機或請教練餵「內角／外角」兩條線，刻意用<b>同一種棒頭路徑</b>打兩個方向，體會修正量的差別；再拍影片對照（上傳到「動作影片」請教練逐格看）。</li>
+              </ul>
+              <p class="credit">影片：Eric Kozak（@erickozak）Instagram ｜ 原文字幕重點：<i>vertical vs flat bat path — a more vertical path has to make a more significant adjustment to the swing direction to adjust to the HAA of the pitch</i> ｜ 中文重點整理：basenefit</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hrow"><h2>守備：四階段分解</h2><span class="pill">FIELDING</span></div>
+          <div class="medibox" id="mb-ytField"></div>
+          <p class="req" style="margin:0 0 10px">上面可以貼<b>官方 YouTube 影片</b>（真人慢動作），搭配下面四個重點一起看。</p>
+          <ul class="keys">
+            <li><b>先踏第一步</b>：球一被打到，腳比手先動。</li>
+            <li><b>正面接、手握緊</b>：手套放在鼻子前方，用兩隻手收球。</li>
+            <li><b>接完就墊步</b>：右腳先踩、身體朝傳球方向再出手。</li>
+            <li><b>傳平不傳高</b>：胸口高度的平球最快也最好接。</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2 style="margin-bottom:8px">怎麼自己練（用手機就夠）</h2>
+          <ul class="keys">
+            <li><b>鏡子前空揮</b>：慢動作做分解，一邊看鏡子對照上面的圖。</li>
+            <li><b>毛巾甩動</b>：手上有「甩」的感覺，投球才有尾勁。</li>
+            <li><b>定格練習</b>：在每一格停 3 秒，感受身體的位置，再串起來。</li>
+            <li><b>拍影片對照</b>：上傳到「動作影片」，請教練逐格看。</li>
+          </ul>
+        </div>
       </section>
 
 <section class="page" id="page-english"><div class="eyebrow">BASEBALL ENGLISH</div><h2 class="page-title">⚾ 棒球英文圖文教室</h2><p class="lead">棒球場上的人物、位置、設施、裝備、動作與規則：中英文對照。點圖文卡片聽英文發音，學完直接考拼字。</p><div class="card"><h2>🏟️ 守備位置圖｜Field positions</h2><svg viewBox="0 0 520 370" aria-label="棒球場守備位置示意圖" style="width:100%;max-width:640px;background:#dbead8;border-radius:14px"><path d="M260 350 L35 125 Q260 -80 485 125 Z" fill="#7aaa70" stroke="white" stroke-width="4"/><path d="M260 340 L155 240 L260 135 L365 240 Z" fill="#b98454" stroke="white" stroke-width="3"/><g text-anchor="middle" font-size="15" font-weight="bold" fill="#102a1c"><text x="120" y="105">LF 左外野</text><text x="260" y="52">CF 中外野</text><text x="400" y="105">RF 右外野</text><text x="200" y="175">SS 游擊</text><text x="322" y="175">2B 二壘手</text><text x="110" y="253">3B 三壘手</text><text x="410" y="253">1B 一壘手</text><text x="260" y="255">P 投手</text><text x="260" y="365">C 捕手</text></g></svg><p class="req">示意圖供認識守備位置使用，非實際球員站位比例。</p></div><div class="card" style="display:flex;flex-wrap:wrap;gap:10px"><input id="eng-search" placeholder="搜尋中英文單字" oninput="renderEnglish()" style="flex:1;min-width:160px;padding:12px;border-radius:8px;border:1px solid #aaa"><select id="eng-category" onchange="renderEnglish()" style="padding:12px;border-radius:8px"><option value="all">全部分類</option></select><button class="btn lime" onclick="go('#/english-quiz')">📝 英文拼字考試</button></div><p id="eng-count" class="req"></p><div id="eng-list"></div></section>
