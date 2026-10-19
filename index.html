@@ -2424,7 +2424,7 @@ function ytHTML(key){
   const cfg = SLOTS[key], own = (S.media || {})[key], v = own || cfg.def;
   if (v && /\.(mp4|webm|mov)(\?|$)/i.test(v)) {
     const rm = own ? `<p class="req" style="margin:8px 0 0">已使用自訂影片　<button class="btn ghost sm" onclick="removeMedia('${key}')">移除影片</button></p>` : "";
-    return `<div class="ytv"><video src="${v}" controls playsinline preload="metadata"></video></div>${rm}`;
+    return `<div class="ytv"><video src="${v}" poster="${v.replace(/\.[^.]+$/, "")}-poster.jpg" controls playsinline preload="none"></video></div>${rm}`;
   }
   if (v) return `<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${v}" title="YouTube 影片" loading="lazy" allowfullscreen></iframe></div>
     <p class="req" style="margin:8px 0 0">已嵌入影片　<button class="btn ghost sm" onclick="removeMedia('${key}')">移除影片</button></p>`;
