@@ -300,6 +300,96 @@
     .wrap{padding:18px;padding-top:22px}
     h1,.page-title{font-size:24px}
   }
+
+  /* Tech atmosphere — presentation only; no page content or interactions changed */
+  body{
+    background-color:#edf4f2;
+    background-image:
+      radial-gradient(ellipse 75% 55% at 92% 6%,rgba(64,203,185,.16),transparent 75%),
+      radial-gradient(ellipse 65% 65% at 5% 85%,rgba(145,202,88,.13),transparent 75%),
+      linear-gradient(125deg,#eef5f3 0%,#f5f8f4 48%,#e9f2f0 100%);
+    background-attachment:fixed;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(35,128,112,.065) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(35,128,112,.065) 1px,transparent 1px),
+      radial-gradient(circle,rgba(28,133,120,.15) 1px,transparent 1.7px);
+    background-size:42px 42px,42px 42px,84px 84px;
+    background-position:center center;
+    opacity:.75;
+    mask-image:linear-gradient(90deg,transparent 3%,#000 36%,#000 100%);
+    animation:tech-grid-drift 36s linear infinite;
+  }
+  body::after{
+    content:"";position:fixed;inset:-20%;pointer-events:none;z-index:0;
+    background:conic-gradient(from 35deg at 70% 45%,transparent 0deg,rgba(57,181,163,.055) 45deg,transparent 110deg,rgba(174,214,87,.05) 180deg,transparent 250deg);
+    filter:blur(32px);
+    animation:tech-ambient 24s ease-in-out infinite alternate;
+  }
+  .app{position:relative;z-index:1}
+  .side{
+    background-image:
+      radial-gradient(ellipse at 15% 5%,rgba(79,230,181,.12),transparent 48%),
+      repeating-linear-gradient(0deg,transparent 0 33px,rgba(129,235,191,.035) 34px 35px),
+      linear-gradient(160deg,#172623,#171c1c 58%,#1b211b);
+    border-right:1px solid rgba(113,230,189,.22);
+    box-shadow:6px 0 28px rgba(21,88,76,.11);
+  }
+  .side::before{
+    content:"";position:absolute;top:0;right:0;width:1px;height:100%;pointer-events:none;
+    background:linear-gradient(transparent,rgba(112,244,192,.7),transparent);
+    opacity:.6;
+  }
+  .card{box-shadow:0 8px 30px rgba(21,74,69,.055),0 1px 0 rgba(255,255,255,.6)}
+  @keyframes tech-grid-drift{from{background-position:0 0,0 0,0 0}to{background-position:42px 42px,42px 42px,84px 84px}}
+  @keyframes tech-ambient{from{transform:translate3d(-3%,1%,0) rotate(-7deg)}to{transform:translate3d(4%,-3%,0) rotate(8deg)}}
+  @media(prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
+
+
+  /* Ocean-blue light theme — CSS only, original content untouched */
+  :root{--bg:#edf8fd;--card:#ffffff;--ink:#153449;--muted:#57788c;--line:#c8e2ee;--lime:#bce86a;--lime-dark:#98c84c}
+  body{
+    color:var(--ink);background-color:#e9f6fc;
+    background-image:
+      radial-gradient(ellipse 76% 56% at 91% 8%,rgba(64,185,228,.27),transparent 73%),
+      radial-gradient(ellipse 68% 72% at 8% 90%,rgba(64,150,217,.17),transparent 75%),
+      linear-gradient(125deg,#e6f5fc 0%,#f5fbff 47%,#e1f1fb 100%);
+  }
+  body::before{
+    background-image:
+      linear-gradient(rgba(26,133,190,.105) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(26,133,190,.105) 1px,transparent 1px),
+      radial-gradient(circle,rgba(26,148,207,.25) 1px,transparent 2px);
+    opacity:.8;
+  }
+  body::after{
+    background:conic-gradient(from 35deg at 70% 45%,transparent 0deg,rgba(31,172,229,.12) 45deg,transparent 110deg,rgba(76,206,218,.1) 180deg,transparent 250deg);
+  }
+  .side{
+    background-image:
+      radial-gradient(ellipse at 15% 5%,rgba(79,205,255,.17),transparent 48%),
+      repeating-linear-gradient(0deg,transparent 0 33px,rgba(96,210,255,.045) 34px 35px),
+      linear-gradient(160deg,#0d3048,#10283f 58%,#092c44);
+    border-right:1px solid rgba(105,214,255,.28);
+    box-shadow:6px 0 28px rgba(14,91,145,.12);
+  }
+  .side::before{background:linear-gradient(transparent,rgba(110,225,255,.85),transparent)}
+  .card{background:rgba(255,255,255,.95);border-color:#cce5f1;box-shadow:0 9px 30px rgba(24,107,157,.09),0 1px 0 rgba(255,255,255,.8)}
+  .card:hover{border-color:#9ad2ed}
+  input,select,textarea{background-color:#fff;color:#153449;border-color:#badbe9}
+  input::placeholder,textarea::placeholder{color:#7796a7}
+  .req,.lead{color:var(--muted)}
+  .tip,.stat{background-color:#f0f9fd;border-color:#c8e2ee;color:var(--ink)}
+  .disc{background-color:#e9f6fc;color:var(--ink);border-color:#c8e2ee}
+  th{background-color:#e7f3fa;color:#153449}
+  td{border-color:#d2e5ed}
+  .empty{color:var(--muted)}
+  #as-baseball .req{color:var(--muted)}
+  #as-baseball svg text{fill:#315c72}
+  #as-baseball svg polygon[fill="none"],#as-baseball svg line{stroke:#b2d0dd}
+  @media(prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
 </style>
 </head>
 <body>
@@ -329,6 +419,7 @@
             <a href="#/field3d" data-page="field3d" class="sub"><span class="mi">🏟</span><span class="nt"><b>3D互動規則教室</b><em>3D RULES</em></span></a>
             <a href="#/scroll3d" data-page="scroll3d" class="sub"><span class="mi">🎢</span><span class="nt"><b>3D互動球場</b><em>3D FIELD</em></span></a>
             <a href="#/tactics" data-page="tactics" class="sub"><span class="mi">⚔</span><span class="nt"><b>戰術小遊戲</b><em>TACTICS GAME</em></span></a>
+            <a href="#/homerun" data-page="homerun" class="sub"><span class="mi">🏟️</span><span class="nt"><b>3D全壘打挑戰</b><em>HOME RUN DERBY</em></span></a>
           </div>
         </div>
 
@@ -566,27 +657,20 @@
       <!-- ========== 3. 能力評估 ========== -->
       <section class="page" id="page-assessment">
         <div class="eyebrow">BUILD YOUR BASELINE</div>
-        <h2 class="page-title">先留下你的第一次評估</h2>
-        <p class="lead">三項簡單測試，記錄你現在的起點。之後每 4 週再測一次，就能看到變化。</p>
-        <div class="grid2">
-          <div class="card">
-            <div class="grid3">
-              <div><label>左腳平衡（秒）</label><input type="number" id="as-l" min="0" step="0.1" placeholder="0"></div>
-              <div><label>右腳平衡（秒）</label><input type="number" id="as-r" min="0" step="0.1" placeholder="0"></div>
-              <div><label>30 秒椅子坐站（次）</label><input type="number" id="as-chair" min="0" placeholder="0"></div>
-            </div>
-            <label>10 次目標傳球命中（次）</label>
-            <input type="number" id="as-pass" min="0" max="10" placeholder="0">
-            <label>測試條件與教練觀察</label>
-            <textarea id="as-note" placeholder="例如：赤腳、客廳地板、下午時段。左腳明顯比右腳不穩。"></textarea>
-            <div style="margin-top:14px"><button class="btn lime" onclick="saveAssessment()">儲存本次評估</button></div>
+        <h2 class="page-title">棒球能力自我評估</h2>
+        <p class="lead">依年齡及守備位置完成九大能力自評，保留每次紀錄，觀察自己的進步。</p>
+        <div class="card" id="as-baseball">
+          <h2>⚾ 棒球九大能力自評</h2>
+          <p class="req">每項 1–5 分：1 初學、2 尚不穩定、3 基本掌握、4 穩定、5 熟練。這是自我觀察，不代表正式技術檢定。</p>
+          <div class="grid2" style="margin:12px 0">
+            <div><label for="as-age">年齡組別</label><select id="as-age"><option>U8</option><option>U10</option><option selected>U12</option><option>U15</option><option>U18</option><option>成人</option></select></div>
+            <div><label for="as-role">主要守備位置</label><select id="as-role" onchange="renderAssessmentFields()"><option value="pitcher">投手</option><option value="catcher">捕手</option><option value="first">一壘手</option><option value="second">二壘手</option><option value="third">三壘手</option><option value="shortstop">游擊手</option><option value="outfield">外野手</option><option value="batter">打擊</option><option value="runner">跑壘</option></select></div>
           </div>
-          <div class="card">
-            <h2 style="margin-bottom:6px">一致，比數字重要</h2>
-            <div class="tip"><i>·</i><div>同樣的鞋子、同樣的地面、同樣的時段，數字才可比。</div></div>
-            <div class="tip"><i>·</i><div>這不是排名，是「你自己的基準線」。</div></div>
-            <div class="tip"><i>·</i><div>只跟自己比：4 週後再測一次同一組。</div></div>
-          </div>
+          <div id="as-skill-fields" class="grid2"></div>
+          <h3 style="margin:16px 0 8px">位置專屬能力</h3><div id="as-role-fields" class="grid2"></div>
+          <div style="margin-top:14px"><button class="btn lime" onclick="saveBaseballAssessment()">儲存九大能力自評</button></div>
+          <div id="as-radar" style="margin-top:16px"></div>
+          <p class="req">建議每四週評估一次；規則與戰術可搭配本站測驗，傳接打跑等能力請以教練實測補充。不同年齡與測驗條件不直接排名。</p>
         </div>
         <div class="card">
           <div class="hrow"><h2>評估紀錄</h2><span class="pill" id="as-count">0 筆</span></div>
@@ -739,7 +823,7 @@
       <!-- ========== 6. 動作解析：MLB慢動作影片庫 ========== -->
       <section class="page" id="page-analysis">
         <div id="analysis-role-panel" class="card" style="display:none;border-color:#b9d69b;background:#f3f8ec"></div>
-        <div class="eyebrow">PRO FORM BREAKDOWN</div>
+        <div id="analysis-general-content"><div class="eyebrow">PRO FORM BREAKDOWN</div>
         <h2 class="page-title">把職業級動作，拆成看得懂的步驟。</h2>
         <p class="lead">投、打、守三類動作的重點整理，搭配官方影片一起看；圖解與 3D 軌跡解析在左側「圖解教室」「3D 互動學習」。</p>
 
@@ -812,6 +896,9 @@
             <li><b>拍影片對照</b>：上傳到「動作影片」，請教練逐格看。</li>
           </ul>
         </div>
+        </div>
+        <div id="analysis-video-list"></div>
+
       </section>
 
 <section class="page" id="page-english"><div class="eyebrow">BASEBALL ENGLISH</div><h2 class="page-title">⚾ 棒球英文圖文教室</h2><p class="lead">棒球場上的人物、位置、設施、裝備、動作與規則：中英文對照。點圖文卡片聽英文發音，學完直接考拼字。</p><div class="card"><h2>🏟️ 守備位置圖｜Field positions</h2><svg viewBox="0 0 520 370" aria-label="棒球場守備位置示意圖" style="width:100%;max-width:640px;background:#dbead8;border-radius:14px"><path d="M260 350 L35 125 Q260 -80 485 125 Z" fill="#7aaa70" stroke="white" stroke-width="4"/><path d="M260 340 L155 240 L260 135 L365 240 Z" fill="#b98454" stroke="white" stroke-width="3"/><g text-anchor="middle" font-size="15" font-weight="bold" fill="#102a1c"><text x="120" y="105">LF 左外野</text><text x="260" y="52">CF 中外野</text><text x="400" y="105">RF 右外野</text><text x="200" y="175">SS 游擊</text><text x="322" y="175">2B 二壘手</text><text x="110" y="253">3B 三壘手</text><text x="410" y="253">1B 一壘手</text><text x="260" y="255">P 投手</text><text x="260" y="365">C 捕手</text></g></svg><p class="req">示意圖供認識守備位置使用，非實際球員站位比例。</p></div><div class="card" style="display:flex;flex-wrap:wrap;gap:10px"><input id="eng-search" placeholder="搜尋中英文單字" oninput="renderEnglish()" style="flex:1;min-width:160px;padding:12px;border-radius:8px;border:1px solid #aaa"><select id="eng-category" onchange="renderEnglish()" style="padding:12px;border-radius:8px"><option value="all">全部分類</option></select><button class="btn lime" onclick="go('#/english-quiz')">📝 英文拼字考試</button></div><p id="eng-count" class="req"></p><div id="eng-list"></div></section>
@@ -925,6 +1012,18 @@
       </section>
 
       <!-- ========== 棒球戰術小遊戲 ========== -->
+      <section class="page" id="page-homerun">
+        <div class="eyebrow">HOME RUN DERBY</div>
+        <h2 class="page-title">⚾ 3D 全壘打挑戰</h2>
+        <div class="card" style="min-height:340px;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(145deg,#eaf8ff,#d8effb);border:1px solid #b3dbef">
+          <div style="padding:36px 18px;color:#15527b">
+            <div style="font-size:62px;line-height:1.3">⚾</div>
+            <h2 style="font-size:clamp(26px,5vw,40px);margin:14px 0;color:#15527b">建構中，敬請期待</h2>
+            <p style="font-size:15px;color:#537f98;margin:0">3D 全壘打挑戰 · HOME RUN DERBY</p>
+          </div>
+        </div>
+      </section>
+
       <section class="page" id="page-tactics">
         <div class="eyebrow">TACTICS GAME</div>
         <h2 class="page-title">棒球戰術小遊戲</h2>
@@ -1103,9 +1202,10 @@ function startEnglishQuiz(){engSetup();const cat=document.getElementById('eng-qu
 function gradeEnglishQuiz(){if(!engExam.length)return;const inputs=[...document.querySelectorAll('#eng-quiz-questions .eng-answer')];let good=0;engExam.forEach((w,i)=>{const norm=x=>x.toLowerCase().replace(/[^a-z0-9]/g,'');const ok=norm(inputs[i].value)===norm(w.en);if(ok)good++;inputs[i].disabled=true;const f=inputs[i].parentElement.querySelector('.eng-feedback');f.style.color=ok?'green':'#ad3e24';f.textContent=ok?'✓ 正確':'✗ 正解：'+w.en});const score=Math.round(good/engExam.length*100);document.getElementById('eng-quiz-result').innerHTML='<div class="card"><h2>成績：'+score+' 分（'+good+'/'+engExam.length+'）</h2><button class="btn lime" onclick="startEnglishQuiz()">再考一次</button></div>';try{localStorage.setItem('basenefit-english-last',JSON.stringify({score,date:new Date().toISOString()}))}catch(e){}}
 const ANALYSIS_VIDEOS={"pitcher":[["大谷翔平｜投球慢動作（第三壘側）","https://www.youtube.com/watch?v=GG7hrx9Dn4U","YouTube · Paradigm Pitching"],["山本由伸｜投球慢動作（一壘側）","https://www.youtube.com/watch?v=mDM3cMmFmic","YouTube · Paradigm Pitching"],["山本由伸｜投球慢動作（另一角度）","https://www.youtube.com/watch?v=ujGSpUgxjHc","YouTube · Paradigm Pitching"]],"catcher":[["J.T. Realmuto｜捕手傳球慢動作","https://www.youtube.com/watch?v=JQMtMDLR7qI","YouTube · Grand Slam Baseball"]],"first":[["Freddie Freeman｜一壘守備動作解析（MLB 官方）","https://www.mlb.com/es/video/mlb-central-on-first-base-defense","MLB 官方 · 守備動作解析"],["Freddie Freeman｜一壘撲接守備","https://www.mlb.com/rays/video/freddie-freeman-s-sprawling-play","MLB 官方 · 比賽守備示範"]],"second":[["Dustin Pedroia｜二壘雙殺轉傳示範","https://www.mlb.com/video/pedroia-demos-skill-at-second-c1243315083","MLB 官方 · 雙殺技術教學"],["二壘補位與雙殺腳步教學","https://www.mlb.com/video/covering-second-base-demo","MLB Network · 守備示範"]],"third":[["Nolan Arenado｜三壘接滾地球慢動作","https://www.mlb.com/cardinals/video/nolan-arenado-s-slo-mo-form","MLB 官方 · 確認慢動作"],["Nolan Arenado｜滑接轉身傳一壘","https://www.mlb.com/video/arenado-s-sliding-spinning-stop-c1981131483","MLB 官方 · 守備實戰"]],"shortstop":[["Francisco Lindor｜游擊守備動作示範","https://www.mlb.com/video/lindor-turner-demo-fielding-c1846011983","MLB 官方影片"],["Francisco Lindor｜雙殺轉傳","https://www.mlb.com/video/lindor-starts-a-double-play-c2078872883","MLB 官方影片"]],"outfield":[["MLB 外野長傳助殺精選｜觀察傳球動作","https://www.youtube.com/watch?v=9TTr36ay3H4","YouTube · MLB 實戰集錦（非全片慢動作）"],["Grant McCray｜101.7 mph 外野助殺","https://www.mlb.com/video/grant-mccray-s-101-7-mph-outfield-assist","MLB 官方 · Statcast 傳球解析"]],"batter":[["Mike Trout｜超級慢動作全壘打揮棒","https://www.youtube.com/watch?v=dG1ds3AjzpI","YouTube · PastimeAthletics · 慢動作"],["Mike Trout｜慢動作打擊與大谷翔平","https://www.youtube.com/watch?v=759ED3skddg","YouTube · PastimeAthletics · 慢動作"]],"runner":[["Trea Turner｜盜壘與滑壘動作解析","https://www.mlb.com/phillies/video/analyzing-trea-turner-s-steals","MLB 官方 · 跑壘動作分析"],["MLB Tonight｜盜壘起跑技術示範","https://www.mlb.com/video/how-to-properly-steal-a-base","MLB 官方 · 技術示範"]]};
 const ANALYSIS_NOTES={"pitcher":[["觀察抬腿時軸心腳如何維持平衡","注意跨步方向與髖部先於肩膀轉動","比較手臂出手位置、前腳落地與完整收尾"],["觀察山本由伸的節奏、重心移動與跨步落點","留意前腳落地前後的髖肩分離","觀察出手後身體如何自然向前延伸"],["由不同鏡位比較抬腿高度、軀幹旋轉及出手點","注意視角不同可能改變動作外觀","用慢速播放觀察重心是否連續向本壘移動"]],"catcher":[["觀察接球後如何迅速轉換握球手勢","注意腳步調整、肩線朝向二壘的時機","觀察傳球出手與身體重心的協調"]],"first":[["觀察一壘手如何預先選擇接球站位","留意踩壘腳與伸展接球的配合","注意來球偏離時如何保持身體平衡"],["觀察判斷球路後的第一步啟動","注意低姿勢伸展、手套朝球移動","留意撲接後的控球與安全落地"]],"second":[["觀察接球前如何提前接近二壘","留意接球、踩壘與轉傳的連續節奏","比較傳球手勢與避開跑者的身體路線"],["觀察補位路線與接球時的腳步安排","注意完成封殺後如何快速轉向一壘","留意傳球前的平衡與重心控制"]],"third":[["觀察低重心預備姿勢與擊球瞬間的第一步","注意手套迎球、身體正面對球的時機","留意接球後轉換握球與傳一壘的動作"],["觀察滑接前如何判斷滾地球方向","注意滑接後軀幹轉正及快速出手","比較傳球時腳步與肩線的配合"]],"shortstop":[["第一步啟動","手套迎球","轉身傳球"],["接球踩壘","快速轉傳","雙殺腳步"]],"outfield":[["觀察接球後轉換握球與跨步方向","留意助跑、髖部旋轉和長傳出手的連貫性","注意傳球落點與中繼手的站位"],["觀察外野手接球後如何快速建立傳球姿勢","留意腳步朝向目標及傳球角度","比較長傳速度與傳球準確性的取捨"]],"batter":[["觀察打擊預備姿勢與重心分配","注意跨步落地後髖部啟動與手部路徑","觀察擊球後延伸及完整收棒"],["比較投手啟動時打者的準備節奏","注意前腳落地、軀幹旋轉與球棒進入擊球區的先後","觀察頭部穩定性與收棒平衡"]],"runner":[["觀察投手動作與跑者啟動時機","注意前幾步加速及接近壘包前的減速判斷","比較滑壘姿勢與觸壘時機"],["觀察離壘距離與起跑預備姿勢","注意第一步爆發與跑動路線","留意滑壘前的安全判斷與壘包接觸"]]};
+const ANALYSIS_SKILLS={"pitcher":["投球機制","軸心腳平衡","跨步與出手"],"catcher":["接捕與擋球","傳二壘","觸殺"],"first":["接傳球與踩壘","牽制","一壘撲接"],"second":["二壘補位","雙殺轉傳","滾地球腳步"],"third":["強勁滾地球","側移反應","長傳"],"shortstop":["左右移動","接球轉傳","6-4-3雙殺"],"outfield":["飛球判斷","長傳","中繼"],"batter":["站姿","揮棒路徑","擊球收棒"],"runner":["離壘起跑","盜壘","滑壘"]};
 const ANALYSIS_ROLES={"analysis-pitcher":{"name":"投手","en":"PITCHER","desc":"投球動作、重心轉移、出手點與補位"},"analysis-catcher":{"name":"捕手","en":"CATCHER","desc":"接捕、擋球、傳二壘與觸殺"},"analysis-first":{"name":"一壘手","en":"FIRST BASE","desc":"接傳球、踩壘、牽制與補位"},"analysis-second":{"name":"二壘手","en":"SECOND BASE","desc":"接滾地球、轉傳與雙殺補位"},"analysis-third":{"name":"三壘手","en":"THIRD BASE","desc":"反應接球、強勁滾地球與傳一壘"},"analysis-shortstop":{"name":"遊擊手","en":"SHORTSTOP","desc":"左右移動、正面接球與6-4-3雙殺"},"analysis-outfield":{"name":"外野手","en":"OUTFIELDER","desc":"飛球判斷、落點追蹤、接球與回傳"},"analysis-batter":{"name":"打擊手","en":"BATTER","desc":"站姿、跨步、揮棒、擊球與收棒"},"analysis-runner":{"name":"跑壘員","en":"BASERUNNER","desc":"起跑、離壘、轉彎、滑壘與回壘"}};
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
-                diagrams:"圖解教室", field3d:"3D互動規則教室", scroll3d:"3D互動球場", tactics:"戰術小遊戲", analysis:"動作解析", english:"棒球英文", "english-quiz":"棒球英文考試", quiz:"棒球小考",
+                diagrams:"圖解教室", field3d:"3D互動規則教室", scroll3d:"3D互動球場", tactics:"戰術小遊戲", homerun:"3D全壘打挑戰", analysis:"動作解析", english:"棒球英文", "english-quiz":"棒球英文考試", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", settings:"學員與設定"};
 function route(){
   const p = (location.hash.replace("#/","") || "home");
@@ -1122,23 +1222,29 @@ function route(){
         rolePanel.innerHTML+='<div class="card" style="margin-top:14px;padding:16px"><h2 style="font-size:19px;margin:0 0 10px">投球：上半身多平面旋轉（中英雙語字幕）</h2><div style="display:flex;justify-content:center"><video controls playsinline preload="none" poster="assets/videos/pitching-multiplanar-rotation-poster.jpg" style="width:100%;max-width:400px;aspect-ratio:9/16;border-radius:14px;background:#000;border:1px solid var(--line)"><source src="assets/videos/pitching-multiplanar-rotation.mp4" type="video/mp4">你的瀏覽器不支援影片播放，<a href="assets/videos/pitching-multiplanar-rotation.mp4">點此下載</a>。</video></div><p class="req" style="margin:10px 0 0">骨盆開向踏地（FFS）→ 上半身質量形成<b>分離</b> → 側彎改變<b>旋轉軸</b> → 軀幹屈曲把球送向本壘。<b>不是平面旋轉，是曲線。</b></p><p class="credit" style="margin:6px 0 0">影片：Prime Performance ｜ 中英字幕與重點整理：basenefit</p></div>';
       }
       if(p==='analysis-batter'){
-        rolePanel.innerHTML+='<div class="card" style="margin-top:14px;padding:16px"><h2 style="font-size:19px;margin:0 0 10px">打擊：腳固定，力量才出得來（中英雙語字幕）</h2><div style="display:flex;justify-content:center"><video controls playsinline preload="none" poster="assets/videos/hitting-drill-63s-poster.jpg" style="width:100%;max-width:400px;aspect-ratio:720/1280;border-radius:14px;background:#000;border:1px solid var(--line)"><source src="assets/videos/hitting-drill-63s.mp4" type="video/mp4">你的瀏覽器不支援影片播放，<a href="assets/videos/hitting-drill-63s.mp4">點此下載</a>。</video></div><p class="req" style="margin:10px 0 0">後腳不是沒轉就是轉過頭；把<b>前腳固定住</b>，力量才出得來。</p></div>';
+        rolePanel.innerHTML+='<div class="card" style="margin-top:14px;padding:16px"><h2 style="font-size:19px;margin:0 0 10px">打擊：腳固定，力量才出得來（中英雙語字幕）</h2><div style="display:flex;justify-content:center"><video id="hitting-drill-video" controls playsinline preload="none" poster="assets/videos/hitting-drill-63s-poster.jpg" style="width:100%;max-width:400px;aspect-ratio:720/1280;border-radius:14px;background:#000;border:1px solid var(--line)"><source src="assets/videos/hitting-drill-63s.mp4" type="video/mp4">你的瀏覽器不支援影片播放，<a href="assets/videos/hitting-drill-63s.mp4">點此下載</a>。</video></div><p class="req" style="margin:10px 0 0">後腳不是沒轉就是轉過頭；把<b>前腳固定住</b>，力量才出得來。</p></div>';
       }
     }
   }
+  const general=document.getElementById("analysis-general-content");
+  if(general)general.style.display=role?"none":"block";
   const videoList=document.getElementById("analysis-video-list");
   if(videoList){
     const id=role?p.slice("analysis-".length):"pitcher";
     const videos=ANALYSIS_VIDEOS[id]||[];
-    videoList.innerHTML=videos.map(v=>{
+    videoList.innerHTML='<div class="card" style="padding:14px;margin-bottom:12px"><strong>本位置學習重點</strong><p style="margin:8px 0 0">'+(ANALYSIS_SKILLS[id]||[]).join(' · ')+'</p></div>';
+    videoList.innerHTML+='<div class="analysis-video-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px;align-items:start">'+videos.map(v=>{
       const match=v[1].match(/[?&]v=([a-zA-Z0-9_-]{11})/);
       const isSearch=v[1].includes('youtube.com/results?');
       const embedSrc=match?'https://www.youtube-nocookie.com/embed/'+match[1]+'?rel=0':v[1];
-      const video=isSearch?'<p class="req">尚未找到可確認的慢動作影片</p>':'<div style="aspect-ratio:16/9;width:100%;max-width:900px;background:#111;border-radius:12px;overflow:hidden;margin:12px 0"><iframe title="'+v[0]+'" loading="lazy" src="'+embedSrc+'" allow="fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:0"></iframe></div>';
+      const video=isSearch?'<p class="req">尚未找到可確認的慢動作影片</p>':match?'<div style="aspect-ratio:16/9;width:100%;max-width:900px;background:#111;border-radius:12px;overflow:hidden;margin:12px 0"><iframe title="'+v[0]+'" loading="lazy" src="'+embedSrc+'" allow="fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:0"></iframe></div>':'<p class="req">MLB 官方影片請點選下方連結觀看，避免顯示空白播放器。</p>';
       const note=(ANALYSIS_NOTES[id]||[])[videos.indexOf(v)];
       const explanation=id==='shortstop'?(note?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">'+note.map(x=>'<span style="padding:7px 12px;border-radius:20px;background:#e5f1db;color:#193b25;font-weight:700">✓ '+x+'</span>').join('')+'</div>':''):note?'<div style="margin:14px 0;padding:16px;border-radius:12px;background:#eef5e9;color:#193322"><strong>📝 中文動作重點講解</strong><p style="font-size:12px;margin:5px 0 10px">以下為教練式觀察提示，並非影片旁白或字幕的逐字翻譯。</p><ol style="padding-left:22px;margin:0">'+note.map(n=>'<li style="margin:6px 0">'+n+'</li>').join('')+'</ol><p style="font-size:12px;margin:10px 0 0">練習建議：先正常速度看一遍，再用 0.25× 或 0.5× 速度逐段觀察；避免直接模仿高強度投擲或滑壘。</p></div>':'';
-      return '<div class="card" style="padding:16px"><h2 style="margin-bottom:7px">'+v[0]+'</h2><p class="req">'+v[2]+'</p>'+video+explanation+'<a class="btn ghost" href="'+v[1]+'" target="_blank" rel="noopener noreferrer">'+(match?'▶ 在 YouTube 開啟':(v[1].includes('youtube.com/results?')?'🔎 搜尋 MLB 慢動作影片':'▶ 開啟 MLB 守備影片'))+'</a></div>';
-    }).join('');
+      const cover=match?'https://img.youtube.com/vi/'+match[1]+'/hqdefault.jpg':null;
+      const visual=cover?'<img src="'+cover+'" alt="'+v[0]+' 影片縮圖" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">':'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 75%,#27734d 0%,#14503c 45%,#092b32 100%);color:#d8f6e8"><span style="font-size:42px">⚾</span><strong style="font-size:14px;letter-spacing:.08em">'+(isSearch?'BASEBALL VIDEO':'MLB OFFICIAL VIDEO')+'</strong></div>';
+      const tile='<a href="'+v[1]+'" target="_blank" rel="noopener noreferrer" aria-label="播放 '+v[0]+'" style="position:relative;display:block;width:100%;aspect-ratio:16/9;background:#0c3029;border-radius:12px;overflow:hidden;text-decoration:none;margin:10px 0 8px">'+visual+'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.76);border:2px solid white;color:white;font-size:29px;box-shadow:0 4px 20px #0008">▶</span><span style="position:absolute;bottom:0;left:0;right:0;padding:11px;background:linear-gradient(transparent,#000b);color:white;font-size:12px;font-weight:700">點選畫面觀看影片 ↗</span></a>';
+      return '<article class="card" style="padding:12px;min-width:0"><h3 style="margin:0 0 4px;font-size:15px;line-height:1.5">'+v[0]+'</h3><p class="req" style="margin:0">'+v[2]+'</p>'+tile+'<details><summary style="cursor:pointer;font-weight:650;padding:8px 0">中文動作解析</summary>'+explanation+'</details></article>';
+    }).join('')+'</div>';
   }
   document.querySelectorAll(".page").forEach(el => el.classList.toggle("show", el.id === "page-" + page));
   document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.page === (role ? p : page)));
@@ -1147,6 +1253,7 @@ function route(){
   toggleMenu(false);
   window.scrollTo({top:0});
   render();
+  if(page==="assessment"){renderAssessmentFields();renderBaseballRadar();}
   if(page==="english")renderEnglish();
   if(page==="english-quiz")engSetup();
 }
@@ -1253,11 +1360,9 @@ function render(){
     : `<p class="req" style="margin:0">目前沒有待觀察影片。</p>`;
 
   // 評估
+  renderBaseballRadar();
   document.getElementById("as-count").textContent = `${S.assessments.length} 筆`;
-  document.getElementById("as-list").innerHTML = S.assessments.length ? `
-    <table><thead><tr><th>日期</th><th>左腳平衡</th><th>右腳平衡</th><th>坐站</th><th>傳球命中</th><th>備註</th></tr></thead><tbody>
-    ${S.assessments.slice().reverse().map(a=>`<tr><td>${a.date}</td><td>${a.l}s</td><td>${a.r}s</td><td>${a.chair} 次</td><td>${a.pass}/10</td><td>${a.note||"—"}</td></tr>`).join("")}
-    </tbody></table>` : `<div class="empty">還沒有評估紀錄。上面填一次，就有了基準線。</div>`;
+  document.getElementById("as-list").innerHTML = S.assessments.length ? '<div style="display:grid;gap:8px">'+S.assessments.slice().reverse().map(a=>a.baseball?'<div class="tip"><i>⚾</i><div><b>'+a.date+'｜'+a.baseball.age+'｜'+a.baseball.roleName+'</b><div class="req">九大能力：'+BASEBALL_SKILLS.map(([k,n])=>n+' '+(a.baseball.skills[k]||'未評')).join(' · ')+'</div><div class="req">位置專屬：'+a.baseball.roleScores.map(x=>x.name+' '+(x.score||'未評')).join(' · ')+'</div></div></div>':'<div class="tip"><i>✓</i><div><b>'+a.date+'｜原有體能實測</b><div class="req">左腳 '+a.l+' 秒 · 右腳 '+a.r+' 秒 · 坐站 '+a.chair+' 次 · 傳球 '+a.pass+'/10</div><div class="req">'+(a.note||'')+'</div></div></div>').join('')+'</div>' : '<div class="empty">尚無評估紀錄</div>';
 
   // 進步追蹤
   document.getElementById("pg-sess").textContent = S.sessions.length;
@@ -1270,8 +1375,9 @@ function render(){
     `<div class="b"><div class="track"><span style="height:${m ? Math.max(6, Math.round(m/max*108)) : 0}px"></span></div>
      <div>週${"一二三四五六日"[i]}<br>${m} 分</div></div>`).join("");
 
-  const first = S.assessments[0], last = S.assessments[S.assessments.length-1];
-  if (S.assessments.length < 2){
+  const legacyAssessments=S.assessments.filter(a=>!a.baseball);
+  const first = legacyAssessments[0], last = legacyAssessments[legacyAssessments.length-1];
+  if (legacyAssessments.length < 2){
     document.getElementById("pg-cmp-pill").textContent = "還沒有第 2 次評估";
     document.getElementById("pg-cmp").innerHTML = `<div class="empty">先留下第一次評估，4 週後再測一次，就能看到前後差異。</div>`;
   } else {
@@ -1367,6 +1473,36 @@ function uploadVideo(){
   save(); render(); toast("已加入影片庫（待觀察）");
 }
 
+const BASEBALL_SKILLS=[["throw","傳球能力"],["catch","接球能力"],["hit","打擊能力"],["speed","跑壘速度"],["agility","敏捷反應"],["balance","身體協調"],["rules","棒球規則"],["tactics","戰術判斷"],["mental","心理素質"]];
+const BASEBALL_ROLE_SKILLS={pitcher:["控球穩定","投球節奏","牽制補位"],catcher:["接捕擋球","傳二壘","觸殺"],first:["接傳球踩壘","短彈跳處理","牽制接球"],second:["滾地球處理","雙殺轉傳","二壘補位"],third:["強勁滾地球","反應側移","長傳一壘"],shortstop:["左右移動","雙殺轉傳","守備站位"],outfield:["飛球判斷","回傳準確","中繼配合"],batter:["選球判斷","擊球穩定","揮棒控制"],runner:["起跑判斷","轉壘效率","滑壘技巧"]};
+function renderAssessmentFields(){
+ const box=document.getElementById("as-skill-fields"),role=document.getElementById("as-role-fields");if(!box||!role)return;
+ const field=(key,name)=>'<div><label for="as-skill-'+key+'">'+name+'</label><select id="as-skill-'+key+'" aria-label="'+name+'"><option value="">尚未評估</option>'+[1,2,3,4,5].map(n=>'<option value="'+n+'">'+n+' 分'+(['','｜初學','｜不穩定','｜基本掌握','｜穩定','｜熟練'][n])+'</option>').join('')+'</select></div>';
+ box.innerHTML=BASEBALL_SKILLS.map(([k,n])=>field(k,n)).join('');
+ role.innerHTML=(BASEBALL_ROLE_SKILLS[document.getElementById("as-role").value]||[]).map((n,i)=>field('role'+i,n)).join('');
+}
+function renderBaseballRadar(){
+ const el=document.getElementById("as-radar");if(!el)return;
+ const last=[...S.assessments].reverse().find(a=>a.baseball&&a.baseball.skills);
+ if(!last){el.innerHTML='<p class="req">完成第一次九大能力自評後，這裡會顯示雷達圖。</p>';return;}
+ const vals=BASEBALL_SKILLS.map(([k])=>Number(last.baseball.skills[k])||0);
+ const cx=180,cy=170,R=110,n=9,pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/n;return [cx+Math.cos(a)*r,cy+Math.sin(a)*r];};
+ const poly=v=>v.map((x,i)=>pt(i,R*x/5).join(',')).join(' ');
+ let svg='<svg viewBox="0 0 360 345" role="img" aria-label="九大能力自評雷達圖" style="width:100%;max-width:420px">';
+ for(let j=1;j<=5;j++)svg+='<polygon points="'+poly(Array(9).fill(j))+'" fill="none" stroke="#ccd7cd"/>';
+ BASEBALL_SKILLS.forEach((x,i)=>{let p=pt(i,R+24),q=pt(i,R);svg+='<line x1="180" y1="170" x2="'+q[0]+'" y2="'+q[1]+'" stroke="#d5dfd6"/><text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#334b3a">'+x[1].replace("能力","")+'</text>';});
+ svg+='<polygon points="'+poly(vals)+'" fill="#208b60" fill-opacity=".25" stroke="#208b60" stroke-width="2.5"/></svg>';
+ el.innerHTML='<h3>最近一次能力雷達圖</h3><p class="req">'+last.date+' · '+last.baseball.age+' · '+last.baseball.roleName+'（未填項目以 0 呈現）</p>'+svg;
+}
+function saveBaseballAssessment(){
+ const age=document.getElementById("as-age").value,role=document.getElementById("as-role").value;
+ const skills=Object.fromEntries(BASEBALL_SKILLS.map(([k])=>[k,document.getElementById("as-skill-"+k).value]));
+ if(!Object.values(skills).some(Boolean))return toast("請至少完成一項自評");
+ const roleScores=(BASEBALL_ROLE_SKILLS[role]||[]).map((name,i)=>({name,score:document.getElementById("as-skill-role"+i).value}));
+ S.assessments.push({date:new Date().toLocaleDateString("zh-TW"),baseball:{age,role,roleName:document.getElementById("as-role").selectedOptions[0].text,skills,roleScores}});
+ if(S.students[0])S.students[0].assessments=S.assessments.length;
+ save();render();toast("九大能力自評已儲存");
+}
 function saveAssessment(){
   const g = id => document.getElementById(id).value;
   if (!g("as-l") || !g("as-r")) return toast("至少填左右腳平衡");
@@ -2203,7 +2339,7 @@ const SLOTS = {
   ready:  {label:"＋ 上傳守備預備姿勢照片"},
   ground: {label:"＋ 上傳接滾地球照片"},
   ytPitch:{type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）"},
-  ytHit:  {type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）", def:"assets/videos/hitting-drill-63s.mp4"},
+  ytHit:  {type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）"},
   ytField:{type:"yt", label:"＋ 貼 YouTube 影片（建議官方頻道）"},
 };
 
@@ -2597,6 +2733,15 @@ route();
 const bootCloud = () => { loadCloudFile(); autoSync(); };
 if (window.requestIdleCallback) requestIdleCallback(bootCloud, {timeout: 1500});
 else setTimeout(bootCloud, 400);
+
+// 打擊教學影片：僅在最後 5 秒靜音，保留前段原始聲音。
+document.addEventListener("timeupdate",function(e){
+  const v=e.target;
+  if(v && v.id==="hitting-drill-video" && Number.isFinite(v.duration)){
+    const finalNarration=v.currentTime>=Math.max(0,v.duration-5);
+    if(v.muted!==finalNarration)v.muted=finalNarration;
+  }
+},true);
 </script>
 </body>
 </html>
