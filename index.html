@@ -958,6 +958,63 @@
         <div class="eyebrow">COACH WORKSPACE</div>
         <h2 class="page-title">看得見的進步，才帶得動。</h2>
         <p class="lead">這裡管理此帳號底下的學員。外部教練邀請與跨帳號授權之後再開。</p>
+        <style>
+          .drill-wrap{margin:14px 0 18px}
+          .drill-wrap details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:0;margin:10px 0;overflow:hidden}
+          .drill-wrap summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:800;font-size:1rem;display:flex;justify-content:space-between;align-items:center}
+          .drill-wrap summary::-webkit-details-marker{display:none}
+          .drill-wrap summary::after{content:"＋";font-weight:800;color:#7a7a72}
+          .drill-wrap details[open] summary::after{content:"－"}
+          .drill-wrap details[open] summary{background:var(--bg,#f4f4f1);border-bottom:1px solid var(--line)}
+          .drill-body{padding:14px 16px 16px}
+          .drill-grid{display:grid;grid-template-columns:1fr;gap:14px}
+          @media(min-width:760px){.drill-grid{grid-template-columns:1fr 1fr}}
+          .drill-item{margin:0}
+          .drill-item video{width:100%;border-radius:12px;display:block;background:#000}
+          .drill-item figcaption{font-size:.82rem;line-height:1.55;color:#5c5c55;margin-top:8px}
+          .drill-item figcaption b{color:#141412}
+          .drill-empty{color:#8b8b83;font-size:.85rem;margin:0}
+        </style>
+        <div class="card drill-wrap">
+          <div class="hrow"><h2>輔助訓練參考</h2><span class="pill">投球 · 打擊 · 守備</span></div>
+          <p class="req" style="margin:0 0 4px">教練可直接播放給學員看的短影片。每支都附<b>中英對照字幕</b>與動作重點，適合課前暖身或課後複習。打擊與守備持續整理中。</p>
+
+          <details open>
+            <summary>⚾ 投球（Pitching）</summary>
+            <div class="drill-body">
+              <div class="drill-grid">
+                <figure class="drill-item">
+                  <video controls preload="metadata" playsinline poster="assets/pitching-youth.jpg">
+                    <source src="assets/pitching-youth.mp4" type="video/mp4">
+                  </video>
+                  <figcaption><b>第一天投手練習（少棒・五年級）</b><br>
+                  抬腿 → 分球 → 前腳踩穩 → 軀幹封閉 → 最大外旋 → 釋放。建立「先送、再轉」的基本機制，這年紀先求動作對，不追球速。</figcaption>
+                </figure>
+                <figure class="drill-item">
+                  <video controls preload="metadata" playsinline poster="assets/pitching-drills.jpg">
+                    <source src="assets/pitching-drills.mp4" type="video/mp4">
+                  </video>
+                  <figcaption><b>矯正訓練：彈力帶 + 連接球</b><br>
+                  用外力限制錯誤的角度與軌跡：彈力帶防止掉肘、連接球讓手臂與軀幹同步旋轉，最後回到大動作驗收。</figcaption>
+                </figure>
+              </div>
+            </div>
+          </details>
+
+          <details>
+            <summary>🏏 打擊（Hitting）</summary>
+            <div class="drill-body">
+              <p class="drill-empty">整理中。之後會放：棒頭路徑、重心轉移、內外角修正、打擊計時（ Timing ）分解。</p>
+            </div>
+          </details>
+
+          <details>
+            <summary>🧤 守備（Fielding）</summary>
+            <div class="drill-body">
+              <p class="drill-empty">整理中。之後會放：接球基本姿勢、腳步與傳球銜接、內野雙殺轉傳、外野接球路線判斷。</p>
+            </div>
+          </details>
+        </div>
         <div class="card">
           <div class="hrow"><h2>學員總覽</h2><button class="btn lime sm" onclick="openStudent()">+ 新增學員</button></div>
           <div style="overflow-x:auto">
