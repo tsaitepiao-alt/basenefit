@@ -1244,20 +1244,20 @@
         <p class="lead">走進台中洲際棒球場的 3D 實景掃描。拖曳旋轉視角、平移觀察球場，或放大查看看台與場地細節。</p>
         <div class="card stadium3d-card" id="stadium3d-shell">
           <div class="stadium3d-toolbar">
-            <div><strong>台中洲際棒球場</strong><span class="stadium3d-source">實景掃描模型・直接載入</span></div>
+            <div><strong>台中洲際棒球場</strong><span class="stadium3d-source">Polycam 3D 實景掃描</span></div>
             <div class="stadium3d-actions">
               <button class="btn ghost sm" type="button" onclick="reloadStadiumFrame()">重新載入</button>
               <button class="btn lime sm" type="button" onclick="fullscreenStadium()">⛶ 全螢幕</button>
-              <a class="btn ghost sm" href="assets/stadium/index.html?v=20261026" target="_blank" rel="noopener noreferrer">獨立開啟 ↗</a>
+              <a class="btn ghost sm" href="https://poly.cam/capture/fb72a82c-bbd5-4ea6-87c9-1e8efbed041a" target="_blank" rel="noopener noreferrer">在 Polycam 開啟 ↗</a>
             </div>
           </div>
           <div class="stadium3d-viewer">
-            <iframe id="fscroll" title="台中洲際棒球場 3D 互動模型" data-src="assets/stadium/index.html?v=20261026" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" onload="if(window.stadiumFrameLoaded)stadiumFrameLoaded()" onerror="if(window.stadiumFrameFailed)stadiumFrameFailed()"></iframe>
+            <iframe id="fscroll" title="台中洲際棒球場 3D 互動模型（Polycam）" data-src="https://poly.cam/capture/fb72a82c-bbd5-4ea6-87c9-1e8efbed041a/embed" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" onload="if(window.stadiumFrameLoaded)stadiumFrameLoaded()" onerror="if(window.stadiumFrameFailed)stadiumFrameFailed()"></iframe>
             <div id="stadium3d-status" class="stadium3d-status" role="status" aria-live="polite">正在載入 3D 球場…</div>
           </div>
           <div class="stadium3d-help">
-            <p><b>電腦：</b>左鍵拖曳旋轉、滾輪縮放，右鍵拖曳平移；點擊壘包、投手丘或打擊區標記查看用途與規則。可按「內野近看」放大標記。<b>手機：</b>單指拖曳旋轉、雙指縮放與平移，橫放視野更寬。</p>
-            <p>3D 掃描由 <a href="https://poly.cam/capture/fb72a82c-bbd5-4ea6-87c9-1e8efbed041a" target="_blank" rel="noopener noreferrer">Polycam「台中洲際棒球場」</a>提供，使用你提供的 GLB 製作網頁輕量版，直接在本站載入。首次開啟需下載模型，請稍候；若畫面空白，可按「重新載入」或「獨立開啟」。</p>
+            <p><b>電腦：</b>拖曳旋轉、滾輪縮放；平移與其他操作可查看檢視器內的說明。<b>手機：</b>單指拖曳旋轉、雙指縮放，橫放視野更寬。</p>
+            <p>3D 掃描由 <a href="https://poly.cam/capture/fb72a82c-bbd5-4ea6-87c9-1e8efbed041a" target="_blank" rel="noopener noreferrer">Polycam「台中洲際棒球場」</a>提供，需網路連線載入。若畫面空白或載入較久，可按「重新載入」或「在 Polycam 開啟」。</p>
           </div>
         </div>
       </section>
@@ -1448,7 +1448,7 @@ function syncStadiumFrame(){
       stadiumStatus('正在載入 3D 球場…');
       frame.setAttribute('src',frame.dataset.src);
       clearTimeout(window.stadiumLoadTimer);
-      window.stadiumLoadTimer=setTimeout(()=>stadiumStatus('載入時間較長，可按「重新載入」或「獨立開啟」。'),20000);
+      window.stadiumLoadTimer=setTimeout(()=>stadiumStatus('載入時間較長，可按「重新載入」或「在 Polycam 開啟」。'),20000);
     }
   }else if(frame.getAttribute('src')){
     clearTimeout(window.stadiumLoadTimer);
@@ -1463,7 +1463,7 @@ function stadiumFrameLoaded(){
 }
 function stadiumFrameFailed(){
   clearTimeout(window.stadiumLoadTimer);
-  stadiumStatus('球場暫時無法載入，請重新載入或獨立開啟。');
+  stadiumStatus('球場暫時無法載入，請重新載入或在 Polycam 開啟。');
 }
 function reloadStadiumFrame(){
   const frame=document.getElementById('fscroll');
@@ -1479,7 +1479,7 @@ async function fullscreenStadium(){
     if(shell&&shell.requestFullscreen){await shell.requestFullscreen();return;}
     if(shell&&shell.webkitRequestFullscreen){shell.webkitRequestFullscreen();return;}
   }catch(error){}
-  window.open('assets/stadium/index.html?v=20261026','_blank','noopener,noreferrer');
+  window.open('https://poly.cam/capture/fb72a82c-bbd5-4ea6-87c9-1e8efbed041a','_blank','noopener,noreferrer');
 }
 function route(){
   const p = (location.hash.replace("#/","") || "home");
