@@ -113,7 +113,22 @@
   /* 3D互動球場專用寬版：取消主內容 1080px 限制，延伸至右側視窗邊緣。 */
   body:has(#page-scroll3d.show) .wrap,body:has(#page-field3d.show) .wrap{max-width:none;padding:18px 18px 28px;width:100%}
   #page-scroll3d>.card{width:100%;max-width:none}
-  #page-scroll3d #fscroll{height:min(86vh,1000px)!important;min-height:650px}
+  #page-scroll3d #fscroll{display:block;width:100%;height:min(80vh,850px);min-height:480px;border:0;background:#101720}
+  .stadium3d-card{padding:12px;background:#111e29;color:#eaf3e5;border-color:#38515c;overflow:hidden}
+  .stadium3d-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .stadium3d-source{display:block;font-size:11px;color:#aec6ca;margin-top:3px}
+  .stadium3d-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .stadium3d-viewer{position:relative;overflow:hidden;border-radius:12px;background:#101720}
+  .stadium3d-status{position:absolute;top:16px;left:50%;transform:translateX(-50%);max-width:90%;padding:10px 16px;border:1px solid #abc7cb42;border-radius:8px;background:#0d1a28ed;color:#dbe9ed;font-size:13px;text-align:center;pointer-events:none}
+  .stadium3d-status[hidden]{display:none}
+  .stadium3d-help{font-size:12px;line-height:1.8;color:#b6c9ca;padding:2px 4px 0}
+  .stadium3d-help p{margin:10px 0 0}.stadium3d-help a{color:#d9f3a4}
+  #stadium3d-shell:fullscreen{display:flex;flex-direction:column;width:100%;height:100dvh;border-radius:0;margin:0}
+  #stadium3d-shell:fullscreen .stadium3d-viewer{flex:1;min-height:0}
+  #stadium3d-shell:fullscreen #fscroll{height:100%;min-height:0}
+  #stadium3d-shell:fullscreen .stadium3d-help{display:none}
+  @media(max-width:700px){#page-scroll3d #fscroll{height:72vh;min-height:420px}.stadium3d-toolbar{align-items:flex-start}.stadium3d-actions{gap:6px}.stadium3d-actions .btn{font-size:12px;padding:8px 10px}}
+  @media(orientation:landscape) and (max-height:600px){#page-scroll3d #fscroll{height:76vh;min-height:300px}}
   .page{display:none}
   .page.show{display:block}
 
@@ -1224,15 +1239,28 @@
       </section>
 
       <section class="page" id="page-scroll3d">
-        <div class="eyebrow">3D BASEBALL FIELD</div>
+        <div class="eyebrow">TAICHUNG INTERCONTINENTAL BASEBALL STADIUM</div>
         <h2 class="page-title">3D互動球場</h2>
-        <div class="card" style="padding:48px 24px;text-align:center;min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
-          <div style="font-size:44px">⚾</div>
-          <h3 style="font-size:clamp(25px,4vw,38px);margin:0">建構中，敬請期待</h3>
-          <p style="margin:0;opacity:.8">3D 互動球場正在重新規劃與製作，暫時停止開放。</p>
+        <p class="lead">走進台中洲際棒球場的 3D 實景掃描。拖曳旋轉視角、平移觀察球場，或放大查看看台與場地細節。</p>
+        <div class="card stadium3d-card" id="stadium3d-shell">
+          <div class="stadium3d-toolbar">
+            <div><strong>台中洲際棒球場</strong><span class="stadium3d-source">Polycam 3D 實景掃描</span></div>
+            <div class="stadium3d-actions">
+              <button class="btn ghost sm" type="button" onclick="reloadStadiumFrame()">重新載入</button>
+              <button class="btn lime sm" type="button" onclick="fullscreenStadium()">⛶ 全螢幕</button>
+              <a class="btn ghost sm" href="https://poly.cam/capture/fb72a82c-bbd5-4ea6-87c9-1e8efbed041a" target="_blank" rel="noopener noreferrer">在 Polycam 開啟 ↗</a>
+            </div>
+          </div>
+          <div class="stadium3d-viewer">
+            <iframe id="fscroll" title="台中洲際棒球場 3D 互動模型（Polycam）" data-src="https://poly.cam/capture/fb72a82c-bbd5-4ea6-87c9-1e8efbed041a/embed" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" onload="stadiumFrameLoaded()" onerror="stadiumFrameFailed()"></iframe>
+            <div id="stadium3d-status" class="stadium3d-status" role="status" aria-live="polite">正在載入 3D 球場…</div>
+          </div>
+          <div class="stadium3d-help">
+            <p><b>電腦：</b>拖曳旋轉、滾輪縮放；平移與其他操作可查看檢視器內的說明。<b>手機：</b>單指拖曳旋轉、雙指縮放，橫放視野更寬。</p>
+            <p>3D 掃描由 <a href="https://poly.cam/capture/fb72a82c-bbd5-4ea6-87c9-1e8efbed041a" target="_blank" rel="noopener noreferrer">Polycam「台中洲際棒球場」</a>提供，需網路連線載入。若畫面空白或載入較久，可按「重新載入」或「在 Polycam 開啟」。</p>
+          </div>
         </div>
       </section>
-
 
       <!-- ========== 7. 學員與設定 ========== -->
       <section class="page" id="page-settings">
@@ -1407,6 +1435,52 @@ function restartHomerun(){
   if(!frame)return;
   frame.setAttribute('src',frame.dataset.src+'&restart='+Date.now());
 }
+function stadiumStatus(message,hidden=false){
+  const status=document.getElementById('stadium3d-status');
+  if(status){status.textContent=message;status.hidden=hidden;}
+}
+function syncStadiumFrame(){
+  const frame=document.getElementById('fscroll');
+  const page=document.getElementById('page-scroll3d');
+  if(!frame||!page)return;
+  if(page.classList.contains('show')){
+    if(!frame.getAttribute('src')){
+      stadiumStatus('正在載入 3D 球場…');
+      frame.setAttribute('src',frame.dataset.src);
+      clearTimeout(window.stadiumLoadTimer);
+      window.stadiumLoadTimer=setTimeout(()=>stadiumStatus('載入時間較長，可按「重新載入」或「在 Polycam 開啟」。'),20000);
+    }
+  }else if(frame.getAttribute('src')){
+    clearTimeout(window.stadiumLoadTimer);
+    frame.removeAttribute('src');
+  }
+}
+function stadiumFrameLoaded(){
+  const frame=document.getElementById('fscroll');
+  if(!frame||!frame.getAttribute('src'))return;
+  clearTimeout(window.stadiumLoadTimer);
+  stadiumStatus('',true);
+}
+function stadiumFrameFailed(){
+  clearTimeout(window.stadiumLoadTimer);
+  stadiumStatus('球場暫時無法載入，請重新載入或在 Polycam 開啟。');
+}
+function reloadStadiumFrame(){
+  const frame=document.getElementById('fscroll');
+  if(!frame)return;
+  clearTimeout(window.stadiumLoadTimer);
+  frame.removeAttribute('src');
+  syncStadiumFrame();
+}
+async function fullscreenStadium(){
+  const shell=document.getElementById('stadium3d-shell');
+  try{
+    if(document.fullscreenElement===shell&&document.exitFullscreen){await document.exitFullscreen();return;}
+    if(shell&&shell.requestFullscreen){await shell.requestFullscreen();return;}
+    if(shell&&shell.webkitRequestFullscreen){shell.webkitRequestFullscreen();return;}
+  }catch(error){}
+  window.open('https://poly.cam/capture/fb72a82c-bbd5-4ea6-87c9-1e8efbed041a','_blank','noopener,noreferrer');
+}
 function route(){
   const p = (location.hash.replace("#/","") || "home");
   const role = ANALYSIS_ROLES[p];
@@ -1463,6 +1537,7 @@ function route(){
   }
   document.querySelectorAll(".page").forEach(el => el.classList.toggle("show", el.id === "page-" + page));
   syncHomerunFrame();
+  syncStadiumFrame();
   document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.page === (role ? p : page)));
   syncFolds(role ? p : page);
   document.getElementById("crumb").textContent = role ? "動作解析 / "+role.name : TITLES[page];
