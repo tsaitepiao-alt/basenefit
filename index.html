@@ -105,6 +105,11 @@
   .wrap{padding:26px;max-width:1080px;width:100%}
   body:has(#page-tactics.show) .wrap{max-width:none;width:100%;padding:14px 12px 24px}
   #page-tactics>.card{max-width:none;width:100%}
+  body:has(#page-homerun.show) .wrap{max-width:none;width:100%;padding:18px 18px 28px}
+  .homerun-card{padding:12px;background:#101f2b;color:#eaf3e5;border-color:#38515c}
+  .homerun-card .req{color:#b6c9ca}
+  #homerun-frame{display:block;width:100%;height:clamp(540px,78vh,850px);border:0;border-radius:12px;background:#07111e}
+  @media(orientation:landscape) and (max-height:600px){#homerun-frame{height:calc(100vh - 90px);min-height:320px}}
   /* 3D互動球場專用寬版：取消主內容 1080px 限制，延伸至右側視窗邊緣。 */
   body:has(#page-scroll3d.show) .wrap,body:has(#page-field3d.show) .wrap{max-width:none;padding:18px 18px 28px;width:100%}
   #page-scroll3d>.card{width:100%;max-width:none}
@@ -1189,12 +1194,17 @@
       <section class="page" id="page-homerun">
         <div class="eyebrow">HOME RUN DERBY</div>
         <h2 class="page-title">⚾ 3D 全壘打挑戰</h2>
-        <div class="card" style="min-height:340px;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(145deg,#eaf8ff,#d8effb);border:1px solid #b3dbef">
-          <div style="padding:36px 18px;color:#15527b">
-            <div style="font-size:62px;line-height:1.3">⚾</div>
-            <h2 style="font-size:clamp(26px,5vw,40px);margin:14px 0;color:#15527b">建構中，敬請期待</h2>
-            <p style="font-size:15px;color:#537f98;margin:0">3D 全壘打挑戰 · HOME RUN DERBY</p>
+        <p class="lead">看準投手來球，用空白鍵或「揮棒」擊球。每輪 10 球，第 5 球後可選擇能力強化；手機建議橫放並使用全螢幕。</p>
+        <div class="card homerun-card">
+          <div class="hrow" style="margin-bottom:10px">
+            <strong>3D 投手對決 · 人物動作優化版</strong>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn ghost sm" type="button" onclick="restartHomerun()">重新開始</button>
+              <a class="btn lime sm" href="assets/homerun/index.html?v=motion-20261026" target="_blank" rel="noopener">⛶ 全螢幕開啟</a>
+            </div>
           </div>
+          <iframe id="homerun-frame" title="3D全壘打挑戰：投球、揮棒與十球挑戰" data-src="assets/homerun/index.html?v=motion-20261026" loading="lazy" allow="fullscreen; autoplay" allowfullscreen onload="syncHomerunFrame()"></iframe>
+          <p class="req" style="margin:10px 2px 0">點「開始挑戰」後觀察來球與時機條；離開本頁會自動暫停，返回後可繼續比賽。個人最佳保存在這台裝置。</p>
         </div>
       </section>
 
@@ -1381,6 +1391,22 @@ const ANALYSIS_ROLES={"analysis-pitcher":{"name":"投手","en":"PITCHER","desc":
 const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
                 diagrams:"圖解教室", field3d:"3D互動規則教室", scroll3d:"3D互動球場", tactics:"戰術小遊戲", homerun:"3D全壘打挑戰", analysis:"動作解析", english:"棒球英文", "english-quiz":"棒球英文考試", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", settings:"學員與設定"};
+function syncHomerunFrame(){
+  const frame=document.getElementById('homerun-frame');
+  const page=document.getElementById('page-homerun');
+  if(!frame||!page)return;
+  const active=page.classList.contains('show');
+  if(active&&!frame.getAttribute('src'))frame.setAttribute('src',frame.dataset.src);
+  if(frame.getAttribute('src')&&frame.contentWindow){
+    const origin=window.location.origin==='null'?'*':window.location.origin;
+    frame.contentWindow.postMessage({type:'basenefit:homerun-visibility',active},origin);
+  }
+}
+function restartHomerun(){
+  const frame=document.getElementById('homerun-frame');
+  if(!frame)return;
+  frame.setAttribute('src',frame.dataset.src+'&restart='+Date.now());
+}
 function route(){
   const p = (location.hash.replace("#/","") || "home");
   const role = ANALYSIS_ROLES[p];
@@ -1436,6 +1462,7 @@ function route(){
     }).join('')+'</div>';
   }
   document.querySelectorAll(".page").forEach(el => el.classList.toggle("show", el.id === "page-" + page));
+  syncHomerunFrame();
   document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.page === (role ? p : page)));
   syncFolds(role ? p : page);
   document.getElementById("crumb").textContent = role ? "動作解析 / "+role.name : TITLES[page];
@@ -2934,3 +2961,4 @@ document.addEventListener("timeupdate",function(e){
 </script>
 </body>
 </html>
+
