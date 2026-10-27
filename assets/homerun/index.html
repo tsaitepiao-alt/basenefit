@@ -95,6 +95,7 @@ const PITCHES_PER_ROUND = 10;
 // Time from input to barrel contact, then the complete follow-through/recovery.
 const SWING_CONTACT_TIME = 0.14;
 const SWING_DURATION = 1.12;
+const HOME_RUN_CELEBRATION_TIME = 3;
 
 const PERKS = Object.freeze({
   timing: Object.freeze({ label: '打擊本能', description: '擊球容錯 +25%', timing: 1.25 }),
@@ -333,7 +334,7 @@ class DerbyEngine {
       s.bestDistance = Math.max(s.bestDistance, recorded.distance);
     } else s.combo = 0;
     this._emit('result', { result: recorded });
-    this._phase('between', Math.max(recorded.fielding?.betweenDuration || 1.25,recorded.homerun?4.5:1.25));
+    this._phase('between', Math.max(recorded.fielding?.betweenDuration || 1.25,recorded.homerun?HOME_RUN_CELEBRATION_TIME:1.25));
   }
 
   /** Real-time updates are capped at 0.25s to avoid background-tab jumps. */
@@ -402,7 +403,7 @@ class DerbyEngine {
   }
 }
 
-return {DIFFICULTIES,IDEAL_CONTACT_PROGRESS,PITCHES_PER_ROUND,SWING_CONTACT_TIME,SWING_DURATION,PERKS,calculateDistance,evaluateSwing,createFieldingFlight,sampleFlight,DerbyEngine};
+return {DIFFICULTIES,IDEAL_CONTACT_PROGRESS,PITCHES_PER_ROUND,SWING_CONTACT_TIME,SWING_DURATION,HOME_RUN_CELEBRATION_TIME,PERKS,calculateDistance,evaluateSwing,createFieldingFlight,sampleFlight,DerbyEngine};
 })();
 modules["./webgl.js"]=(()=>{
 /** Small, dependency-free WebGL 1 renderer. World units are metres, Y is up. */
@@ -1739,6 +1740,7 @@ modules["./fireworks.js"]=(()=>{
 const FIREWORK_COLORS=Object.freeze(['#ffe18a','#d4fa66','#ff8ec8','#7ee7ff','#b3a0ff','#fff8dd']);
 const FIREWORK_SALVOS=9;
 const FIREWORK_MAX_QUADS_PER_COLOR=256;
+const PLAYBACK_RATE=1.55;
 
 const TAU=Math.PI*2;
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
@@ -1815,6 +1817,14 @@ class FireworksShow {
         this.duration=Math.max(this.duration,salvo.burst+life);
       }
     }
+    // Compress the complete show into less than three seconds. Scale motion
+    // with its clock so all nine bursts keep their original size and shape.
+    this.duration/=PLAYBACK_RATE;
+    for(const salvo of this.salvos){salvo.launch/=PLAYBACK_RATE;salvo.burst/=PLAYBACK_RATE;salvo.ascent/=PLAYBACK_RATE;}
+    for(const spark of this.sparks){
+      spark.birth/=PLAYBACK_RATE;spark.life/=PLAYBACK_RATE;
+      spark.velocity=mul(spark.velocity,PLAYBACK_RATE);spark.drag*=PLAYBACK_RATE;spark.gravity*=PLAYBACK_RATE*PLAYBACK_RATE;
+    }
     this.active=true;
     return this;
   }
@@ -1876,7 +1886,7 @@ const { GLRenderer }=modules['./webgl.js'];
 const { BaseballCharacter }=modules['./character.js'];
 const { DefenseSquad }=modules['./defense.js'];
 const { FireworksShow }=modules['./fireworks.js'];
-const { sampleFlight }=modules['./engine.js'];
+const { sampleFlight, HOME_RUN_CELEBRATION_TIME }=modules['./engine.js'];
 const { posePitcher, poseBatter, PITCH_RELEASE_POINT, SWING_CONTACT_TIME, SWING_DURATION }=modules['./motion.js'];
 const PI=Math.PI, TAU=PI*2;
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
@@ -2052,7 +2062,7 @@ class DiamondScene {
     const base={eye:portrait?[.6*side,2.35,5.0]:[-.18,1.95,3.45],target:portrait?[.15*side,1.16,-18]:[0,1.16,-18],fov:portrait?51:47,near:.055,far:340};
     if(s.phase==='between'&&s.lastResult?.homerun){
       // Broadcast cut to the outfield celebration; hold all nine salvos in view.
-      const back=smooth(3.85,4.5,s.phaseTime);
+      const back=smooth(HOME_RUN_CELEBRATION_TIME-.4,HOME_RUN_CELEBRATION_TIME,s.phaseTime);
       return {...base,eye:vMix([16,13,-58],base.eye,back),target:vMix([0,27,-110],base.target,back),fov:mix(portrait?72:58,base.fov,back)};
     }
     let f=null,progress=0,blend=0;
