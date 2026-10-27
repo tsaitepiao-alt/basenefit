@@ -12,6 +12,8 @@
 .flight-readout{position:absolute;right:max(28px,env(safe-area-inset-right));top:24%;z-index:5;text-align:right;pointer-events:none;text-shadow:0 3px 14px #0008}.flight-readout>span{font-size:12px;letter-spacing:2px;color:#dceaf2}.flight-readout strong{display:block;font-size:56px;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums}.flight-readout b{font-weight:600}.flight-readout small{font-size:22px;color:#d7f49a}@media(orientation:portrait){.flight-readout{top:30%;right:20px}.flight-readout strong{font-size:40px}.flight-readout>span{font-size:10px}}
 /* The existing basenefit wordmark stays readable on the scoreboards. */
 .basenefit-logo{display:inline-block;font:700 18px/1.05 Arial,sans-serif;letter-spacing:.1px;white-space:nowrap;color:#efece4}.scoreboard-cap .basenefit-logo b,.welcome-brand .basenefit-logo b{color:#cbf24c}.scoreboard-caption{font-size:8px;letter-spacing:1px;color:#c1d3df}.welcome-brand .basenefit-logo{font-size:25px}.flight-readout .launch-angle{display:block;margin-top:6px;font-size:12px;letter-spacing:1px;color:#e0edcf}.launch-angle b{font-weight:700}@media(max-width:900px),(max-height:600px){.scoreboard-cap .basenefit-logo{font-size:14px}.scoreboard-caption{font-size:6px}.welcome-brand .basenefit-logo{font-size:21px}}@media(orientation:portrait){.scoreboard-cap .basenefit-logo{font-size:16px}.scoreboard-caption{font-size:7px}.welcome-brand .basenefit-logo{font-size:23px}}@media(max-width:360px) and (orientation:portrait){.scoreboard-cap .basenefit-logo{font-size:14px}.scoreboard-caption{font-size:6px}}
+/* Rare fielding highlights complement the ball / glove action. */
+.fielding-flash{position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse at 50% 52%,#e8ffd623,transparent 58%);box-shadow:inset 0 0 80px #cbf24c28;animation:fielding-flash .22s ease-out both}.fielding-badge{position:absolute;z-index:6;left:50%;bottom:24%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;pointer-events:none;white-space:nowrap;text-shadow:0 2px 12px #021419}.fielding-badge small{font:900 clamp(38px,6vw,68px)/.9 Arial,sans-serif;letter-spacing:5px;color:#e2ffb2}.fielding-badge strong{font-size:clamp(16px,2vw,25px);letter-spacing:5px;color:#f4f8e8}.fielding-badge>span{font-size:10px;letter-spacing:1.5px;color:#d1e5d4;background:#082124c9;border:1px solid #b7d4c536;padding:5px 11px;border-radius:20px}.fielding-badge.attempt small{font-size:30px;letter-spacing:3px;color:#e9d8b3}.fielding-badge.attempt strong{font-size:18px;color:#f0e4cb}.result-toast.fielding-out strong{font-size:55px;letter-spacing:7px;color:#e2ffb2}.history-list li.fielding-out{color:#d8dfce}.pitch-dot.out{background:#d1b275;box-shadow:0 0 7px #d1b27555}.fielding-badge.caught{animation:fielding-badge-in .26s ease-out both}@keyframes fielding-flash{from{opacity:1}to{opacity:0}}@keyframes fielding-badge-in{from{opacity:0;transform:translate(-50%,7px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}@media(orientation:portrait){.fielding-badge{bottom:30%;max-width:92%;gap:8px}.fielding-badge small{font-size:43px}.fielding-badge strong{font-size:19px;letter-spacing:3px}.fielding-badge>span{font-size:9px;letter-spacing:.5px}.fielding-badge.attempt small{font-size:24px}.fielding-badge.attempt strong{font-size:16px}}@media(max-height:500px) and (orientation:landscape){.fielding-badge{bottom:25%;gap:4px}.fielding-badge small{font-size:35px}.fielding-badge strong{font-size:15px;letter-spacing:3px}.fielding-badge>span{font-size:8px;padding:3px 9px}.result-toast.fielding-out strong{font-size:37px}}@media(prefers-reduced-motion:reduce){.fielding-flash{display:none!important}.fielding-badge.caught{animation:none}}
 
 </style>
 </head>
@@ -19,6 +21,7 @@
   <main class="stadium" id="stadium" aria-label="3D 全壘打大賽">
     <canvas id="gameCanvas" width="1600" height="900" tabindex="0" aria-label="3D 棒球場。觀察前方投手，按空白鍵、點擊球場或揮棒按鈕擊球。"></canvas>
     <div class="screen-shade" aria-hidden="true"></div>
+    <div id="fieldingFlash" class="fielding-flash" aria-hidden="true" hidden></div>
 
     <header class="game-hud">
       <section class="scoreboard" aria-label="本輪計分板">
@@ -37,6 +40,7 @@
 
     <div id="flightReadout" class="flight-readout" hidden><span>飛行距離</span><strong><b id="flightDistance">0</b><small> m</small></strong><span class="launch-angle">擊球仰角 <b id="launchAngle">42</b>°</span></div>
     <div id="resultToast" class="result-toast" role="status" aria-live="polite" hidden></div>
+    <div id="fieldingBadge" class="fielding-badge" role="status" aria-live="polite" hidden><small id="fieldingCode">OUT</small><strong id="fieldingTitle">精彩守備</strong><span id="fieldingDetail">精彩守備 · 打者出局</span></div>
 
     <div class="field-readouts">
       <div class="speed-meter"><span>球速</span><strong id="pitchSpeed">110</strong><small>km/h</small></div>
@@ -77,7 +81,7 @@ const modules={};
 modules["./engine.js"]=(()=>{
 /**
  * Dependency-free Home Run Derby rules. Distances are metres, time is seconds.
- * Events: start, phase, pitch, swing, contact, result, upgrade, perk, pause, finish, reset.
+ * Events: start, phase, pitch, swing, contact, fielding, result, upgrade, perk, pause, finish, reset.
  * Each callback receives {type, state, ...payload}; state is a live reference.
  */
 const DIFFICULTIES = Object.freeze({
@@ -183,13 +187,15 @@ function initialState() {
     modifiers: { timing: 1, power: 1 },
     elapsed: 0, deliveryTime: 0, hasSwung: false, swingTime: null,
     swingAge: null, swingProgress: 0, swingResult: null, pendingContact: false,
-    lastResult: null, result: null, flight: null,
+    lastResult: null, result: null, flight: null, fieldingPending: 0,
   };
 }
 
 class DerbyEngine {
-  constructor({ onEvent = () => {}, now } = {}) {
+  constructor({ onEvent = () => {}, selectFielding = () => null, fieldingRandom = Math.random, now } = {}) {
     this.onEvent = onEvent;
+    this.selectFielding = selectFielding;
+    this.fieldingRandom = fieldingRandom;
     // Accepted for UI integrations; simulation remains deterministic via tick().
     this.now = now;
     this.state = initialState();
@@ -259,11 +265,17 @@ class DerbyEngine {
 
   _contact() {
     const s = this.state;
-    const result = s.swingResult;
+    // Roll once per fair contact. A towering drive keeps its result and saves
+    // the highlight for the next ball an outfielder can physically reach.
+    if(s.swingResult.kind!=='foul' && this.fieldingRandom()<.10)s.fieldingPending++;
+    const fielding = s.swingResult.kind!=='foul' && s.fieldingPending>0
+      ? this.selectFielding(s.swingResult,{chance:1}) : null;
+    if(fielding)s.fieldingPending--;
+    const result = fielding ? { ...s.swingResult, fielding, duration: fielding.playDuration } : s.swingResult;
     s.pendingContact = false;
-    s.flight = { ...result, progress: 0 };
+    s.flight = { ...result, progress: 0, fieldingResolved: false, caught: false };
     s.result = result;
-    this._phase('flight', s.flight.duration);
+    this._phase('flight', s.flight.duration + (fielding ? 1.05 : 0));
     this._emit('contact', { result });
   }
 
@@ -298,7 +310,7 @@ class DerbyEngine {
     s.result = recorded;
     s.results.push(recorded);
     if (recorded.homerun) s.hr += 1;
-    if (recorded.contact && recorded.kind !== 'foul') {
+    if (recorded.contact && ['hit', 'homerun'].includes(recorded.kind)) {
       s.hitCount += 1;
       s.combo += 1;
       s.bestCombo = Math.max(s.bestCombo, s.combo);
@@ -306,7 +318,7 @@ class DerbyEngine {
       s.bestDistance = Math.max(s.bestDistance, recorded.distance);
     } else s.combo = 0;
     this._emit('result', { result: recorded });
-    this._phase('between', 1.25);
+    this._phase('between', recorded.fielding?.betweenDuration || 1.25);
   }
 
   /** Real-time updates are capped at 0.25s to avoid background-tab jumps. */
@@ -319,7 +331,9 @@ class DerbyEngine {
       // This keeps contact, ball flight and the arm animation on the same clock.
       const phaseRemaining = Math.max(0, s.phaseDuration - s.phaseTime);
       const contactRemaining = s.pendingContact ? Math.max(0, SWING_CONTACT_TIME - s.swingAge) : Infinity;
-      const dt = Math.min(0.01, remaining, phaseRemaining > 0.0000001 ? phaseRemaining : Infinity, contactRemaining > 0.0000001 ? contactRemaining : Infinity);
+      const fieldingRemaining = s.phase === 'flight' && s.flight.fielding && !s.flight.fieldingResolved
+        ? Math.max(0, s.flight.duration * s.flight.fielding.catchProgress - s.phaseTime) : Infinity;
+      const dt = Math.min(0.01, remaining, phaseRemaining > 0.0000001 ? phaseRemaining : Infinity, contactRemaining > 0.0000001 ? contactRemaining : Infinity, fieldingRemaining > 0.0000001 ? fieldingRemaining : Infinity);
       remaining -= dt;
       s.elapsed += dt;
       s.deliveryTime += dt;
@@ -343,7 +357,16 @@ class DerbyEngine {
           this._recordResult(miss);
         }
       } else if (s.phase === 'flight') {
-        s.flight.progress = Math.min(1, s.phaseTime / s.phaseDuration);
+        const f=s.flight, play=f.fielding;
+        if(play && !f.fieldingResolved && s.phaseTime >= f.duration * play.catchProgress - 0.000001){
+          f.fieldingResolved=true;
+          if(play.success){
+            f.caught=true;
+            s.result={...s.result,kind:'out',label:play.type==='wall'?'跳牆接殺':'飛撲接殺',homerun:false,caught:true};
+          }
+          this._emit('fielding',{play});
+        }
+        f.progress = Math.min(f.caught?play.catchProgress:1, s.phaseTime / f.duration);
         if (s.phaseTime >= s.phaseDuration - 0.000001) this._recordResult(s.result);
       } else if (s.phase === 'between' && s.phaseTime >= s.phaseDuration - 0.000001) {
         if (s.pitch >= PITCHES_PER_ROUND) {
@@ -1236,6 +1259,115 @@ class BaseballCharacter {
 
 return {BaseballCharacter};
 })();
+modules["./fielding.js"]=(()=>{
+/** Rare defensive highlights selected from the actual ball trajectory.
+ * No renderer/engine imports: the caller supplies its shared sampleFlight.
+ */
+const FIELDING_CHANCE = .10;
+const FIELDING_MAX_SPEED = 9.2;
+// The rendered wall's inner face is at 109.675 m, with a 3.355 m top rail.
+// Intercept just in front of it, with the glove visibly above the rail.
+const FIELDING_WALL_RADIUS = 109.6;
+const FIELDING_MIN_WALL_CATCH_HEIGHT = 3.4;
+const FIELDING_MAX_GLOVE_HEIGHT = 3.7;
+
+const OUTFIELDERS = [
+  {index:4,base:[-42,0,-72]},
+  {index:5,base:[0,0,-86]},
+  {index:6,base:[43,0,-72]},
+];
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const range=p=>Math.hypot(p[0],p[2]);
+const finitePoint=p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite);
+
+function crossing(sample,predicate,low=0,high=1){
+  for(let i=0;i<40;i++){
+    const middle=(low+high)/2;
+    if(predicate(sample(middle)))high=middle;else low=middle;
+  }
+  return (low+high)/2;
+}
+
+function nearestFielder(point,type){
+  let best=null;
+  for(const spec of OUTFIELDERS){
+    let target;
+    if(type==='wall'){
+      const r=range(point),radius=FIELDING_WALL_RADIUS-.85;
+      target=[point[0]/r*radius,0,point[2]/r*radius];
+    }else{
+      const dx=point[0]-spec.base[0],dz=point[2]-spec.base[2],d=Math.hypot(dx,dz)||1;
+      target=[point[0]-.7*dx/d,0,point[2]-.7*dz/d];
+    }
+    const travel=Math.hypot(target[0]-spec.base[0],target[2]-spec.base[2]);
+    if(!best||travel<best.travel)best={index:spec.index,base:[...spec.base],target,travel};
+  }
+  return best;
+}
+
+/** Geometry eligibility is separate from the 10% roll, so unreachable towering
+ * home runs cannot turn into outs and foul balls never draw a highlight.
+ */
+function fieldingCandidate(result,{sampleFlight}={}){
+  if(typeof sampleFlight!=='function'||!result?.contact||result.kind==='foul'||result.kind==='out'||result.quality>=.96||!Number.isFinite(result.distance)||result.distance<45)return null;
+  const sample=p=>sampleFlight(result,p);
+  const start=sample(0),end=sample(1);
+  if(!finitePoint(start)||!finitePoint(end))return null;
+  let type,catchProgress,catchPoint,success;
+  if(result.distance>=110){
+    catchProgress=crossing(sample,p=>range(p)>=FIELDING_WALL_RADIUS);
+    catchPoint=sample(catchProgress);
+    // A fence-height fly can be robbed. A towering drive stays a home run.
+    if(catchPoint[1]>=FIELDING_MIN_WALL_CATCH_HEIGHT&&catchPoint[1]<=6){
+      type='wall';success=catchPoint[1]<=FIELDING_MAX_GLOVE_HEIGHT;
+    }
+  }
+  if(!type){
+    // Balls that clear the fence above a fielder's reach are never diverted
+    // into an infield dive. The dive intercept must remain inside the wall.
+    if(result.distance>111)return null;
+    catchProgress=crossing(sample,p=>p[1]<=.65,.5,1);
+    catchPoint=sample(catchProgress);
+    if(!finitePoint(catchPoint)||range(catchPoint)<44||range(catchPoint)>FIELDING_WALL_RADIUS-.1)return null;
+    type='dive';success=true;
+  }
+  const fielder=nearestFielder(catchPoint,type),approachStart=.04;
+  // Quintic start/stop movement peaks at 1.875 times its mean speed. Rare plays
+  // run a little slower so the outfielder can get there without teleporting.
+  const playDuration=Math.max(result.duration||2.8,1.875*fielder.travel/(FIELDING_MAX_SPEED*(catchProgress-approachStart))+.22);
+  if(!Number.isFinite(playDuration)||playDuration>7.0)return null;
+  const actionPoint=[...catchPoint];
+  if(!success)actionPoint[1]=3.45;
+  const returnDuration=Math.max(4.2,fielder.travel*1.875/9.2);
+  return {
+    type,fielderIndex:fielder.index,success,catchProgress,
+    catchPoint:[...catchPoint],actionPoint,fielderTarget:[...fielder.target],
+    startBase:[...fielder.base],approachStart,
+    actionStart:Math.max(approachStart,catchProgress-(type==='wall'?.48:.38)/playDuration),
+    actionEnd:Math.min(1,catchProgress+(type==='wall'?.42:.55)/playDuration),
+    playDuration,travelDistance:fielder.travel,returnDuration,
+    betweenDuration:Math.max(1.25,returnDuration-1.3+.08),
+  };
+}
+
+/** `chance` is per eligible fair contact. Inject `random` for repeatable rounds
+ * or QA; normal play uses independent draws, rather than an every-tenth pattern.
+ */
+function selectFieldingPlay(result,{sampleFlight,random=Math.random,chance=FIELDING_CHANCE}={}){
+  const candidate=fieldingCandidate(result,{sampleFlight});
+  if(!candidate)return null;
+  const probability=Number.isFinite(chance)?clamp(chance):FIELDING_CHANCE;
+  if(probability<=0)return null;
+  const roll=Number(random());
+  return Number.isFinite(roll)&&roll>=0&&roll<probability?candidate:null;
+}
+
+function chooseFieldingPlay(result,options={}){
+  return selectFieldingPlay(result,options);
+}
+
+return {FIELDING_CHANCE,FIELDING_MAX_SPEED,FIELDING_WALL_RADIUS,FIELDING_MIN_WALL_CATCH_HEIGHT,FIELDING_MAX_GLOVE_HEIGHT,fieldingCandidate,selectFieldingPlay,chooseFieldingPlay};
+})();
 modules["./defense.js"]=(()=>{
 /** Articulated, material-batched defenders. World units are metres, Y is up. */
 const { solveTwoBone }=modules['./motion.js'];
@@ -1277,7 +1409,7 @@ function trackedFlight(s,flightPoint) {
 }
 
 /** A deterministic pose sampler also used by the squad and continuity checks. */
-function sampleDefenderPose(index,s={}, {time=0,flightPoint}={}) {
+function sampleOrdinaryDefenderPose(index,s={}, {time=0,flightPoint}={}) {
   const spec=DEFENSIVE_POSITIONS[index];
   if(!spec)throw new RangeError('Unknown defensive position');
   const catcher=spec.role==='catcher',outfielder=index>=4&&index<7;
@@ -1339,6 +1471,101 @@ function sampleDefenderPose(index,s={}, {time=0,flightPoint}={}) {
     footYaw:{left:yaw+(catcher?-.38:-.1),right:yaw+(catcher?.38:.1)}};
 }
 
+const localPoint=(point,base,yaw)=>rotate(sub(point,base),-yaw);
+
+function blendRig(a,b,weight) {
+  if(weight<=0)return a;
+  if(weight>=1)return b;
+  const joints={};
+  for(const key of ['pelvis','chest','neck','head'])joints[key]=mix(a.joints[key],b.joints[key],weight);
+  for(const side of ['left','right']){
+    const hip=mix(a.joints[side+'Hip'],b.joints[side+'Hip'],weight);
+    const shoulder=mix(a.joints[side+'Shoulder'],b.joints[side+'Shoulder'],weight);
+    const ankle=mix(a.joints[side+'Ankle'],b.joints[side+'Ankle'],weight);
+    const wrist=mix(a.joints[side+'Wrist'],b.joints[side+'Wrist'],weight);
+    const kneePole=mix(a.joints[side+'Knee'],b.joints[side+'Knee'],weight);
+    const elbowPole=mix(a.joints[side+'Elbow'],b.joints[side+'Elbow'],weight);
+    const leg=solveTwoBone(hip,ankle,kneePole,.475,.455),arm=solveTwoBone(shoulder,wrist,elbowPole,.305,.285);
+    Object.assign(joints,{[side+'Hip']:hip,[side+'Shoulder']:shoulder,[side+'Knee']:leg.joint,[side+'Ankle']:leg.end,[side+'Elbow']:arm.joint,[side+'Wrist']:arm.end});
+  }
+  return {...b,joints,base:mix(a.base,b.base,weight),yaw:angleMix(a.yaw,b.yaw,weight),headYaw:angleMix(a.headYaw,b.headYaw,weight),
+    headPitch:a.headPitch+(b.headPitch-a.headPitch)*weight,bodyPitch:(a.bodyPitch||.1)+((b.bodyPitch||.1)-(a.bodyPitch||.1))*weight};
+}
+
+/** Pose the selected outfielder on the same clock as the ball and its catch. */
+function sampleFieldingPose(index,s={}, {time=0,flightPoint,ordinary=null}={}) {
+  const inFlight=s.phase==='flight'&&s.flight;
+  const flight=inFlight?s.flight:s.trackingFlight,plan=flight?.fielding;
+  if(!plan||plan.fielderIndex!==index)return null;
+  ordinary??=sampleOrdinaryDefenderPose(index,s,{time,flightPoint});
+  const duration=plan.playDuration||flight.duration||3,catchTime=plan.catchProgress*duration;
+  const recovery=inFlight?0:Math.max(0,s.trackingRecovery||0),returnDuration=plan.returnDuration||4.2;
+  const elapsed=inFlight?(s.phaseTime??flight.progress*duration):(flight.fieldingElapsed??duration+1)+recovery;
+  const start=ordinary.spec.base,target=plan.fielderTarget;
+  const actionPoint=plan.actionPoint||plan.catchPoint;
+  const toAction=sub(actionPoint,target),actionYaw=Math.atan2(toAction[0],toAction[2]);
+  const forward=rotate([0,0,1],actionYaw),homeYaw=Math.atan2(-start[0],-start[2]);
+  const chaseYaw=Math.atan2(target[0]-start[0],target[2]-start[2]);
+  const approach=smooth((plan.approachStart??.04)*duration,catchTime,elapsed);
+  const actionAge=elapsed-catchTime,wall=plan.type==='wall';
+  const lift=smooth(catchTime-(wall?.62:.56),catchTime,elapsed)*(1-smooth(catchTime+.10,catchTime+(wall?.76:1.65),elapsed));
+  const dive=wall?0:smooth(catchTime-.50,catchTime-.035,elapsed)*(1-smooth(catchTime+.70,catchTime+1.65,elapsed));
+  const slide=wall?0:smooth(catchTime,catchTime+.65,elapsed)*.78;
+  const wallOffset=wall?lift*.35:0;
+  const flightBase=add(mix(start,target,approach),mul(forward,wallOffset+slide));
+  const recoveryStart=add(target,mul(forward,wall?0:.78));
+  const base=inFlight?flightBase:mix(recoveryStart,start,smooth(0,returnDuration,recovery));
+  let yaw=angleMix(homeYaw,chaseYaw,smooth((plan.approachStart??.04)*duration,.8,elapsed));
+  yaw=angleMix(yaw,actionYaw,smooth(catchTime-.65,catchTime-.05,elapsed));
+  if(!inFlight){
+    const backYaw=Math.atan2(start[0]-recoveryStart[0],start[2]-recoveryStart[2]);
+    yaw=angleMix(actionYaw,backYaw,smooth(.15,.65,recovery));
+    yaw=angleMix(yaw,homeYaw,smooth(returnDuration-.65,returnDuration,recovery));
+  }
+  let running=(1-smooth(catchTime-.7,catchTime-.15,elapsed))*smooth(.05,.35,elapsed);
+  if(!inFlight){const q=clamp(recovery/returnDuration);running=16*q*q*(1-q)*(1-q);}
+  const stride=Math.sin(time*10.6+index*1.37)*running;
+  const ready=ordinary.ready*(1-running)*(1-lift);
+  const pitch=wall?.12+lift*.10:.12+(1.35-.12)*dive;
+  const jump=wall?Math.max(.65,actionPoint[1]-1.75)*lift:Math.sin(smooth(catchTime-.56,catchTime+.08,elapsed)*PI)*.14*(1-smooth(catchTime+.08,catchTime+.35,elapsed));
+  const pelvis=[0,(wall?.91-ready*.105:.91*(1-dive)+.28*dive)-lift*(wall?.02:0)+jump,0];
+  const spine=[0,Math.cos(pitch),Math.sin(pitch)],chest=add(pelvis,mul(spine,.43)),neck=add(chest,mul(spine,.16)),head=add(neck,mul(spine,.15));
+  const joints={pelvis,chest,neck,head};
+  const actionBase=add(target,mul(forward,wall?.35:0));
+  const catchWrist=localPoint(actionPoint,actionBase,actionYaw);
+  if(wall)catchWrist[1]-=Math.max(.65,actionPoint[1]-1.75)*(1-lift);
+  const reach=smooth(catchTime-.45,catchTime-.04,elapsed)*(1-smooth(catchTime+.65,catchTime+1.65,elapsed));
+  for(const [side,sign,cycle] of [['left',-1,stride],['right',1,-stride]]){
+    const hip=add(pelvis,[sign*.14,0,0]);
+    const standingAnkle=[sign*.20,.065+Math.max(0,cycle)*.19,cycle*.39];
+    const airborneAnkle=[sign*.20,.065+jump+(wall?lift*.08:.07),wall?-lift*.13:-.85];
+    const ankle=mix(standingAnkle,airborneAnkle,wall?lift:dive);
+    const leg=solveTwoBone(hip,ankle,add(hip,[sign*.20,wall?-.28:.15,1]),.475,.455);
+    const shoulder=add(chest,add([sign*.225,0,0],mul(spine,.075)));
+    const normalWrist=[sign*.25,1.03-ready*.32+cycle*.13,.28-cycle*.24];
+    const actionWrist=side==='left'?catchWrist:[.26,pelvis[1]+(wall?.38:.15),wall?.24:.48];
+    const wrist=mix(normalWrist,actionWrist,reach);
+    // Keep hands in front of the shoulder throughout the get-up. Crossing the
+    // shoulder made the nearly folded IK chain reverse its bend in one frame.
+    wrist[2]=Math.max(wrist[2],shoulder[2]+.16);
+    const arm=solveTwoBone(shoulder,wrist,add(shoulder,[sign*.75,-.12,0]),.305,.285);
+    Object.assign(joints,{[side+'Hip']:hip,[side+'Knee']:leg.joint,[side+'Ankle']:leg.end,[side+'Shoulder']:shoulder,[side+'Elbow']:arm.joint,[side+'Wrist']:arm.end});
+  }
+  const special={...ordinary,base,yaw,joints,running,ready,bodyPitch:pitch,headYaw:yaw,headPitch:wall?-.18*lift:pitch,
+    footYaw:{left:yaw-.10,right:yaw+.10},fielding:{type:plan.type,success:plan.success,actionAge,elapsed,recoveryDuration:returnDuration,
+      phase:actionAge<-.5?'run':actionAge<0?(wall?'jump':'dive'):actionAge<.7?(wall?'landing':'slide'):'recover'}};
+  const weight=smooth(0,.24,elapsed)*(1-smooth(returnDuration-.5,returnDuration,recovery));
+  const result=blendRig(ordinary,special,weight);
+  result.fielding??={...special.fielding};
+  result.fielding.glovePoint=add(result.base,rotate(result.joints.leftWrist,result.yaw));
+  return result;
+}
+
+function sampleDefenderPose(index,s={}, options={}) {
+  const ordinary=sampleOrdinaryDefenderPose(index,s,options);
+  return sampleFieldingPose(index,s,{...options,ordinary})||ordinary;
+}
+
 function basisAlong(axis) {
   const y=unit(axis,[0,1,0]);
   const x=unit(cross(y,Math.abs(y[2])>.92?[1,0,0]:[0,0,1]),[1,0,0]);
@@ -1389,16 +1616,24 @@ class DefenseSquad {
     this.batches=Object.fromEntries(Object.keys(DEFENSE_MATERIALS).map(key=>[key,new DefenseBatch()]));
     this.lastFlight=null;
     this.recoveryStartedAt=null;
+    this.fieldingGlove=null;
+    this.activeFieldingPose=null;
   }
   objects(s,{time=0,flightPoint}={}) {
-    if(s.phase==='flight'&&s.flight){this.lastFlight={...s.flight};this.recoveryStartedAt=null;}
+    if(s.phase==='flight'&&s.flight){this.lastFlight={...s.flight,fieldingElapsed:s.phaseTime};this.recoveryStartedAt=null;}
     if(s.phase==='between'&&this.lastFlight&&this.recoveryStartedAt===null)this.recoveryStartedAt=time-(s.phaseTime||0);
     const recovering=this.lastFlight&&this.recoveryStartedAt!==null&&['between','windup','upgrade','finished'].includes(s.phase);
     const recoveryAge=recovering?Math.max(0,time-this.recoveryStartedAt):0;
     const state=recovering?{...s,trackingFlight:this.lastFlight,trackingProgress:1,trackingRecovery:recoveryAge}:s;
-    if(['idle','pitch'].includes(s.phase)||recovering&&recoveryAge>=2.4){this.lastFlight=null;this.recoveryStartedAt=null;}
+    const recoveryDuration=this.lastFlight?.fielding?.returnDuration||2.4;
+    if(['idle','pitch'].includes(s.phase)||recovering&&recoveryAge>=recoveryDuration){this.lastFlight=null;this.recoveryStartedAt=null;}
     for(const batch of Object.values(this.batches))batch.clear();
-    for(let i=0;i<DEFENSIVE_POSITIONS.length;i++)this.player(sampleDefenderPose(i,state,{time,flightPoint}));
+    this.fieldingGlove=null;this.activeFieldingPose=null;
+    for(let i=0;i<DEFENSIVE_POSITIONS.length;i++){
+      const pose=sampleDefenderPose(i,state,{time,flightPoint});
+      if(pose.fielding){this.fieldingGlove=pose.fielding.glovePoint;this.activeFieldingPose=pose;}
+      this.player(pose);
+    }
     return Object.entries(this.batches).map(([name,batch])=>({mesh:'defense:'+name,geometry:batch.finish(),color:DEFENSE_MATERIALS[name],roughness:.91}));
   }
   player(pose){
@@ -1407,7 +1642,7 @@ class DefenseSquad {
     const sphere=(material,p,r,rotation=yaw,rows=5,sides=8,pitch=0)=>b[material].ellipsoid(world(p),r,rotation,rows,sides,pitch);
     const limb=(material,a,z,r0,r1=r0,sides=8)=>b[material].limb(world(a),world(z),r0,r1,sides);
     b.shadow.ellipsoid([base[0],.018,base[2]],[catcher?.48:.42,.011,.30],yaw,3,10);
-    sphere('jersey',mix(j.pelvis,j.neck,.48),[.225,.34,.135],yaw,6,10,-.10);
+    sphere('jersey',mix(j.pelvis,j.neck,.48),[.225,.34,.135],yaw,6,10,pose.bodyPitch||-.10);
     sphere('pants',add(j.pelvis,[0,-.04,0]),[.19,.16,.13]);
     limb('navy',add(j.pelvis,[0,.022,0]),add(j.pelvis,[0,.061,0]),.174,.17,10);
     limb('skin',j.neck,add(j.head,[0,-.06,0]),.047);
@@ -1447,7 +1682,7 @@ class DefenseSquad {
   }
 }
 
-return {DEFENSIVE_POSITIONS,sampleDefenderPose,DefenseSquad};
+return {DEFENSIVE_POSITIONS,sampleFieldingPose,sampleDefenderPose,DefenseSquad};
 })();
 modules["./scene3d.js"]=(()=>{
 const { GLRenderer }=modules['./webgl.js'];
@@ -1470,6 +1705,7 @@ class DiamondScene {
     this.time=0;
     this.lastFlight=null;
     this.particles=[];
+    this.lastDustTime=-1;
     this.textures={};
     this.staticObjects=[];
     this.defense=new DefenseSquad();
@@ -1595,6 +1831,14 @@ class DiamondScene {
   event(e) {
     if(e.type==='pitch'||e.type==='reset')this.lastFlight=null;
     if(e.type==='contact')this.lastFlight={...e.state.flight};
+    if(e.type==='fielding'){
+      this.lastFlight={...e.state.flight};
+      const point=e.play.success?e.play.catchPoint:e.play.actionPoint;
+      for(let i=0;i<14;i++){
+        const angle=i/14*TAU;
+        this.particles.push({p:[...point],v:[Math.cos(angle)*2.6,.8+(i%3)*.45,Math.sin(angle)*2.6],life:.35+(i%4)*.07,color:e.play.success?'#d4f16e':'#d1b993',size:.045,gravity:3});
+      }
+    }
     if(e.type==='result'&&e.result.homerun){
       const pos=this.flightPoint(this.lastFlight||e.result,.85);
       for(let i=0;i<18;i++)this.particles.push({p:[...pos],v:[(Math.random()-.5)*20,Math.random()*12+1,(Math.random()-.5)*20],life:1.6+Math.random(),color:i%2?'#dbf283':'#fff2d1'});
@@ -1625,6 +1869,17 @@ class DiamondScene {
       base.eye=vMix(base.eye,following,blend);
       base.target=vMix(base.target,[ball[0],ball[1]-.7,ball[2]-2],blend);
       base.fov=mix(base.fov,56,blend);
+      if(f.fielding){
+        const play=f.fielding,age=s.phase==='flight'?s.phaseTime:f.duration+1.05+s.phaseTime;
+        const catchTime=play.catchProgress*f.duration;
+        const focus=smooth(catchTime-1.35,catchTime-.35,age)*(1-smooth(f.duration+.55,f.duration+1.85,age));
+        const point=play.fielderTarget,r=Math.hypot(point[0],point[2])||1,normal=[point[0]/r,0,point[2]/r],tangent=[-normal[2],0,normal[0]];
+        const back=play.type==='wall'?6:4.8,side=play.type==='wall'?4:3.4;
+        const eye=[point[0]-normal[0]*back+tangent[0]*side,play.type==='wall'?3.8:1.8,point[2]-normal[2]*back+tangent[2]*side];
+        const glove=this.defense.fieldingGlove||play.actionPoint;
+        const target=[mix(point[0],glove[0],.55),play.type==='wall'?mix(1.8,glove[1],.55):.65,mix(point[2],glove[2],.55)];
+        base.eye=vMix(base.eye,eye,focus);base.target=vMix(base.target,target,focus);base.fov=mix(base.fov,portrait?58:48,focus);
+      }
     }
     return base;
   }
@@ -1657,13 +1912,32 @@ class DiamondScene {
       for(const y of [.72,1.38])this.beam(dynamic,[-.27,y,-.02],[.27,y,-.02],.007,col,{alpha,unlit:true});
     }
     if(s.phase==='flight'&&s.flight){
-      const p=s.flight.progress,point=this.flightPoint(s.flight,p),trail=[];
-      for(let i=12;i>0;i--)trail.push(this.flightPoint(s.flight,Math.max(0,p-i*.004)));
-      this.ball(dynamic,point,p<.18?.043:.32,trail);
+      const p=s.flight.progress,point=s.flight.caught&&this.defense.fieldingGlove?this.defense.fieldingGlove:this.flightPoint(s.flight,p),trail=[];
+      if(!s.flight.caught)for(let i=12;i>0;i--)trail.push(this.flightPoint(s.flight,Math.max(0,p-i*.004)));
+      const nearPlay=s.flight.fielding&&s.phaseTime>s.flight.duration*s.flight.fielding.catchProgress-.9;
+      this.ball(dynamic,point,s.flight.caught?.045:nearPlay?.10:p<.18?.043:.32,trail);
+    }
+    if(s.phase==='between'&&this.lastFlight?.caught&&this.defense.fieldingGlove)this.ball(dynamic,this.defense.fieldingGlove,.045);
+    const play=s.phase==='flight'?s.flight?.fielding:null;
+    if(play){
+      const actionAge=s.phaseTime-play.catchProgress*s.flight.duration;
+      if(play.type==='dive'&&actionAge>-.08&&actionAge<.65&&this.time-this.lastDustTime>.045){
+        this.lastDustTime=this.time;
+        const point=this.defense.activeFieldingPose?.base||play.fielderTarget;
+        for(let i=0;i<3;i++)this.particles.push({p:[point[0]+(i-1)*.18,.10,point[2]],v:[(i-1)*.75,.65+i*.12,.35],life:.42+i*.08,color:i%2?'#9aaf78':'#bfb58a',size:.08,gravity:1.8});
+      }
+      if(play.success&&actionAge>=0&&actionAge<.45){
+        const center=this.defense.fieldingGlove||play.actionPoint,radius=.12+actionAge*1.6,alpha=(1-actionAge/.45)*.7;
+        for(let i=0;i<14;i++){
+          const a=i/14*TAU,b=(i+1)/14*TAU;
+          this.beam(dynamic,[center[0]+Math.cos(a)*radius,center[1]+Math.sin(a)*radius,center[2]],[center[0]+Math.cos(b)*radius,center[1]+Math.sin(b)*radius,center[2]],.012,'#d8f78b',{alpha,unlit:true});
+        }
+      }
     }
     for(const particle of this.particles){
-      particle.life-=dt;particle.v[1]-=dt*9.8;for(let i=0;i<3;i++)particle.p[i]+=particle.v[i]*dt;
-      this.add(dynamic,'sphere',particle.p,[.12,.12,.12],particle.color,[0,0,0],{alpha:clamp(particle.life),unlit:true});
+      particle.life-=dt;particle.v[1]-=dt*(particle.gravity??9.8);for(let i=0;i<3;i++)particle.p[i]+=particle.v[i]*dt;
+      const size=particle.size||.12;
+      this.add(dynamic,'sphere',particle.p,[size,size,size],particle.color,[0,0,0],{alpha:clamp(particle.life),unlit:true});
     }
     this.particles=this.particles.filter(p=>p.life>0);
     // The broadcast camera passes near the roof. Hide that foreground structure
@@ -1678,6 +1952,7 @@ return {DiamondScene};
 })();
 modules["./app.js"]=(()=>{
 const { DerbyEngine, DIFFICULTIES, sampleFlight }=modules['./engine.js'];
+const { chooseFieldingPlay }=modules['./fielding.js'];
 const { DiamondScene:DiamondScene3D }=modules['./scene3d.js'];
 const { DiamondScene:DiamondScene2D }=modules['./scene.js'];
 const $=id=>document.getElementById(id);
@@ -1696,7 +1971,8 @@ catch(error) {
 }
 const storage={get(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}},set(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}};
 let record=storage.get('diamond-derby-record',{hr:0,best:0}),soundEnabled=storage.get('diamond-derby-sound',true);
-let audio=null,toastUntil=0,lastFrame=0,gameReady=false,hostActive=true;
+let audio=null,toastUntil=0,lastFrame=0,gameReady=false,hostActive=true,fieldingFlashUntil=0;
+const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
 
 function sound(kind) {
   if(!soundEnabled)return;
@@ -1714,6 +1990,12 @@ function sound(kind) {
       notes.forEach((f,i)=>{const o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.11);g.gain.linearRampToValueAtTime(.055,t+i*.11+.015);g.gain.exponentialRampToValueAtTime(.001,t+i*.11+.35);o.connect(g).connect(audio.destination);o.start(t+i*.11);o.stop(t+i*.11+.36);});
     }
     if(kind==='swing') {const o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.setValueAtTime(350,t);o.frequency.exponentialRampToValueAtTime(90,t+.12);g.gain.setValueAtTime(.035,t);g.gain.exponentialRampToValueAtTime(.001,t+.13);o.connect(g).connect(audio.destination);o.start();o.stop(t+.14);}
+    if(kind==='catch'){
+      const n=audio.createBuffer(1,Math.round(audio.sampleRate*.11),audio.sampleRate),data=n.getChannelData(0);
+      for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/(audio.sampleRate*.012));
+      const src=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();src.buffer=n;filter.type='lowpass';filter.frequency.value=1500;gain.gain.value=.42;src.connect(filter).connect(gain).connect(audio.destination);src.start();
+      const pop=audio.createOscillator(),level=audio.createGain();pop.frequency.setValueAtTime(210,t);pop.frequency.exponentialRampToValueAtTime(72,t+.075);level.gain.setValueAtTime(.10,t);level.gain.exponentialRampToValueAtTime(.001,t+.11);pop.connect(level).connect(audio.destination);pop.start();pop.stop(t+.12);
+    }
   }catch{}
 }
 
@@ -1721,6 +2003,18 @@ function showToast(title,detail='',kind='neutral',duration=1.7){
   const el=$('resultToast');el.replaceChildren();
   const main=document.createElement('strong'),small=document.createElement('span');main.textContent=title;small.textContent=detail;el.append(main,small);
   el.className=`result-toast ${kind}`;el.hidden=false;toastUntil=engine.state.elapsed+duration;
+}
+function clearFielding(){
+  $('fieldingBadge').hidden=true;$('fieldingFlash').hidden=true;fieldingFlashUntil=0;
+}
+function showFielding(play){
+  const wall=play.type==='wall';
+  $('fieldingBadge').className=`fielding-badge ${play.success?'caught':'attempt'}`;
+  $('fieldingCode').textContent=play.success?'OUT':'SO CLOSE';
+  $('fieldingTitle').textContent=play.success?(wall?'跳牆接殺':'飛撲接殺'):(wall?'跳牆攔截未果':'飛撲未能接住');
+  $('fieldingDetail').textContent=play.success?'精彩守備 · 打者出局':'球持續飛行，落點決定結果';
+  $('fieldingBadge').hidden=false;
+  if(play.success){sound('catch');if(!reducedMotion){$('fieldingFlash').hidden=false;fieldingFlashUntil=engine.state.elapsed+.22;}}
 }
 function updateSound(){
   $('soundBtn').setAttribute('aria-pressed',String(soundEnabled));
@@ -1752,7 +2046,7 @@ function updateHistory(s){
   const list=$('historyList');list.replaceChildren();
   if(!s.results.length){const li=document.createElement('li');li.className='history-empty';li.textContent='第一支全壘打，從這一球開始。';list.append(li);return;}
   for(const r of [...s.results].reverse().slice(0,4)){
-    const li=document.createElement('li');li.className=r.homerun?'homerun':'';
+    const li=document.createElement('li');li.className=r.homerun?'homerun':r.kind==='out'?'fielding-out':'';
     const num=document.createElement('span'),label=document.createElement('span'),dist=document.createElement('b');
     num.textContent=String(r.pitch).padStart(2,'0');label.textContent=r.label;dist.textContent=r.contact?`${r.distance} m`:'—';
     li.append(num,label,dist);list.append(li);
@@ -1771,28 +2065,36 @@ function phaseUI(s){
   const messages={idle:'準備上場，挑戰你的第一支全壘打。',windup:'投手準備中 · 留意抬腿與出手',pitch:'看準來球，揮棒！',flight:'球飛出去了！',between:'準備迎接下一球',finished:'本輪挑戰完成',upgrade:'選擇你的中場能力強化'};
   $('playStatus').textContent=s.paused?'比賽已暫停':messages[s.phase];
 }
-const engine=new DerbyEngine({onEvent:e=>{
+const engine=new DerbyEngine({selectFielding:(result,options)=>chooseFieldingPlay(result,{sampleFlight,...options}),onEvent:e=>{
   if(scene)scene.event(e);const s=e.state;
-  if(e.type==='start') {sound('start');$('welcomeOverlay').hidden=true;$('resultsOverlay').hidden=true;$('resultToast').hidden=true;updateHistory(s);}
-  if(e.type==='pitch'){updateScore(s);$('resultToast').hidden=true;}
-  if(e.type==='upgrade'){$('resultToast').hidden=true;}
+  if(e.type==='start') {clearFielding();sound('start');$('welcomeOverlay').hidden=true;$('resultsOverlay').hidden=true;$('resultToast').hidden=true;updateHistory(s);}
+  if(e.type==='reset')clearFielding();
+  if(e.type==='pitch'){clearFielding();updateScore(s);$('resultToast').hidden=true;}
+  if(e.type==='upgrade'){clearFielding();$('resultToast').hidden=true;}
   if(e.type==='perk'){updateScore(s);sound('start');}
   if(e.type==='swing')sound('swing');
   if(e.type==='contact'){
     $('launchAngle').textContent=Math.round(e.result.launchAngle);
-    sound(e.result.homerun?'homerun':'contact');
+    sound(e.result.homerun&&!e.result.fielding?'homerun':'contact');
     const timing=e.result.timing==='perfect'?'PERFECT · 完美擊球':e.result.timing==='early'?'稍早出棒':'稍晚出棒';
-    showToast(e.result.homerun?'HOME RUN!':e.result.label,`${timing} · ${e.result.distance} m`,e.result.homerun?'homerun':'hit',1.2);
+    showToast(e.result.fielding?'外野手追球中':e.result.homerun?'HOME RUN!':e.result.label,`${timing} · ${e.result.distance} m`,e.result.homerun&&!e.result.fielding?'homerun':'hit',1.2);
   }
+  if(e.type==='fielding'){showFielding(e.play);$('resultToast').hidden=true;}
   if(e.type==='result'){
     updateScore(s);updateHistory(s);
+    if(e.result.kind==='out')$('resultToast').hidden=true;
+    else if(e.result.fielding){
+      $('fieldingBadge').hidden=true;
+      if(e.result.homerun)sound('homerun');
+      showToast(e.result.homerun?'HOME RUN!':e.result.label,`${e.result.distance} m`,e.result.homerun?'homerun':'hit',1.15);
+    }
     if(!e.result.contact)showToast(e.result.label,s.hasSwung?(e.result.offset<0?'出棒太早 · 再等一下':'出棒太晚 · 提早一點'):'球快到本壘時，按下揮棒','miss',1.15);
   }
   if(e.type==='finish'){
     record={hr:Math.max(record.hr,s.hr),best:Math.max(record.best,s.bestDistance)};
     storage.set('diamond-derby-record',record);updateRecord();
     $('finalHrs').textContent=s.hr;$('finalBest').textContent=s.bestDistance;$('finalDistance').textContent=s.totalDistance;
-    $('resultsOverlay').hidden=false;$('resultToast').hidden=true;sound('finish');
+    $('resultsOverlay').hidden=false;$('resultToast').hidden=true;clearFielding();sound('finish');
     requestAnimationFrame(()=>$('restartBtn').focus({preventScroll:true}));
   }
   if(['phase','pause','start','swing','contact','finish','upgrade','perk'].includes(e.type))phaseUI(s);
@@ -1847,8 +2149,12 @@ $('fullscreenBtn').addEventListener('click',async()=>{
 function frame(now){
   const dt=lastFrame?Math.min((now-lastFrame)/1000,.05):0;lastFrame=now;
   if(!hostActive){requestAnimationFrame(frame);return;}
-  engine.tick(dt);const s=engine.state;
-  if(scene)scene.frame(s,s.paused?0:dt);
+  const before=engine.state,play=before.phase==='flight'?before.flight?.fielding:null;
+  const catchTime=play?play.catchProgress*before.flight.duration:0;
+  const cinematicDt=dt*(play&&!reducedMotion&&Math.abs(before.phaseTime-catchTime)<.22?.55:1);
+  engine.tick(cinematicDt);const s=engine.state;
+  if(scene)scene.frame(s,s.paused?0:cinematicDt);
+  if(!$('fieldingFlash').hidden&&s.elapsed>=fieldingFlashUntil)$('fieldingFlash').hidden=true;
   if(s.phase==='flight'&&s.flight){const p=sampleFlight(s.flight,s.flight.progress);$('flightDistance').textContent=Math.round(Math.hypot(p[0],p[2]));}
   if(scene&&!gameReady){gameReady=true;$('launchNotice').hidden=true;$('startBtn').disabled=false;}
   const progress=s.phase==='pitch'?Math.min(1,s.inputProgress/1.18):s.phase==='flight'?s.swingResult?(.91+s.swingResult.offset/s.pitchDuration)/1.18:0:0;
