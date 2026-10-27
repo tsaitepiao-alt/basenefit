@@ -161,6 +161,19 @@ function flightParameters(exitSpeed, launchAngle, distance) {
   };
 }
 
+/** Prepare an arcade defensive variation before the ball leaves the bat.
+ * The trajectory, displayed launch data and eventual catch all use this one
+ * physical flight; ordinary swings retain evaluateSwing's original result.
+ */
+function createFieldingFlight(result,{distance,launchAngle,direction=result.direction}={}) {
+  const radians=launchAngle*Math.PI/180;
+  const exitSpeed=Math.sqrt(distance*GRAVITY/(Math.sin(2*radians)*.72));
+  const homerun=distance>=110;
+  return {...result,distance,launchAngle,direction,exitSpeed,homerun,
+    kind:homerun?'homerun':'hit',label:homerun?'全壘打！':'場內安打',
+    ...flightParameters(exitSpeed,launchAngle,distance)};
+}
+
 /** World position in metres, shared by ball rendering and fielders' tracking. */
 function sampleFlight(flight, progress) {
   const p = Math.max(0, Math.min(1, Number(progress) || 0));
@@ -196,6 +209,8 @@ class DerbyEngine {
     this.onEvent = onEvent;
     this.selectFielding = selectFielding;
     this.fieldingRandom = fieldingRandom;
+    // Keep the next successful highlight across rounds and interrupted plays.
+    this.nextFieldingType = 'wall';
     // Accepted for UI integrations; simulation remains deterministic via tick().
     this.now = now;
     this.state = initialState();
@@ -265,13 +280,13 @@ class DerbyEngine {
 
   _contact() {
     const s = this.state;
-    // Roll once per fair contact. A towering drive keeps its result and saves
-    // the highlight for the next ball an outfielder can physically reach.
+    // Roll once per fair contact, then alternate actual wall and diving catches.
+    // A special's catchable variation is chosen here, before its flight starts.
     if(s.swingResult.kind!=='foul' && this.fieldingRandom()<.10)s.fieldingPending++;
     const fielding = s.swingResult.kind!=='foul' && s.fieldingPending>0
-      ? this.selectFielding(s.swingResult,{chance:1}) : null;
+      ? this.selectFielding(s.swingResult,{chance:1,type:this.nextFieldingType,createFlight:createFieldingFlight}) : null;
     if(fielding)s.fieldingPending--;
-    const result = fielding ? { ...s.swingResult, fielding, duration: fielding.playDuration } : s.swingResult;
+    const result = fielding ? { ...s.swingResult, ...fielding.flightOverride, fielding, duration: fielding.playDuration } : s.swingResult;
     s.pendingContact = false;
     s.flight = { ...result, progress: 0, fieldingResolved: false, caught: false };
     s.result = result;
@@ -318,7 +333,7 @@ class DerbyEngine {
       s.bestDistance = Math.max(s.bestDistance, recorded.distance);
     } else s.combo = 0;
     this._emit('result', { result: recorded });
-    this._phase('between', recorded.fielding?.betweenDuration || 1.25);
+    this._phase('between', Math.max(recorded.fielding?.betweenDuration || 1.25,recorded.homerun?4.5:1.25));
   }
 
   /** Real-time updates are capped at 0.25s to avoid background-tab jumps. */
@@ -363,6 +378,7 @@ class DerbyEngine {
           if(play.success){
             f.caught=true;
             s.result={...s.result,kind:'out',label:play.type==='wall'?'跳牆接殺':'飛撲接殺',homerun:false,caught:true};
+            this.nextFieldingType=play.type==='wall'?'dive':'wall';
           }
           this._emit('fielding',{play});
         }
@@ -386,7 +402,7 @@ class DerbyEngine {
   }
 }
 
-return {DIFFICULTIES,IDEAL_CONTACT_PROGRESS,PITCHES_PER_ROUND,SWING_CONTACT_TIME,SWING_DURATION,PERKS,calculateDistance,evaluateSwing,sampleFlight,DerbyEngine};
+return {DIFFICULTIES,IDEAL_CONTACT_PROGRESS,PITCHES_PER_ROUND,SWING_CONTACT_TIME,SWING_DURATION,PERKS,calculateDistance,evaluateSwing,createFieldingFlight,sampleFlight,DerbyEngine};
 })();
 modules["./webgl.js"]=(()=>{
 /** Small, dependency-free WebGL 1 renderer. World units are metres, Y is up. */
@@ -1308,8 +1324,8 @@ function nearestFielder(point,type){
 /** Geometry eligibility is separate from the 10% roll, so unreachable towering
  * home runs cannot turn into outs and foul balls never draw a highlight.
  */
-function fieldingCandidate(result,{sampleFlight}={}){
-  if(typeof sampleFlight!=='function'||!result?.contact||result.kind==='foul'||result.kind==='out'||result.quality>=.96||!Number.isFinite(result.distance)||result.distance<45)return null;
+function fieldingCandidate(result,{sampleFlight,scheduled=false}={}){
+  if(typeof sampleFlight!=='function'||!result?.contact||result.kind==='foul'||result.kind==='out'||!scheduled&&result.quality>=.96||!Number.isFinite(result.distance)||result.distance<45)return null;
   const sample=p=>sampleFlight(result,p);
   const start=sample(0),end=sample(1);
   if(!finitePoint(start)||!finitePoint(end))return null;
@@ -1350,11 +1366,45 @@ function fieldingCandidate(result,{sampleFlight}={}){
   };
 }
 
+/** A scheduled highlight needs both animations to be equally reachable. Pick
+ * its ball variation at contact, rather than waiting for a tiny wall-height
+ * timing window or moving a ball after it has already been hit.
+ */
+function scheduledFieldingCandidate(result,{type,sampleFlight,createFlight}={}){
+  if(!['wall','dive'].includes(type)||typeof sampleFlight!=='function'||typeof createFlight!=='function'||!result?.contact||result.kind==='foul'||result.kind==='out')return null;
+  const originalAngle=clamp(result.direction||0,-1.2,1.2)*.74;
+  const lane=OUTFIELDERS.reduce((best,spec)=>{
+    const angle=Math.atan2(spec.base[0],-spec.base[2]);
+    const difference=Math.abs(angle-originalAngle);
+    return !best||difference<best.difference?{angle,difference}:best;
+  },null);
+  const direction=lane.angle/.74;
+  let flight;
+  if(type==='wall'){
+    // At 112 metres of projected carry, tune the launch to meet the glove
+    // above the 3.355-metre rail. This remains a continuous gravity/drag arc.
+    let low=15,high=65;
+    for(let i=0;i<36;i++){
+      const angle=(low+high)/2;
+      const trial=createFlight(result,{distance:112,launchAngle:angle,direction});
+      const sample=p=>sampleFlight(trial,p);
+      const p=crossing(sample,point=>range(point)>=FIELDING_WALL_RADIUS);
+      if(sample(p)[1]<3.55)low=angle;else high=angle;
+    }
+    flight=createFlight(result,{distance:112,launchAngle:(low+high)/2,direction});
+  }else flight=createFlight(result,{distance:90,launchAngle:27,direction});
+  const candidate=fieldingCandidate(flight,{sampleFlight,scheduled:true});
+  if(!candidate||candidate.type!==type||!candidate.success)return null;
+  const keys=['distance','exitSpeed','launchAngle','direction','apex','flightTime','horizontalDrag','duration','homerun','kind','label'];
+  candidate.flightOverride=Object.fromEntries(keys.map(key=>[key,flight[key]]));
+  return candidate;
+}
+
 /** `chance` is per eligible fair contact. Inject `random` for repeatable rounds
  * or QA; normal play uses independent draws, rather than an every-tenth pattern.
  */
-function selectFieldingPlay(result,{sampleFlight,random=Math.random,chance=FIELDING_CHANCE}={}){
-  const candidate=fieldingCandidate(result,{sampleFlight});
+function selectFieldingPlay(result,{sampleFlight,random=Math.random,chance=FIELDING_CHANCE,type,createFlight}={}){
+  const candidate=type?scheduledFieldingCandidate(result,{type,sampleFlight,createFlight}):fieldingCandidate(result,{sampleFlight});
   if(!candidate)return null;
   const probability=Number.isFinite(chance)?clamp(chance):FIELDING_CHANCE;
   if(probability<=0)return null;
@@ -1366,7 +1416,7 @@ function chooseFieldingPlay(result,options={}){
   return selectFieldingPlay(result,options);
 }
 
-return {FIELDING_CHANCE,FIELDING_MAX_SPEED,FIELDING_WALL_RADIUS,FIELDING_MIN_WALL_CATCH_HEIGHT,FIELDING_MAX_GLOVE_HEIGHT,fieldingCandidate,selectFieldingPlay,chooseFieldingPlay};
+return {FIELDING_CHANCE,FIELDING_MAX_SPEED,FIELDING_WALL_RADIUS,FIELDING_MIN_WALL_CATCH_HEIGHT,FIELDING_MAX_GLOVE_HEIGHT,fieldingCandidate,scheduledFieldingCandidate,selectFieldingPlay,chooseFieldingPlay};
 })();
 modules["./defense.js"]=(()=>{
 /** Articulated, material-batched defenders. World units are metres, Y is up. */
@@ -1684,10 +1734,148 @@ class DefenseSquad {
 
 return {DEFENSIVE_POSITIONS,sampleFieldingPose,sampleDefenderPose,DefenseSquad};
 })();
+modules["./fireworks.js"]=(()=>{
+/** A full-stadium home-run celebration, batched into six reusable GPU meshes. */
+const FIREWORK_COLORS=Object.freeze(['#ffe18a','#d4fa66','#ff8ec8','#7ee7ff','#b3a0ff','#fff8dd']);
+const FIREWORK_SALVOS=9;
+const FIREWORK_MAX_QUADS_PER_COLOR=256;
+
+const TAU=Math.PI*2;
+const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
+const add=(a,b)=>a.map((n,i)=>n+b[i]);
+const sub=(a,b)=>a.map((n,i)=>n-b[i]);
+const mul=(a,s)=>a.map(n=>n*s);
+const dot=(a,b)=>a.reduce((n,v,i)=>n+v*b[i],0);
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const unit=(a,fallback=[1,0,0])=>{const n=Math.hypot(...a);return n>1e-8?mul(a,1/n):fallback;};
+
+function seeded(seed){
+  let state=seed>>>0;
+  return ()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
+}
+
+class SparkBatch {
+  constructor(){
+    const count=FIREWORK_MAX_QUADS_PER_COLOR;
+    this.geometry={dynamic:true,version:0,positions:new Float32Array(count*12),normals:new Float32Array(count*12),uvs:new Float32Array(count*8),indices:new Uint16Array(count*6),usedQuads:0};
+    for(let i=0;i<count;i++){
+      const vertex=i*4;
+      this.geometry.indices.set([vertex,vertex+1,vertex+2,vertex,vertex+2,vertex+3],i*6);
+      this.geometry.uvs.set([0,0,1,0,1,1,0,1],i*8);
+      for(let j=0;j<4;j++)this.geometry.normals[(vertex+j)*3+2]=1;
+    }
+    this.used=0;
+  }
+  clear(){this.used=0;this.geometry.positions.fill(0);}
+  streak(point,axis,side,length,width){
+    if(this.used>=FIREWORK_MAX_QUADS_PER_COLOR)return;
+    const head=add(point,mul(axis,length*.20)),tail=add(point,mul(axis,-length*.80)),offset=mul(side,width);
+    const vertices=[add(tail,offset),sub(tail,offset),sub(head,offset),add(head,offset)];
+    let i=this.used++*12;
+    for(const vertex of vertices)for(const value of vertex)this.geometry.positions[i++]=value;
+  }
+  finish(){this.geometry.usedQuads=this.used;this.geometry.version++;return this.geometry;}
+}
+
+/** `center` is a ground anchor near the outfield wall. All motion is sampled
+ * from one local clock, so a paused frame cannot spawn or move more particles.
+ * Local seeded randomness never consumes the game's defensive-event draws.
+ */
+class FireworksShow {
+  constructor(){
+    this.batches=FIREWORK_COLORS.map(()=>new SparkBatch());
+    this.sequence=0;
+    this.reset();
+  }
+  reset(){
+    this.active=false;this.elapsed=0;this.duration=0;this.center=[0,0,-95];this.salvos=[];this.sparks=[];
+    this.stats={activeSparks:0,activeRockets:0,visibleQuads:0,burstsStarted:0};
+  }
+  start({center=[0,0,-95],seed}={}){
+    this.reset();
+    this.center=center.map((v,i)=>Number.isFinite(v)?v:[0,0,-95][i]);
+    const random=seeded(seed??(0x6e6f7661+Math.imul(++this.sequence,997)));
+    const xs=[-18,15,-7,23,0,-23,9,-12,19];
+    for(let i=0;i<FIREWORK_SALVOS;i++){
+      const launch=i*.255,ascent=.46+random()*.11;
+      const point=[this.center[0]+xs[i],this.center[1]+20+(i%3)*5+random()*3,this.center[2]+(random()-.5)*14];
+      const base=[point[0]*.28+this.center[0]*.72,this.center[1]+.7,point[2]+3];
+      const salvo={launch,burst:launch+ascent,ascent,point,base,color:i%5};
+      this.salvos.push(salvo);
+      const count=i===8?116:96;
+      for(let j=0;j<count;j++){
+        // A Fibonacci shell gives a complete sphere; every third salvo adds a
+        // bright expanding equatorial ring around its central chrysanthemum.
+        const z=1-2*(j+.5)/count,radial=Math.sqrt(1-z*z),angle=j*2.399963229728653+random()*.18;
+        const ring=i%3===1&&j%3===0;
+        const direction=ring?[Math.cos(angle),.12*Math.sin(angle*2),Math.sin(angle)]:[Math.cos(angle)*radial,z,Math.sin(angle)*radial];
+        const speed=(ring?9:6)+random()*4,life=1.18+random()*.42;
+        this.sparks.push({birth:salvo.burst,point,velocity:mul(direction,speed),life,drag:.60+random()*.30,
+          gravity:3.6+random()*1.7,color:salvo.color,width:.065+random()*.045,core:j%5===0});
+        this.duration=Math.max(this.duration,salvo.burst+life);
+      }
+    }
+    this.active=true;
+    return this;
+  }
+  position(spark,age){
+    const travel=-Math.expm1(-spark.drag*age)/spark.drag;
+    const p=add(spark.point,mul(spark.velocity,travel));p[1]-=.5*spark.gravity*age*age;return p;
+  }
+  objects({dt=0,camera}={}){
+    if(!this.active)return [];
+    this.elapsed+=Math.max(0,Math.min(.25,Number(dt)||0));
+    if(this.elapsed>=this.duration){this.active=false;this.stats={activeSparks:0,activeRockets:0,visibleQuads:0,burstsStarted:FIREWORK_SALVOS};return [];}
+    const eye=camera?.eye||[0,10,10],target=camera?.target||this.center;
+    const forward=unit(sub(eye,target),[0,0,1]),right=unit(cross([0,1,0],forward)),up=unit(cross(forward,right),[0,1,0]);
+    const streak=(color,point,velocity,length,width)=>{
+      let vx=dot(velocity,right),vy=dot(velocity,up),l=Math.hypot(vx,vy);
+      if(l<1e-8){vx=0;vy=1;l=1;}
+      const axis=add(mul(right,vx/l),mul(up,vy/l)),side=add(mul(right,-vy/l),mul(up,vx/l));
+      this.batches[color].streak(point,axis,side,length,width);
+    };
+    for(const batch of this.batches)batch.clear();
+    let activeRockets=0,activeSparks=0,burstsStarted=0;
+    for(const salvo of this.salvos){
+      if(this.elapsed>=salvo.burst){burstsStarted++;continue;}
+      if(this.elapsed<salvo.launch)continue;
+      activeRockets++;
+      const p=clamp((this.elapsed-salvo.launch)/salvo.ascent);
+      for(let segment=0;segment<9;segment++){
+        const t=Math.max(0,p-segment*.045),rise=1-(1-t)*(1-t);
+        const point=salvo.base.map((v,i)=>v+(salvo.point[i]-v)*(i===1?rise:t));
+        streak(segment<2?5:salvo.color,point,[0,1,0],segment===0?.64:.33,.11*(1-segment/11));
+      }
+    }
+    for(const spark of this.sparks){
+      const age=this.elapsed-spark.birth;
+      if(age<0||age>=spark.life)continue;
+      activeSparks++;
+      const progress=age/spark.life,fade=Math.min(1,(1-progress)*2.35);
+      const twinkle=.78+.22*Math.sin(age*27+spark.velocity[0]*3);
+      const point=this.position(spark,age),velocity=spark.velocity.map((v,i)=>v*Math.exp(-spark.drag*age)-(i===1?spark.gravity*age:0));
+      const length=(.38+Math.hypot(...velocity)*.036)*fade;
+      streak(spark.color,point,velocity,length,spark.width*fade*twinkle);
+      if(spark.core)streak(5,point,velocity,length*.30,.043*fade);
+    }
+    const objects=[];
+    for(let i=0;i<this.batches.length;i++){
+      const batch=this.batches[i];
+      if(!batch.used)continue;
+      objects.push({mesh:'fireworks:'+i,geometry:batch.finish(),color:FIREWORK_COLORS[i],alpha:i===5?.98:.93,unlit:true,roughness:1});
+    }
+    this.stats={activeSparks,activeRockets,visibleQuads:this.batches.reduce((sum,b)=>sum+b.used,0),burstsStarted};
+    return objects;
+  }
+}
+
+return {FIREWORK_COLORS,FIREWORK_SALVOS,FIREWORK_MAX_QUADS_PER_COLOR,FireworksShow};
+})();
 modules["./scene3d.js"]=(()=>{
 const { GLRenderer }=modules['./webgl.js'];
 const { BaseballCharacter }=modules['./character.js'];
 const { DefenseSquad }=modules['./defense.js'];
+const { FireworksShow }=modules['./fireworks.js'];
 const { sampleFlight }=modules['./engine.js'];
 const { posePitcher, poseBatter, PITCH_RELEASE_POINT, SWING_CONTACT_TIME, SWING_DURATION }=modules['./motion.js'];
 const PI=Math.PI, TAU=PI*2;
@@ -1709,6 +1897,7 @@ class DiamondScene {
     this.textures={};
     this.staticObjects=[];
     this.defense=new DefenseSquad();
+    this.fireworks=new FireworksShow();
     this.characters={
       batter:new BaseballCharacter({id:'batter',labelTexture:(text,color)=>this.label(text,.35,.1,color)}),
       pitcher:new BaseballCharacter({id:'pitcher',labelTexture:(text,color)=>this.label(text,.35,.1,color)})
@@ -1829,6 +2018,7 @@ class DiamondScene {
     }
   }
   event(e) {
+    if(e.type==='start'||e.type==='reset')this.fireworks.reset();
     if(e.type==='pitch'||e.type==='reset')this.lastFlight=null;
     if(e.type==='contact')this.lastFlight={...e.state.flight};
     if(e.type==='fielding'){
@@ -1840,8 +2030,7 @@ class DiamondScene {
       }
     }
     if(e.type==='result'&&e.result.homerun){
-      const pos=this.flightPoint(this.lastFlight||e.result,.85);
-      for(let i=0;i<18;i++)this.particles.push({p:[...pos],v:[(Math.random()-.5)*20,Math.random()*12+1,(Math.random()-.5)*20],life:1.6+Math.random(),color:i%2?'#dbf283':'#fff2d1'});
+      this.fireworks.start({center:[0,7,-108]});
     }
   }
   flightPoint(f,p) {
@@ -1861,6 +2050,11 @@ class DiamondScene {
     const side=s.hand==='right'?-1:1;
     // An elevated broadcast viewpoint clears the crouched catcher's helmet.
     const base={eye:portrait?[.6*side,2.35,5.0]:[-.18,1.95,3.45],target:portrait?[.15*side,1.16,-18]:[0,1.16,-18],fov:portrait?51:47,near:.055,far:340};
+    if(s.phase==='between'&&s.lastResult?.homerun){
+      // Broadcast cut to the outfield celebration; hold all nine salvos in view.
+      const back=smooth(3.85,4.5,s.phaseTime);
+      return {...base,eye:vMix([16,13,-58],base.eye,back),target:vMix([0,27,-110],base.target,back),fov:mix(portrait?72:58,base.fov,back)};
+    }
     let f=null,progress=0,blend=0;
     if(s.phase==='flight'&&s.flight){f=s.flight;progress=s.flight.progress;blend=smooth(0,.24,progress);}
     else if(s.phase==='between'&&this.lastFlight){f=this.lastFlight;progress=1;blend=1-smooth(.25,1.2,s.phaseTime);}
@@ -1942,9 +2136,11 @@ class DiamondScene {
     this.particles=this.particles.filter(p=>p.life>0);
     // The broadcast camera passes near the roof. Hide that foreground structure
     // during the chase so beams cannot cover the ball or the landing area.
-    const chasing=s.phase==='flight'||s.phase==='between'&&this.lastFlight&&s.phaseTime<1.2;
+    const chasing=s.phase==='flight'||s.phase==='between'&&(s.lastResult?.homerun||this.lastFlight&&s.phaseTime<1.2);
     const stadium=chasing?this.staticObjects.filter(object=>!object.roof):this.staticObjects;
-    this.renderer.render(stadium.concat(dynamic),this.camera(s),{background:'#253c48',fogColor:'#3a555d',fogNear:85,fogFar:245,lightDirection:[-.35,.8,.65],ambient:.57});
+    const camera=this.camera(s);
+    dynamic.push(...this.fireworks.objects({dt,camera}));
+    this.renderer.render(stadium.concat(dynamic),camera,{background:'#253c48',fogColor:'#3a555d',fogNear:85,fogFar:245,lightDirection:[-.35,.8,.65],ambient:.57});
   }
 }
 
