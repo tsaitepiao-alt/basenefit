@@ -10,6 +10,8 @@
 :root{color-scheme:dark;--navy:#07111e;--panel:#0b1a2bea;--line:#b9d8fa25;--white:#f4f8ff;--muted:#9cb1c6;--blue:#68cfff;--lime:#cbf374;--gold:#f3c778;--font:Inter,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden}body{background:var(--navy);color:var(--white);font-family:var(--font);-webkit-font-smoothing:antialiased}button,select{font:inherit}button{cursor:pointer;border:0}button:disabled{cursor:default}button,summary,select{-webkit-tap-highlight-color:transparent;touch-action:manipulation}button:focus-visible,select:focus-visible,summary:focus-visible,canvas:focus-visible{outline:3px solid var(--blue);outline-offset:4px}button svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}button:disabled{opacity:.42}[hidden],.hidden{display:none!important}.stadium{width:100%;height:100%;height:100dvh;min-height:300px;position:relative;overflow:hidden;isolation:isolate;background:radial-gradient(ellipse at 50% 25%,#3b535d,#11242e 45%,#07111e 85%)}#gameCanvas{display:block;width:100%;height:100%;cursor:crosshair;touch-action:manipulation}.screen-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#030b1855 0%,transparent 25%,transparent 65%,#030b1880 100%);z-index:1}.game-hud{position:absolute;left:max(24px,env(safe-area-inset-left));right:max(24px,env(safe-area-inset-right));top:max(20px,env(safe-area-inset-top));display:flex;justify-content:space-between;align-items:start;gap:20px;z-index:5;pointer-events:none}.scoreboard{width:256px;background:linear-gradient(115deg,#081728ed,#0c1e32c9);border-left:3px solid var(--blue);border-top:1px solid #ffffff25;border-bottom:1px solid #ffffff15;box-shadow:0 6px 18px #01091444;backdrop-filter:blur(8px);padding:12px 15px 11px;clip-path:polygon(0 0,94% 0,100% 15%,100% 100%,0 100%)}.scoreboard-cap{display:flex;gap:7px;align-items:center;font-size:9px;font-family:Arial,sans-serif;letter-spacing:2px;color:#deecfa}.scoreboard-cap b{color:var(--blue)}.diamond-mark{display:inline-block;width:10px;height:10px;border:1.5px solid var(--blue);transform:rotate(45deg);flex:none}.live-badge{font-size:7px;letter-spacing:.5px;background:#68cfff25;border:1px solid #68cfff66;color:#9de3ff;padding:2px 4px;margin-left:auto}.score-row{display:flex;gap:26px;align-items:end;margin-top:10px}.hr-score{display:flex;align-items:center;gap:11px}.hr-score>span{font-size:12px;font-weight:700;letter-spacing:1px;writing-mode:vertical-rl;color:#d8e8f3}.hr-score>strong{font:italic 700 51px/.95 Arial,sans-serif;letter-spacing:-2px;text-shadow:0 2px 12px #68cfff15}.secondary-score{display:flex;gap:17px;align-items:end;padding-bottom:3px}.secondary-score>div{display:flex;flex-direction:column;position:relative}.secondary-score span{font-size:9px;color:var(--muted);margin-bottom:5px}.secondary-score strong{font:700 23px/1 Arial,sans-serif}.secondary-score i{position:absolute;font:6px Arial,sans-serif;color:#68cfff;letter-spacing:.7px;left:0;top:44px}.pitch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid #bdd9ee1a;padding-top:10px;margin-top:12px}.pitch-row>span{font-size:8px;white-space:nowrap;color:var(--muted)}.pitch-row b{color:#f0f5ff;font:700 10px Arial,sans-serif;margin-left:4px}.pitch-row small{font:8px Arial,sans-serif;color:#6d89a3}.pitch-dots{display:flex;gap:3px;flex:1}.pitch-dots>span{display:block;flex:1;height:4px;background:#b2cbe229;border-radius:1px}.pitch-dots>span.active{background:#e4f6ff;box-shadow:0 0 5px #d6efff}.pitch-dots>span.homerun,.pitch-dots>span.hr{background:var(--lime)}.pitch-dots>span.hit{background:#68cfff}.pitch-dots>span.foul{background:#e6b56a}.pitch-dots>span.miss{background:#7b8d9b}.stadium-name{position:absolute;left:50%;transform:translateX(-50%);text-align:center;top:3px;color:#e5eff7b0;text-shadow:0 1px 5px #000;white-space:nowrap}.stadium-name>span{font:800 10px Arial,sans-serif;letter-spacing:3px}.stadium-name small{font:6px Arial,sans-serif;display:block;letter-spacing:2px;margin-top:6px;color:#aec6db}.hud-controls{display:flex;gap:8px;pointer-events:auto}.icon-button{width:36px;height:36px;display:grid;place-items:center;border:1px solid #b5cfe43b;background:#07172999;backdrop-filter:blur(8px);color:#e2effb;border-radius:5px}.icon-button:hover{background:#1a3c56b0}.icon-button svg{width:18px;height:18px;stroke-width:1.5}.icon-button[aria-pressed=true]{color:#9ae2ff;border-color:#69cfff80}.icon-button.muted{opacity:.45}.aim-reticle{position:absolute;pointer-events:none;left:50%;top:54%;transform:translate(-50%,-50%);width:58px;height:77px;border:1px solid #f3f5d426;z-index:2}.aim-reticle:before,.aim-reticle:after,.aim-reticle>span:before,.aim-reticle>span:after{content:"";position:absolute;width:12px;height:12px;border-color:#f3f5d4c0;border-style:solid}.aim-reticle:before{top:-1px;left:-1px;border-width:2px 0 0 2px}.aim-reticle:after{top:-1px;right:-1px;border-width:2px 2px 0 0}.aim-reticle>span:before{bottom:-1px;left:-1px;border-width:0 0 2px 2px}.aim-reticle>span:after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}.field-readouts{position:absolute;left:max(28px,env(safe-area-inset-left));bottom:max(29px,env(safe-area-inset-bottom));display:flex;gap:23px;align-items:end;z-index:5}.speed-meter>span,.distance-meter>span{font-size:8px;display:block;color:#b8c9d4;letter-spacing:1px;margin-bottom:5px}.speed-meter>strong{font:italic 700 36px/.9 Arial,sans-serif;letter-spacing:-1px}.speed-meter>small{font:8px Arial,sans-serif;margin-left:6px;color:#cedae2}.distance-meter{padding-left:20px;border-left:1px solid #d9e9ee2b}.distance-meter>strong{font:700 23px/1 Arial,sans-serif}.distance-meter small{font-size:9px;font-weight:400;color:#a9bac9}.scorebook{position:relative;pointer-events:auto;margin-left:2px}.scorebook summary{display:grid;place-items:center;width:32px;height:32px;border:1px solid #b5cfe43b;border-radius:4px;background:#0717298c;cursor:pointer;list-style:none;color:#b9cedf}.scorebook summary::-webkit-details-marker{display:none}.scorebook summary svg{height:17px;width:17px;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}.scorebook summary>span{position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden}.scorebook-card{position:absolute;left:0;bottom:44px;width:270px;background:#0a1a2cf0;backdrop-filter:blur(15px);border:1px solid #9bc7e73b;padding:15px;border-radius:6px;box-shadow:0 8px 30px #0006}.scorebook-stats{display:flex;flex-direction:column;gap:8px;font-size:10px;color:#9db4ca;border-bottom:1px solid #bed6e522;padding-bottom:13px}.scorebook-stats b{color:#f4f8ff}.history-list{list-style:none;margin:10px 0 0;padding:0;max-height:125px;overflow:auto;scrollbar-width:thin}.history-list li{display:flex;gap:10px;justify-content:space-between;font-size:10px;align-items:center;min-height:27px;border-bottom:1px solid #b6d2e514;color:#b4c6d6}.history-list li>span:first-child{font:8px Arial,sans-serif;color:#6b8ca6}.history-list li.homerun{color:var(--lime)}.history-list li b{font-size:10px;font-weight:600}.history-list .history-empty{font-size:10px;line-height:1.9;display:block;text-align:center;min-height:40px;border:0;padding-top:10px}.batting-console{position:absolute;left:50%;bottom:max(29px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;width:300px;max-width:32%;pointer-events:none}.play-status{display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:15px;white-space:nowrap;text-shadow:0 2px 8px #000}.play-status strong{font-size:11px;letter-spacing:.8px;font-weight:500;color:#edf5fe}.status-dot{width:4px;height:4px;border-radius:50%;background:var(--blue);box-shadow:0 0 7px #68cfff}.timing-label{display:flex;justify-content:space-between;font-size:8px;color:#d9e9f5;margin-bottom:8px;gap:10px}.timing-label>span:first-child{font:6px Arial,sans-serif;letter-spacing:1.5px;color:#c2d2e1a1}.timing-track{height:7px;position:relative;background:#061120c4;border:1px solid #d9e9f23b;border-radius:2px}.timing-track:before{content:"";position:absolute;left:50%;top:0;height:100%;width:1px;background:#bed8ed28}.timing-perfect{position:absolute;height:100%;left:73.5%;width:7.2%;top:0;background:#cbf374b3}.timing-center{position:absolute;left:77.12%;width:1px;height:13px;top:-4px;background:#eaffbf}.timing-marker{position:absolute;left:0;top:-5px;width:3px;height:15px;background:#f4f9ff;transform:translateX(-50%);border-radius:1px;box-shadow:0 0 6px #fff9}.timing-marker.perfect{background:#dfff8c;box-shadow:0 0 12px var(--lime)}.timing-scale{display:flex;justify-content:space-between;font:6px Arial,sans-serif;color:#a4bbcd80;margin-top:7px;letter-spacing:1px;position:relative}.timing-scale>span:nth-child(2){position:absolute;left:77.12%;transform:translateX(-50%);color:#d6f1a9;font-size:5px}.swing-button{position:absolute;right:max(35px,env(safe-area-inset-right));bottom:max(27px,env(safe-area-inset-bottom));width:142px;height:142px;border-radius:50%;background:radial-gradient(circle at 35% 26%,#6796af40,#112d435e 55%,#04132766);border:2px solid #d1edff99;color:#f0f8ff;box-shadow:0 0 0 6px #83c4e80b,inset 0 0 26px #9bd8ff10,0 7px 28px #0004;backdrop-filter:blur(3px);z-index:6;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;text-shadow:0 2px 6px #0008;transition:background .12s,transform .12s,border-color .12s}.swing-button>svg{width:28px;height:28px;stroke-width:1.7;opacity:.85}.swing-button>strong{font-size:25px;letter-spacing:5px;padding-left:5px;line-height:1.3}.swing-button>span{font:8px Arial,sans-serif;letter-spacing:3px;padding-left:3px;color:#c6e7fc}.swing-button kbd{font:6px Arial,sans-serif;letter-spacing:1px;border:1px solid #bdd4e23b;border-radius:2px;padding:3px 6px;margin-top:5px;color:#d5e5f2}.swing-button:not(:disabled):hover{background:#6ebeea38;border-color:#e5f6ff}.swing-button:not(:disabled):active,.swing-button.active{transform:scale(.96);background:#a0dcff55;border-color:#fff}.swing-button:disabled{opacity:.25}.rotate-hint{display:none;position:absolute;top:173px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;color:#bbd4e6b0;align-items:center;gap:7px;z-index:4;pointer-events:none}.rotate-hint svg{width:17px;height:17px;stroke:currentColor;stroke-width:1.2}.result-toast{position:absolute;left:50%;top:27%;transform:translateX(-50%);z-index:8;text-align:center;pointer-events:none;white-space:nowrap;text-shadow:0 3px 12px #000b;padding:10px 30px}.result-toast strong{display:block;font:italic 900 48px/1.1 Arial,var(--font);letter-spacing:1px;color:#f2f8ff}.result-toast span{display:block;font-size:11px;letter-spacing:2px;margin-top:10px;color:#e2edf5}.result-toast.homerun strong{color:#ddff94;text-shadow:0 0 24px #8bc62c80,0 4px 2px #173313,2px 0 #173313;font-size:66px;animation:toast-in .24s ease-out}.result-toast.hit strong{font-size:37px;color:#adf0ff}.result-toast.miss strong{font-size:29px;color:#f2dbb7}.game-overlay{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto;background:#030b175c}.welcome-overlay{background:linear-gradient(90deg,#030d1c88,#030d1c30 45%,#030d1c88)}.welcome-card{width:500px;max-width:100%;max-height:100%;overflow:auto;padding:30px 37px 21px;background:linear-gradient(125deg,#0d2033f5,#081424ed);border:1px solid #94ceef50;border-top:3px solid var(--blue);box-shadow:0 20px 80px #0007;backdrop-filter:blur(15px);border-radius:3px;text-align:center;scrollbar-width:thin}.welcome-brand{display:flex;justify-content:center;align-items:center;gap:8px;font:700 10px Arial,sans-serif;letter-spacing:2px;color:#d9ecfb}.welcome-brand .diamond-mark{width:8px;height:8px}.edition-tag{font-size:6px;letter-spacing:1px;padding:3px 5px;background:#68cfff15;border:1px solid #68cfff44;color:var(--blue);margin-left:2px}.overlay-eyebrow{font:700 8px Arial,sans-serif;letter-spacing:2.5px;color:var(--blue);display:block}.welcome-card>.overlay-eyebrow{margin:25px 0 10px}.welcome-card h1{margin:0;font-size:37px;font-weight:800;letter-spacing:1px;line-height:1.2}.welcome-card h1>span{display:block;font:italic 700 10px Arial,sans-serif;letter-spacing:2.9px;margin-top:13px;color:#d9e8f7a6}.welcome-subtitle{font-size:11px;color:#9db7cd;letter-spacing:.3px;margin:18px 0 22px}.setup-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;text-align:left;margin-bottom:18px}.setup-grid label>span{display:block;font-size:9px;color:#9eb5c9;margin-bottom:7px;letter-spacing:1px}.setup-grid select{appearance:none;color:#e4f2ff;border:1px solid #8ab7d544;border-radius:3px;background:#061426 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none'%3E%3Cpath d='m4 5 3 3 3-3' stroke='%237eb0d0' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 9px center;width:100%;padding:11px 29px 11px 12px;font-size:11px;cursor:pointer}.setup-grid select:disabled{color:#6f8ba3}.launch-notice{text-align:left;padding:11px 13px;margin-bottom:17px;background:#dfac5a12;border:1px solid #e7c4874a;border-radius:3px;line-height:1.8;color:#ced8dd;font-size:10px}.launch-notice strong{display:block;color:#f2d49e;font-size:11px;font-weight:600}.launch-notice span{display:block;margin-top:3px}.primary-button{min-height:48px;width:100%;display:flex;align-items:center;justify-content:center;gap:29px;background:linear-gradient(110deg,#80d8ff,#47b6f4);border:1px solid #a7e6ff;color:#061528;border-radius:3px;font-size:14px;font-weight:800;letter-spacing:2px;box-shadow:0 4px 20px #47b6f41a;transition:background .15s,transform .15s}.primary-button svg{width:20px;height:20px}.primary-button:not(:disabled):hover{background:#a4e9ff;box-shadow:0 4px 25px #47b6f43b}.primary-button:not(:disabled):active{transform:translateY(2px)}.primary-button:disabled{opacity:.35;box-shadow:none;cursor:default}.welcome-tip{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:8px;color:#879fb4;margin-top:16px}.welcome-tip kbd{font:6px Arial,sans-serif;letter-spacing:.8px;border:1px solid #89accc44;border-radius:2px;padding:3px 5px;margin-right:3px}.original-note{font-size:7px;color:#627e96;margin:20px 0 0;letter-spacing:.5px}.modal-overlay{background:#020a16bc;backdrop-filter:blur(9px)}.modal-card{width:350px;max-width:100%;max-height:100%;overflow:auto;padding:31px;background:linear-gradient(125deg,#12283d,#081626);border:1px solid #91bfd547;border-top:2px solid var(--blue);box-shadow:0 20px 70px #0008;border-radius:4px;text-align:center;scrollbar-width:thin}.modal-card h2{font-size:25px;letter-spacing:1px;line-height:1.4;margin:17px -5px 12px}.modal-card>p{font-size:11px;line-height:1.9;color:#9db5ca;margin:12px 0 24px}.modal-card>small{display:block;font-size:8px;color:#7895ac;margin-top:18px}.final-hero{display:flex;justify-content:center;align-items:center;gap:17px;margin:20px 0}.final-hero>strong{font:italic 700 86px/.9 Arial,sans-serif;letter-spacing:-4px;color:#c8f488}.final-hero>span{font:8px/1.9 Arial,var(--font);color:#9bb5cb;text-align:left;letter-spacing:1px}.final-stats{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #9abed329;border-bottom:1px solid #9abed329;padding:16px 0;margin:25px 0}.final-stats>div+div{border-left:1px solid #9abed329}.final-stats div>span{display:block;font-size:9px;color:#8eabc3;margin-bottom:7px}.final-stats strong{font:26px Arial,sans-serif}.final-stats small{font-size:10px;color:#7e9db6}.text-button{font-size:10px;background:transparent;color:#91adc5;padding:18px 15px 0}.text-button:hover{color:#e3f3ff}.perk-panel{width:750px;max-width:100%;max-height:100%;overflow:auto;text-align:center;padding:17px 0;scrollbar-width:thin}.perk-panel h2{font-size:30px;font-weight:800;letter-spacing:3px;margin:14px 0 0}.perk-panel h2>span{font-size:12px;letter-spacing:1px;font-weight:400;display:inline-block;vertical-align:middle;color:#91aac2;border-left:1px solid #809cb94d;padding-left:16px;margin-left:16px}.perk-panel>p{font-size:11px;color:#9fb3c8;margin:12px 0 26px}.perk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.perk-card{padding:22px 15px 18px;background:linear-gradient(135deg,#1a3045,#0b1b2df5);border:1px solid #8bb3d044;border-top:2px solid #78cef2;border-radius:4px;color:#eaf6ff;box-shadow:0 9px 20px #0003;display:flex;flex-direction:column;align-items:center;transition:transform .15s,background .15s,border-color .15s}.perk-card:hover{transform:translateY(-5px);border-color:#92e4ff;background:#1b3a52}.perk-card:nth-child(2){border-top-color:var(--gold)}.perk-card:nth-child(3){border-top-color:var(--lime)}.perk-symbol{display:grid;place-items:center;font:34px Arial,sans-serif;width:58px;height:58px;border:1px solid #79c6ed66;color:#a3e3ff;border-radius:50%;background:#93ddff0d;margin-bottom:15px}.perk-card:nth-child(2) .perk-symbol{color:#f3cc86;border-color:#f3cc8644;background:#f3cc860d}.perk-card:nth-child(3) .perk-symbol{color:#d1f394;border-color:#d1f39444;background:#d1f3940d}.perk-card>small{font:6px Arial,sans-serif;letter-spacing:2px;color:#86a4bf;margin-bottom:8px}.perk-card>strong{font-size:19px;letter-spacing:1px;margin-bottom:14px}.perk-card>span:not(.perk-symbol){font-size:11px;color:#bfd5e5;letter-spacing:.3px}.perk-card b{color:#e5f8ff;margin-left:5px}.perk-card p{font-size:9px;line-height:1.7;color:#7f9bb1;margin:12px 0 22px}.perk-card i{font-style:normal;font-size:9px;color:#9bdcf4;letter-spacing:1px;margin-top:auto}.help-dialog{position:fixed;border:1px solid #88bdd24d;border-top:2px solid var(--blue);border-radius:4px;width:470px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);padding:32px;background:linear-gradient(125deg,#12273c,#091725);color:#e7f3ff;box-shadow:0 20px 70px #0008;scrollbar-width:thin}.help-dialog::backdrop{background:#020a17bf;backdrop-filter:blur(7px)}.dialog-close{position:absolute;right:10px;top:6px;font-size:26px;width:32px;height:32px;background:none;color:#8ca8bd;font-weight:300}.help-dialog h2{font-size:25px;margin:15px 0 23px}.help-dialog ol{list-style:none;padding:0;margin:0}.help-dialog li{display:flex;align-items:start;gap:13px;margin:21px 0}.help-dialog li>span{font:10px Arial,sans-serif;color:var(--blue);background:#68cfff12;border:1px solid #68cfff33;border-radius:50%;width:28px;height:28px;flex:none;display:grid;place-items:center}.help-dialog strong{font-size:12px;font-weight:600}.help-dialog li p{font-size:10px;line-height:1.9;color:#8ea9be;margin:7px 0 0}.help-note{font-size:9px;line-height:1.9;color:#7796af;border-top:1px solid #8eb5d12b;padding-top:16px;margin:22px 0 0}@keyframes toast-in{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}@media(min-width:1600px){.game-hud{left:36px;right:36px;top:30px}.scoreboard{width:280px;padding:15px 18px}.score-row{margin-top:13px}.hr-score>strong{font-size:58px}.field-readouts{left:40px;bottom:38px}.swing-button{width:160px;height:160px;right:45px;bottom:35px}.batting-console{bottom:39px;width:330px}}@media(max-width:950px){.game-hud{left:max(17px,env(safe-area-inset-left));right:max(17px,env(safe-area-inset-right));top:max(13px,env(safe-area-inset-top))}.scoreboard{width:218px;padding:9px 12px}.scoreboard-cap{font-size:7px;letter-spacing:1.7px}.diamond-mark{width:8px;height:8px}.score-row{gap:22px;margin-top:9px}.hr-score>strong{font-size:42px}.hr-score>span{font-size:10px}.secondary-score{gap:14px;padding-bottom:3px}.secondary-score strong{font-size:20px}.secondary-score span{font-size:8px;margin-bottom:4px}.secondary-score i{font-size:5px;top:38px}.pitch-row{padding-top:8px;margin-top:10px;gap:8px}.pitch-row>span{font-size:7px}.pitch-row b{font-size:9px}.pitch-row small{font-size:7px}.pitch-dots{gap:3px}.pitch-dots>span{height:3px}.stadium-name>span{font-size:8px;letter-spacing:2.5px}.stadium-name small{font-size:5px;letter-spacing:1.5px}.hud-controls{gap:6px}.icon-button{width:31px;height:31px}.icon-button svg{width:16px;height:16px}.field-readouts{left:max(20px,env(safe-area-inset-left));bottom:max(22px,env(safe-area-inset-bottom));gap:15px}.speed-meter>strong{font-size:30px}.distance-meter{padding-left:14px}.distance-meter>strong{font-size:21px}.scorebook summary{width:29px;height:29px}.batting-console{bottom:max(23px,env(safe-area-inset-bottom));width:265px;max-width:31%}.play-status strong{font-size:9px;letter-spacing:.4px}.play-status{margin-bottom:12px}.timing-label{font-size:6px;margin-bottom:7px}.timing-label>span:first-child{font-size:5px;letter-spacing:1px}.timing-track{height:6px}.timing-scale{font-size:5px}.timing-scale>span:nth-child(2){font-size:4px}.swing-button{right:max(25px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));width:116px;height:116px}.swing-button>strong{font-size:22px;letter-spacing:4px}.swing-button>svg{width:24px;height:24px}.swing-button>span{font-size:7px;letter-spacing:2px}.swing-button kbd{font-size:5px;padding:2px 5px;margin-top:3px}.aim-reticle{width:48px;height:64px}.result-toast.homerun strong{font-size:54px}.result-toast strong{font-size:40px}.result-toast span{font-size:9px;letter-spacing:1.5px}}@media(max-height:560px) and (orientation:landscape){.game-hud{top:max(10px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right))}.scoreboard{width:204px;padding:8px 10px}.scoreboard-cap{font-size:6px;letter-spacing:1.5px}.live-badge{font-size:5px;padding:1px 3px}.score-row{margin-top:6px;gap:20px}.hr-score>strong{font-size:34px}.hr-score>span{font-size:9px;letter-spacing:.5px}.secondary-score strong{font-size:17px}.secondary-score span{font-size:7px;margin-bottom:3px}.secondary-score i{top:31px;font-size:4px}.secondary-score{gap:13px}.pitch-row{padding-top:7px;margin-top:9px}.pitch-row>span{font-size:6px}.pitch-row b{font-size:8px}.pitch-row small{font-size:6px}.pitch-dots>span{height:3px}.stadium-name{top:2px}.stadium-name>span{font-size:7px}.stadium-name small{font-size:4px}.hud-controls{gap:5px}.icon-button{width:28px;height:28px}.icon-button svg{width:14px;height:14px}.field-readouts{bottom:max(18px,env(safe-area-inset-bottom));left:max(20px,env(safe-area-inset-left));gap:14px}.speed-meter>span,.distance-meter>span{font-size:6px;margin-bottom:4px}.speed-meter>strong{font-size:28px}.speed-meter>small{font-size:6px;margin-left:4px}.distance-meter{padding-left:13px}.distance-meter>strong{font-size:18px}.distance-meter small{font-size:7px}.scorebook summary{width:26px;height:26px}.scorebook summary svg{width:14px;height:14px}.scorebook-card{bottom:35px;left:-120px;width:240px;padding:12px}.scorebook-stats{font-size:9px}.history-list{max-height:90px}.batting-console{bottom:max(17px,env(safe-area-inset-bottom));width:230px;max-width:31%}.play-status{margin-bottom:9px;gap:5px}.play-status strong{font-size:8px}.status-dot{width:3px;height:3px}.timing-label{font-size:6px;margin-bottom:6px}.timing-label>span:first-child{font-size:4px}.timing-track{height:5px}.timing-marker{height:13px;top:-5px}.timing-center{height:11px;top:-4px}.timing-scale{margin-top:6px;font-size:4px}.timing-scale>span:nth-child(2){font-size:4px}.swing-button{width:100px;height:100px;right:max(24px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));border-width:1.5px;gap:2px}.swing-button>strong{font-size:20px}.swing-button>svg{width:22px;height:22px}.swing-button>span{font-size:6px}.swing-button kbd{display:none}.aim-reticle{width:41px;height:54px}.result-toast{top:25%}.result-toast.homerun strong{font-size:43px}.result-toast.hit strong{font-size:29px}.result-toast.miss strong{font-size:24px}.result-toast span{font-size:8px;margin-top:7px}.game-overlay{padding:12px}.welcome-card{width:450px;padding:18px 28px 13px}.welcome-brand{font-size:8px;letter-spacing:1.7px}.edition-tag{font-size:5px;padding:2px 4px}.welcome-card>.overlay-eyebrow{font-size:6px;margin:14px 0 7px}.welcome-card h1{font-size:30px}.welcome-card h1>span{font-size:7px;letter-spacing:2.5px;margin-top:8px}.welcome-subtitle{font-size:9px;margin:12px 0 15px}.setup-grid{gap:10px;margin-bottom:13px}.setup-grid label>span{font-size:8px;margin-bottom:5px}.setup-grid select{font-size:10px;padding:8px 25px 8px 10px}.primary-button{min-height:40px;font-size:12px;letter-spacing:1.5px}.welcome-tip{font-size:7px;margin-top:12px}.welcome-tip kbd{font-size:5px;padding:2px 4px}.original-note{font-size:6px;margin-top:12px}.launch-notice{font-size:9px;padding:8px 10px;margin-bottom:12px}.launch-notice strong{font-size:10px}.modal-card{width:320px;padding:23px 27px}.modal-card h2{font-size:22px;margin:12px 0 9px}.modal-card>p{font-size:10px;margin:10px 0 19px}.modal-card>.overlay-eyebrow{font-size:7px}.modal-card>small{margin-top:12px;font-size:7px}.final-hero{margin:14px 0}.final-hero>strong{font-size:63px}.final-hero>span{font-size:7px}.final-stats{padding:12px 0;margin:18px 0}.final-stats div>span{font-size:8px;margin-bottom:5px}.final-stats strong{font-size:22px}.text-button{font-size:9px;padding-top:14px}.perk-panel{width:680px;padding:4px 0}.perk-panel>.overlay-eyebrow{font-size:6px;letter-spacing:2px}.perk-panel h2{font-size:23px;margin-top:9px;letter-spacing:2px}.perk-panel h2>span{font-size:10px;margin-left:12px;padding-left:12px}.perk-panel>p{font-size:9px;margin:9px 0 17px}.perk-grid{gap:13px}.perk-card{padding:15px 12px 13px}.perk-symbol{width:44px;height:44px;font-size:28px;margin-bottom:11px}.perk-card>small{font-size:5px;letter-spacing:1.6px;margin-bottom:7px}.perk-card>strong{font-size:16px;margin-bottom:11px}.perk-card>span:not(.perk-symbol){font-size:9px}.perk-card p{font-size:8px;margin:10px 0 16px}.perk-card i{font-size:8px}.help-dialog{width:540px;padding:24px 30px;max-height:calc(100dvh - 24px)}.help-dialog h2{font-size:22px;margin:12px 0 17px}.help-dialog li{margin:14px 0;gap:11px}.help-dialog strong{font-size:11px}.help-dialog li p{font-size:9px;line-height:1.8;margin-top:5px}.help-note{font-size:8px;padding-top:12px;margin-top:16px}}@media(orientation:portrait){.game-hud{left:15px;right:15px;top:max(17px,env(safe-area-inset-top));gap:10px}.scoreboard{width:203px;padding:10px 11px}.scoreboard-cap{font-size:6px;letter-spacing:1.5px}.hr-score>strong{font-size:39px}.score-row{gap:21px}.hr-score>span{font-size:9px}.secondary-score strong{font-size:19px}.secondary-score span{font-size:7px}.secondary-score{gap:13px}.secondary-score i{top:35px;font-size:4px}.stadium-name{display:none}.hud-controls{display:grid;grid-template-columns:repeat(2,28px);gap:5px}.icon-button{width:28px;height:28px}.icon-button svg{width:14px;height:14px}.pitch-row{gap:8px}.pitch-row>span{font-size:6px}.pitch-row b{font-size:8px}.pitch-row small{font-size:6px}.rotate-hint{display:flex;top:max(154px,calc(env(safe-area-inset-top) + 137px))}.field-readouts{left:20px;bottom:max(29px,env(safe-area-inset-bottom));gap:13px;align-items:end}.speed-meter>span,.distance-meter>span{font-size:7px}.speed-meter>strong{font-size:31px}.speed-meter>small{font-size:6px;margin-left:3px}.distance-meter{padding-left:12px}.distance-meter>strong{font-size:20px}.distance-meter small{font-size:7px}.scorebook{position:absolute;left:0;bottom:67px;margin:0}.scorebook summary{width:29px;height:29px}.scorebook-card{bottom:38px;left:0;width:260px}.batting-console{left:20px;bottom:max(127px,calc(env(safe-area-inset-bottom) + 105px));transform:none;width:220px;max-width:58%}.play-status{justify-content:start;margin-bottom:12px}.play-status strong{font-size:9px}.timing-label{font-size:6px}.timing-label>span:first-child{font-size:5px;letter-spacing:.8px}.swing-button{right:22px;bottom:max(29px,env(safe-area-inset-bottom));width:110px;height:110px}.swing-button>strong{font-size:23px}.swing-button kbd{display:none}.swing-button>svg{width:24px;height:24px}.swing-button>span{font-size:6px}.aim-reticle{top:52%;width:50px;height:69px}.result-toast{top:31%;max-width:95%;padding:10px 15px}.result-toast.homerun strong{font-size:44px}.result-toast strong{font-size:34px}.result-toast span{font-size:8px;letter-spacing:1px}.result-toast.hit strong{font-size:29px}.result-toast.miss strong{font-size:25px}.game-overlay{padding:17px}.welcome-card{width:390px;padding:28px 25px 20px}.welcome-brand{font-size:8px;letter-spacing:1.5px}.edition-tag{font-size:5px}.welcome-card>.overlay-eyebrow{font-size:6px;letter-spacing:2px;margin:23px 0 12px}.welcome-card h1{font-size:31px;letter-spacing:.5px}.welcome-card h1>span{font-size:8px;letter-spacing:2.4px;margin-top:13px}.welcome-subtitle{font-size:9px;letter-spacing:0;margin:19px -5px 22px}.setup-grid{gap:10px;margin-bottom:18px}.setup-grid label>span{font-size:8px}.setup-grid select{padding:10px 24px 10px 10px;font-size:10px}.primary-button{min-height:47px;font-size:13px}.welcome-tip{font-size:7px;margin-top:17px;gap:7px}.welcome-tip kbd{font-size:5px;padding:2px 4px}.original-note{font-size:6px;letter-spacing:.1px;margin-top:20px}.launch-notice{font-size:9px;padding:10px 11px}.launch-notice strong{font-size:10px}.perk-panel{width:360px;padding:15px 0}.perk-panel>.overlay-eyebrow{font-size:7px;letter-spacing:2px}.perk-panel h2{font-size:26px;letter-spacing:2px}.perk-panel h2>span{font-size:10px;margin-left:12px;padding-left:12px}.perk-panel>p{font-size:10px;margin:13px 0 22px}.perk-grid{grid-template-columns:1fr;gap:11px}.perk-card{display:grid;grid-template-columns:52px 1fr 1fr;grid-template-rows:auto auto auto;padding:15px 17px;column-gap:13px;text-align:left;align-items:center}.perk-symbol{grid-column:1;grid-row:1/4;width:49px;height:49px;font-size:30px;margin:0}.perk-card>small{grid-column:2;grid-row:1;font-size:5px;letter-spacing:1.7px;margin:0 0 5px}.perk-card>strong{grid-column:2;grid-row:2;font-size:17px;letter-spacing:.5px;margin:0}.perk-card>span:not(.perk-symbol){grid-column:3;grid-row:1/3;font-size:9px;text-align:right;white-space:nowrap}.perk-card>span:not(.perk-symbol) b{margin-left:2px}.perk-card p{grid-column:2/4;grid-row:3;font-size:8px;margin:7px 0 0;color:#7f9bb1}.perk-card i{display:none}.modal-card{padding:29px 27px;width:330px}.modal-card h2{font-size:23px}.final-hero>strong{font-size:77px}.final-stats strong{font-size:24px}.help-dialog{padding:29px 24px}.help-dialog h2{font-size:23px}.help-dialog strong{font-size:11px}.help-dialog li p{font-size:10px}.help-note{font-size:9px}}@media(max-width:360px) and (orientation:portrait){.scoreboard{width:185px}.scoreboard-cap{font-size:5px;letter-spacing:1.2px}.secondary-score{gap:10px}.score-row{gap:17px}.hr-score>strong{font-size:36px}.game-hud{left:12px;right:12px}.welcome-card{padding:25px 20px 18px}.welcome-card h1{font-size:28px}.welcome-subtitle{font-size:8px}.welcome-tip{font-size:6px}.original-note{font-size:5px}.swing-button{width:96px;height:96px;right:17px}.swing-button>strong{font-size:21px}.field-readouts{left:17px;gap:10px}.speed-meter>strong{font-size:28px}.distance-meter{padding-left:10px}.distance-meter>strong{font-size:18px}.batting-console{left:17px;width:205px}.perk-card{padding:14px 12px;column-gap:10px}.perk-card>strong{font-size:16px}.perk-card>span:not(.perk-symbol){font-size:8px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 
 .flight-readout{position:absolute;right:max(28px,env(safe-area-inset-right));top:24%;z-index:5;text-align:right;pointer-events:none;text-shadow:0 3px 14px #0008}.flight-readout>span{font-size:12px;letter-spacing:2px;color:#dceaf2}.flight-readout strong{display:block;font-size:56px;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums}.flight-readout b{font-weight:600}.flight-readout small{font-size:22px;color:#d7f49a}@media(orientation:portrait){.flight-readout{top:30%;right:20px}.flight-readout strong{font-size:40px}.flight-readout>span{font-size:10px}}
+/* The existing basenefit wordmark stays readable on the scoreboards. */
+.basenefit-logo{display:inline-block;font:700 18px/1.05 Arial,sans-serif;letter-spacing:.1px;white-space:nowrap;color:#efece4}.scoreboard-cap .basenefit-logo b,.welcome-brand .basenefit-logo b{color:#cbf24c}.scoreboard-caption{font-size:8px;letter-spacing:1px;color:#c1d3df}.welcome-brand .basenefit-logo{font-size:25px}.flight-readout .launch-angle{display:block;margin-top:6px;font-size:12px;letter-spacing:1px;color:#e0edcf}.launch-angle b{font-weight:700}@media(max-width:900px),(max-height:600px){.scoreboard-cap .basenefit-logo{font-size:14px}.scoreboard-caption{font-size:6px}.welcome-brand .basenefit-logo{font-size:21px}}@media(orientation:portrait){.scoreboard-cap .basenefit-logo{font-size:16px}.scoreboard-caption{font-size:7px}.welcome-brand .basenefit-logo{font-size:23px}}@media(max-width:360px) and (orientation:portrait){.scoreboard-cap .basenefit-logo{font-size:14px}.scoreboard-caption{font-size:6px}}
 
 </style>
 </head>
@@ -20,11 +22,11 @@
 
     <header class="game-hud">
       <section class="scoreboard" aria-label="本輪計分板">
-        <div class="scoreboard-cap"><span class="diamond-mark" aria-hidden="true"></span><span>DIAMOND <b>DERBY</b></span><span class="live-badge">3D</span></div>
+        <div class="scoreboard-cap"><span class="basenefit-logo" role="img" aria-label="basenefit">base<b>nefit</b></span><span class="scoreboard-caption">全壘打挑戰</span><span class="live-badge">3D</span></div>
         <div class="score-row"><div class="hr-score"><span>全壘打</span><strong id="hrCount">00</strong></div><div class="secondary-score"><div><span>安打</span><strong id="hitCount">0</strong></div><div><span>連擊</span><strong id="comboCount">0</strong><i>COMBO</i></div></div></div>
         <div class="pitch-row"><span>投球 <b id="pitchCount">00</b><small> / 10</small></span><div id="pitchDots" class="pitch-dots" aria-label="十球進度"></div></div>
       </section>
-      <div class="stadium-name" aria-hidden="true"><span>DIAMOND PARK</span><small>HOME RUN CHALLENGE</small></div>
+      <div class="stadium-name" aria-hidden="true"><span>BASENEFIT PARK</span><small>HOME RUN CHALLENGE</small></div>
       <nav class="hud-controls" aria-label="遊戲控制">
         <button id="helpBtn" class="icon-button" type="button" aria-label="遊戲玩法" title="遊戲玩法"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4m0 3v.1"/></svg></button>
         <button id="soundBtn" class="icon-button" type="button" aria-label="開啟音效" aria-pressed="false" title="音效"><svg viewBox="0 0 24 24" fill="none"><path d="m11 5-5 4H3v6h3l5 4V5Z"/><path d="M15 8c2 2 2 6 0 8m3-11c4 4 4 10 0 14"/></svg></button>
@@ -33,7 +35,7 @@
       </nav>
     </header>
 
-    <div id="flightReadout" class="flight-readout" hidden><span>飛行距離</span><strong><b id="flightDistance">0</b><small> m</small></strong></div>
+    <div id="flightReadout" class="flight-readout" hidden><span>飛行距離</span><strong><b id="flightDistance">0</b><small> m</small></strong><span class="launch-angle">擊球仰角 <b id="launchAngle">42</b>°</span></div>
     <div id="resultToast" class="result-toast" role="status" aria-live="polite" hidden></div>
 
     <div class="field-readouts">
@@ -51,7 +53,7 @@
 
     <section id="welcomeOverlay" class="game-overlay welcome-overlay" aria-labelledby="welcomeTitle">
       <div class="welcome-card">
-        <div class="welcome-brand"><span class="diamond-mark"></span> BASENEFIT <span class="edition-tag">MOTION UPDATE</span></div>
+        <div class="welcome-brand"><span class="basenefit-logo" role="img" aria-label="basenefit">base<b>nefit</b></span><span class="edition-tag">HOME RUN DERBY</span></div>
         <p class="overlay-eyebrow">STEP INTO THE BATTER'S BOX</p><h1 id="welcomeTitle">3D 全壘打挑戰<span>THIS IS YOUR MOMENT.</span></h1><p class="welcome-subtitle">近距離打擊視角 · 投手對決 · 追球鏡頭</p>
         <div class="setup-grid"><label for="difficultySelect"><span>挑戰難度</span><select id="difficultySelect"><option value="rookie">新秀 · 110 km/h</option><option value="pro">職業 · 140 km/h</option><option value="legend">傳奇 · 160 km/h</option></select></label><label for="handSelect"><span>打擊姿勢</span><select id="handSelect"><option value="left" selected>左打</option><option value="right">右打</option></select></label></div>
         <div id="launchNotice" class="launch-notice" role="status"><strong>正在準備 3D 球場</strong><span>手機建議橫放；球場準備完成後即可開始挑戰。</span><noscript><span>請開啟瀏覽器的 JavaScript 以進行遊戲。</span></noscript></div>
@@ -120,13 +122,52 @@ function evaluateSwing(offsetSeconds, difficulty = 'rookie', modifiers = {}) {
   const direction = Math.max(-1.2, Math.min(1.2, offset / contactWindow * 1.1));
   const baseExitSpeed = 28 + quality * 21;
   const exitSpeed = baseExitSpeed * Math.sqrt(powerMultiplier);
-  const launchAngle = 19 + quality * 15 + (offset < 0 ? -2 : 2) * magnitude / contactWindow;
+  // A lofted drive: clean contact climbs at 42 degrees; mishits remain lower.
+  const launchAngle = 27 + quality * 15 + (offset < 0 ? -1.5 : 1.5) * magnitude / contactWindow;
   const distance = Math.round(calculateDistance(baseExitSpeed, launchAngle) * powerMultiplier);
   const foul = magnitude > contactWindow * 0.80;
   const homerun = !foul && distance >= 110;
   const kind = foul ? 'foul' : homerun ? 'homerun' : 'hit';
   const label = foul ? '界外球' : homerun ? '全壘打！' : '場內安打';
-  return { kind, label, contact: true, homerun, distance, quality, timing, offset, exitSpeed, launchAngle, direction };
+  return { kind, label, contact: true, homerun, distance, quality, timing, offset, exitSpeed, launchAngle, direction, ...flightParameters(exitSpeed, launchAngle, distance) };
+}
+
+// Flight is simulated in physical seconds, then played at broadcast pace. The
+// exponential horizontal slowdown matches the same drag-adjusted scoring range;
+// vertical gravity gives a true lofted arc instead of a sine-wave approximation.
+const GRAVITY = 9.81;
+const LAUNCH_HEIGHT = 1.02;
+const LANDING_HEIGHT = .04;
+function flightParameters(exitSpeed, launchAngle, distance) {
+  const radians = launchAngle * Math.PI / 180;
+  const verticalSpeed = exitSpeed * Math.sin(radians);
+  const horizontalSpeed = exitSpeed * Math.cos(radians);
+  const flightTime = (verticalSpeed + Math.sqrt(verticalSpeed * verticalSpeed + 2 * GRAVITY * (LAUNCH_HEIGHT - LANDING_HEIGHT))) / GRAVITY;
+  const ratio = Math.max(.05, Math.min(1, distance / Math.max(.001, horizontalSpeed * flightTime)));
+  let low = 0, high = 24;
+  for (let i = 0; i < 36; i++) {
+    const drag = (low + high) / 2;
+    if (-Math.expm1(-drag) / drag > ratio) low = drag; else high = drag;
+  }
+  return {
+    // Rise above the straight launch-to-landing baseline at mid-flight.
+    apex: GRAVITY * flightTime * flightTime / 8,
+    flightTime, horizontalDrag: (low + high) / 2,
+    duration: Math.max(2.5, Math.min(3.4, flightTime * .48)),
+  };
+}
+
+/** World position in metres, shared by ball rendering and fielders' tracking. */
+function sampleFlight(flight, progress) {
+  const p = Math.max(0, Math.min(1, Number(progress) || 0));
+  const distance = Number.isFinite(flight.distance) ? Math.max(0, flight.distance) : 110;
+  const fallback = Number.isFinite(flight.apex) && Number.isFinite(flight.horizontalDrag) ? flight : flightParameters(flight.exitSpeed || 49, flight.launchAngle || 42, distance);
+  const apex = Number.isFinite(flight.apex) ? flight.apex : fallback.apex;
+  const drag = Number.isFinite(flight.horizontalDrag) ? flight.horizontalDrag : fallback.horizontalDrag;
+  const horizontal = drag > 1e-5 ? -Math.expm1(-drag * p) / -Math.expm1(-drag) : p;
+  const angle = Math.max(-1.2, Math.min(1.2, flight.direction || 0)) * .74;
+  const travel = distance * horizontal;
+  return [Math.sin(angle) * travel, LAUNCH_HEIGHT * (1 - p) + LANDING_HEIGHT * p + 4 * apex * p * (1 - p), -Math.cos(angle) * travel];
 }
 
 function initialState() {
@@ -220,9 +261,9 @@ class DerbyEngine {
     const s = this.state;
     const result = s.swingResult;
     s.pendingContact = false;
-    s.flight = { ...result, progress: 0, duration: 2.8, apex: Math.max(12, result.distance * 0.28) };
+    s.flight = { ...result, progress: 0 };
     s.result = result;
-    this._phase('flight', 2.8);
+    this._phase('flight', s.flight.duration);
     this._emit('contact', { result });
   }
 
@@ -322,7 +363,7 @@ class DerbyEngine {
   }
 }
 
-return {DIFFICULTIES,IDEAL_CONTACT_PROGRESS,PITCHES_PER_ROUND,SWING_CONTACT_TIME,SWING_DURATION,PERKS,calculateDistance,evaluateSwing,DerbyEngine};
+return {DIFFICULTIES,IDEAL_CONTACT_PROGRESS,PITCHES_PER_ROUND,SWING_CONTACT_TIME,SWING_DURATION,PERKS,calculateDistance,evaluateSwing,sampleFlight,DerbyEngine};
 })();
 modules["./webgl.js"]=(()=>{
 /** Small, dependency-free WebGL 1 renderer. World units are metres, Y is up. */
@@ -558,7 +599,14 @@ class GLRenderer {
     const ctx=canvas.getContext('2d');
     if(options.background&&options.background!=='transparent'){ctx.fillStyle=options.background;ctx.fillRect(0,0,canvas.width,canvas.height);}
     ctx.fillStyle=options.color||'#fff';ctx.font=options.font||'700 80px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(String(text),canvas.width/2,canvas.height*.53,canvas.width*.95);
+    if(options.runs){
+      // One cached texture keeps the site's two-colour wordmark intact in 3D.
+      const widths=options.runs.map(run=>ctx.measureText(run.text).width),total=widths.reduce((a,b)=>a+b,0);
+      const fit=Math.min(1,canvas.width*.95/total);let x=(canvas.width-total*fit)/2;
+      for(let i=0;i<options.runs.length;i++){
+        ctx.fillStyle=options.runs[i].color;ctx.fillText(options.runs[i].text,x+widths[i]*fit/2,canvas.height*.53,widths[i]*fit);x+=widths[i]*fit;
+      }
+    }else ctx.fillText(String(text),canvas.width/2,canvas.height*.53,canvas.width*.95);
     const gl=this.gl,texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
@@ -859,7 +907,7 @@ function solveTwoBone(origin,target,pole,upper,lower) {
   return {joint:add(add(origin,scale(direction,along)),scale(bend,height)),end};
 }
 
-function makeRig({pelvis,pelvisYaw,torsoYaw,headYaw,torsoLean=0,torsoRoll=0,ankles,wrists,kneePoles,elbowPoles,footYaw,footPitch}) {
+function makeRig({pelvis,pelvisYaw,torsoYaw,headYaw,torsoLean=0,torsoRoll=0,ankles,wrists,kneePoles,elbowPoles,footYaw,footPitch,softArms=false}) {
   const spine=[Math.sin(torsoYaw)*Math.sin(torsoLean),Math.cos(torsoLean),Math.cos(torsoYaw)*Math.sin(torsoLean)];
   const chest=add(pelvis,scale(spine,.43)),neck=add(chest,scale(spine,.18)),head=add(neck,[0,.16,0]);
   const joints={pelvis:[...pelvis],chest,neck,head};
@@ -867,21 +915,27 @@ function makeRig({pelvis,pelvisYaw,torsoYaw,headYaw,torsoLean=0,torsoRoll=0,ankl
     const hip=add(pelvis,rotateY([sign*.14,0,0],pelvisYaw));
     const shoulder=add(add(chest,scale(spine,.08)),rotateY([sign*.235,sign*torsoRoll*.06,0],torsoYaw));
     const leg=solveTwoBone(hip,ankles[side],kneePoles[side],BONE_LENGTHS.thigh,BONE_LENGTHS.shin);
-    const arm=solveTwoBone(shoulder,wrists[side],elbowPoles[side],BONE_LENGTHS.upperArm,BONE_LENGTHS.forearm);
+    // Keep the decelerating throwing arm just short of a locked elbow. A hard
+    // reach clamp introduces a visible speed spike as the elbow straightens.
+    const armDelta=sub(wrists[side],shoulder),reach=length(armDelta);
+    const armTarget=softArms&&reach>.55?add(shoulder,scale(armDelta,(.55+.025*(1-Math.exp(-((reach-.55)/.025))))/reach)):wrists[side];
+    const arm=solveTwoBone(shoulder,armTarget,elbowPoles[side],BONE_LENGTHS.upperArm,BONE_LENGTHS.forearm);
     Object.assign(joints,{[side+'Hip']:hip,[side+'Knee']:leg.joint,[side+'Ankle']:leg.end,[side+'Shoulder']:shoulder,[side+'Elbow']:arm.joint,[side+'Wrist']:arm.end});
   }
   return {joints,pelvisYaw,torsoYaw,headYaw,torsoLean,torsoRoll,footYaw,footPitch,batGrip:null,batTip:null,ballGrip:null,holdBall:false};
 }
 
+// The lower body starts the delivery; the chest stays closed until the stride
+// foot braces, then the throwing arm accelerates through the release point.
 const pitcherTracks={
-  root:[[0,[0,.94,0]],[.3,[0,.945,-.025]],[.7,[.015,.96,-.025]],[1.05,[.015,.88,.15]],[1.23,[.015,.795,.36]],[1.3,[.015,.81,.38]],[1.57,[-.015,.79,.54]],[1.9,[-.015,.86,.53]],[2.35,[0,.925,.21]],[2.8,[0,.94,0]]],
-  pelvisYaw:[[0,[0]],[.45,[-.22]],[.78,[-.4]],[1.08,[-.11]],[1.3,[.31]],[1.65,[.48]],[2.15,[.2]],[2.8,[0]]],
-  torsoYaw:[[0,[0]],[.5,[-.31]],[.9,[-.61]],[1.13,[-.42]],[1.3,[.1]],[1.62,[.54]],[2.15,[.22]],[2.8,[0]]],
-  lean:[[0,[.01]],[.8,[.02]],[1.1,[.07]],[1.3,[.19]],[1.58,[.47]],[1.85,[.35]],[2.3,[.08]],[2.8,[.01]]],
-  leftFoot:[[0,[-.18,.065,.09]],[.23,[-.18,.065,.09]],[.7,[-.16,.72,.15]],[.9,[-.15,.6,.29]],[1.12,[-.17,.19,.77]],[1.23,[-.18,.065,.96]],[1.9,[-.18,.065,.96]],[2.35,[-.18,.065,.53]],[2.8,[-.18,.065,.09]]],
-  rightFoot:[[0,[.18,.065,-.03]],[1.15,[.18,.065,-.03]],[1.3,[.18,.09,-.03]],[1.65,[.2,.45,.32]],[1.9,[.22,.31,.75]],[2.16,[.22,.065,.66]],[2.8,[.18,.065,-.03]]],
-  glove:[[0,[0,1.31,.27]],[.42,[.01,1.34,.26]],[.78,[-.18,1.38,.43]],[1.08,[-.27,1.34,.72]],[1.3,[-.2,1.12,.53]],[1.65,[-.19,.99,.64]],[2.2,[-.12,1.2,.38]],[2.8,[0,1.31,.27]]],
-  throw:[[0,[.035,1.31,.26]],[.42,[.035,1.34,.26]],[.78,[.23,1.28,.05]],[1.07,[.43,1.52,-.05]],[1.23,[.39,1.72,.13]],[1.3,[...PITCH_RELEASE_POINT]],[1.38,[-.015,1.47,.79]],[1.6,[-.3,1.03,.93]],[1.95,[-.08,1.04,.63]],[2.38,[.07,1.26,.3]],[2.8,[.035,1.31,.26]]],
+  root:[[0,[0,.94,0]],[.24,[0,.948,-.025]],[.64,[.018,.965,-.045]],[.89,[.026,.942,.035]],[1.07,[.025,.875,.19]],[1.23,[.015,.795,.36]],[1.3,[.015,.81,.38]],[1.5,[-.018,.78,.535]],[1.72,[-.025,.805,.57]],[1.98,[-.018,.875,.49]],[2.4,[0,.928,.17]],[2.8,[0,.94,0]]],
+  pelvisYaw:[[0,[0]],[.4,[-.24]],[.72,[-.43]],[.96,[-.32]],[1.12,[.05]],[1.3,[.38]],[1.56,[.54]],[1.9,[.4]],[2.35,[.12]],[2.8,[0]]],
+  torsoYaw:[[0,[0]],[.42,[-.22]],[.76,[-.49]],[1.04,[-.66]],[1.18,[-.37]],[1.3,[.1]],[1.55,[.62]],[1.84,[.57]],[2.3,[.15]],[2.8,[0]]],
+  lean:[[0,[.01]],[.75,[-.015]],[1.08,[.045]],[1.3,[.19]],[1.55,[.51]],[1.8,[.43]],[2.1,[.19]],[2.4,[.045]],[2.8,[.01]]],
+  leftFoot:[[0,[-.18,.065,.09]],[.21,[-.18,.065,.09]],[.64,[-.155,.75,.12]],[.83,[-.15,.68,.25]],[1.06,[-.16,.31,.65]],[1.23,[-.18,.065,.96]],[1.9,[-.18,.065,.96]],[2.18,[-.18,.09,.78]],[2.44,[-.18,.065,.43]],[2.8,[-.18,.065,.09]]],
+  rightFoot:[[0,[.18,.065,-.03]],[1.13,[.18,.065,-.03]],[1.3,[.18,.09,-.03]],[1.57,[.22,.48,.34]],[1.77,[.25,.39,.71]],[2.04,[.24,.065,.73]],[2.35,[.21,.065,.39]],[2.8,[.18,.065,-.03]]],
+  glove:[[0,[0,1.31,.27]],[.35,[.005,1.4,.27]],[.62,[-.075,1.43,.32]],[.9,[-.26,1.4,.51]],[1.08,[-.3,1.3,.69]],[1.3,[-.16,1.17,.5]],[1.54,[-.12,1.07,.55]],[1.9,[-.13,1.08,.51]],[2.38,[-.05,1.26,.3]],[2.8,[0,1.31,.27]]],
+  throw:[[0,[.035,1.31,.26]],[.35,[.035,1.4,.26]],[.62,[.14,1.31,.12]],[.86,[.32,1.18,-.025]],[1.08,[.46,1.52,-.055]],[1.22,[.4,1.735,.11]],[1.3,[...PITCH_RELEASE_POINT]],[1.39,[-.015,1.49,.78]],[1.57,[-.3,1.015,.88]],[1.83,[-.2,.995,.75]],[2.1,[-.07,1.095,.5]],[2.45,[.06,1.28,.28]],[2.8,[.035,1.31,.26]]],
 };
 
 function posePitcher(tSeconds=0) {
@@ -889,23 +943,27 @@ function posePitcher(tSeconds=0) {
   const pelvis=sampleTrack(p.root,t),pelvisYaw=sampleTrack(p.pelvisYaw,t)[0],torsoYaw=sampleTrack(p.torsoYaw,t)[0],torsoLean=sampleTrack(p.lean,t)[0];
   const ankles={left:sampleTrack(p.leftFoot,t),right:sampleTrack(p.rightFoot,t)};
   const wrists={left:sampleTrack(p.glove,t),right:sampleTrack(p.throw,t)};
-  const lift=ease(.22,.62,t)*(1-ease(.8,1.2,t));
-  const pose=makeRig({pelvis,pelvisYaw,torsoYaw,torsoLean,headYaw:0,torsoRoll:-.04*Math.sin(t/2.8*Math.PI),ankles,wrists,
+  const lift=ease(.21,.59,t)*(1-ease(.77,1.2,t));
+  const pose=makeRig({pelvis,pelvisYaw,torsoYaw,torsoLean,headYaw:0,softArms:true,torsoRoll:sampleTrack([[0,[0]],[.7,[-.08]],[1.1,[-.04]],[1.3,[.10]],[1.57,[.16]],[2.15,[.04]],[2.8,[0]]],t)[0],ankles,wrists,
     kneePoles:{left:add(pelvis,[-.18,-.25+lift*.9,1]),right:add(pelvis,[.2,-.3,1])},
     elbowPoles:{left:add(pelvis,[-.6,.35,.55]),right:add(pelvis,[.66,.43,-.27+ease(1.2,1.6,t)*(1-ease(2.1,2.8,t))*.65])},
-    footYaw:{left:-.08,right:.04+ease(1.05,1.55,t)*.65*(1-ease(2.1,2.8,t))},
-    footPitch:{left:0,right:ease(1.14,1.35,t)*.36*(1-ease(1.55,1.9,t))}});
+    footYaw:{left:-.08+ease(.94,1.22,t)*.16*(1-ease(2.1,2.8,t)),right:.04+ease(1.05,1.55,t)*.74*(1-ease(2.1,2.8,t))},
+    footPitch:{left:ease(.92,1.09,t)*.13*(1-ease(1.1,1.23,t)),right:ease(1.12,1.33,t)*.46*(1-ease(1.62,2.04,t))}});
   pose.ballGrip=[...pose.joints.rightWrist];pose.holdBall=t<PITCH_RELEASE_TIME;
   pose.releasePoint=[...PITCH_RELEASE_POINT];
   return pose;
 }
 
 function readyBatter(deliveryTime) {
-  const t=Math.max(0,Number(deliveryTime)||0),load=ease(.28,1.15,t)*(1-ease(2.45,3.2,t)),breath=Math.sin(t*2.3)*.003*(1-ease(2.45,3.2,t));
-  return {pelvis:[.005,.915-load*.025,.015+load*.025],pelvisYaw:-.85-load*.045,torsoYaw:-.85-load*.09,torsoLean:.035,torsoRoll:0,
-    ankles:{left:[-.15,.065,-.29],right:[.15,.065,.29]},
-    grip:[.105+load*.025,1.475+load*.015+breath,.265+load*.03],direction:unit([.28+Math.sin(t*1.9)*.015*(1-ease(2.45,3.2,t)),.92,.26]),
-    headYaw:-2.08,footYaw:{left:-1.23,right:-1.08},footPitch:{left:0,right:0}};
+  const t=Math.max(0,Number(deliveryTime)||0),settle=1-ease(2.45,3.2,t);
+  const load=ease(.28,1.15,t)*settle,breath=Math.sin(t*2.3)*.003*settle;
+  // A small gather onto the back leg precedes the button-triggered swing. The
+  // front heel unweights while the eyes and barrel remain quiet toward the ball.
+  const heel=ease(.66,1.14,t)*(1-ease(1.58,1.98,t))*settle;
+  return {pelvis:[.005+.012*load,.915-load*.029,.015+load*.047],pelvisYaw:-.85-load*.065,torsoYaw:-.85-load*.15,torsoLean:.035+load*.018,torsoRoll:-.025*load,
+    ankles:{left:[-.15,.065+.025*heel,-.29+.015*load],right:[.15,.065,.29]},
+    grip:[.105+load*.03,1.475+load*.015+breath,.265+load*.038],direction:unit([.28+Math.sin(t*1.9)*.015*settle,.92,.26]),
+    headYaw:-2.08,footYaw:{left:-1.23,right:-1.08},footPitch:{left:heel*.09,right:0}};
 }
 
 function poseBatter({deliveryTime=0,swingAge=null}={}) {
@@ -915,20 +973,20 @@ function poseBatter({deliveryTime=0,swingAge=null}={}) {
     const age=Math.max(0,swingAge),start=readyBatter(Math.max(0,deliveryTime-age)),recover=ease(.67,SWING_DURATION,age);
     const contactDirection=unit(sub(BAT_CONTACT_POINT,[-.49,1.10,-.13]));
     const track=(frames)=>sampleTrack(frames,Math.min(age,.67));
-    const root=track([[0,start.pelvis],[.04,[-.015,.889,.025]],[.14,[-.10,.89,-.055]],[.27,[-.105,.91,-.09]],[.48,[-.055,.90,-.065]],[.67,[-.045,.89,-.015]]]);
-    const hips=track([[0,[start.pelvisYaw]],[.035,[-1.05]],[.10,[-1.63]],[.14,[-1.88]],[.29,[-2.56]],[.48,[-2.77]],[.67,[-2.6]]])[0];
-    const torso=track([[0,[start.torsoYaw]],[.045,[-.96]],[.10,[-1.36]],[.14,[-1.78]],[.29,[-2.58]],[.48,[-2.98]],[.67,[-2.75]]])[0];
+    const root=track([[0,start.pelvis],[.04,[-.006,.882,.048]],[.10,[-.075,.89,-.03]],[.14,[-.10,.895,-.055]],[.27,[-.105,.91,-.09]],[.48,[-.07,.897,-.075]],[.67,[-.045,.89,-.025]]]);
+    const hips=track([[0,[start.pelvisYaw]],[.035,[-1.12]],[.08,[-1.52]],[.14,[-1.94]],[.26,[-2.57]],[.46,[-2.79]],[.67,[-2.72]]])[0];
+    const torso=track([[0,[start.torsoYaw]],[.045,[-1.00]],[.10,[-1.38]],[.14,[-1.78]],[.29,[-2.62]],[.48,[-2.99]],[.67,[-2.86]]])[0];
     const lean=track([[0,[start.torsoLean]],[.14,[.145]],[.3,[.11]],[.67,[.04]]])[0];
-    const left=track([[0,start.ankles.left],[.045,[-.15,.105,-.34]],[.10,[-.15,.065,-.435]],[.67,[-.15,.065,-.435]]]);
-    const right=track([[0,start.ankles.right],[.14,[.16,.105,.28]],[.3,[.18,.125,.25]],[.67,[.18,.075,.25]]]);
+    const left=track([[0,start.ankles.left],[.035,[-.15,.11,-.325]],[.08,[-.15,.072,-.425]],[.10,[-.15,.065,-.435]],[.67,[-.15,.065,-.435]]]);
+    const right=track([[0,start.ankles.right],[.08,[.15,.075,.29]],[.17,[.16,.12,.275]],[.35,[.18,.135,.25]],[.67,[.18,.09,.25]]]);
     grip=track([[0,start.grip],[.035,[.045,1.46,.24]],[.075,[-.12,1.34,.075]],[.14,[-.49,1.10,-.13]],[.22,[-.34,1.14,-.43]],[.36,[-.03,1.45,-.43]],[.52,[.14,1.61,-.2]],[.67,[.18,1.58,.025]]]);
     direction=unit(track([[0,start.direction],[.035,unit([.37,.92,.05])],[.075,unit([-.30,.68,-.67])],[.10,unit([-.72,.32,-.62])],[.14,contactDirection],[.22,unit([-.38,.24,-.89])],[.36,unit([.48,.85,-.22])],[.52,unit([.55,.82,.16])],[.67,unit([.43,.90,.18])]]));
     grip=blend(grip,live.grip,recover);direction=unit(blend(direction,live.direction,recover));
-    body={pelvis:blend(root,live.pelvis,recover),pelvisYaw:hips+(live.pelvisYaw-hips)*recover,torsoYaw:torso+(live.torsoYaw-torso)*recover,torsoLean:lean+(live.torsoLean-lean)*recover,torsoRoll:-.04*Math.sin(Math.min(age,.67)/.67*Math.PI)*(1-recover),
+    body={pelvis:blend(root,live.pelvis,recover),pelvisYaw:hips+(live.pelvisYaw-hips)*recover,torsoYaw:torso+(live.torsoYaw-torso)*recover,torsoLean:lean+(live.torsoLean-lean)*recover,torsoRoll:sampleTrack([[0,[start.torsoRoll]],[.14,[-.08]],[.34,[-.11]],[.67,[-.025]]],Math.min(age,.67))[0]*(1-recover)+live.torsoRoll*recover,
       ankles:{left:blend(left,live.ankles.left,recover),right:blend(right,live.ankles.right,recover)},
       headYaw:(-2.08-ease(.18,.48,age)*.32)*(1-recover)+live.headYaw*recover,
-      footYaw:{left:-1.23-ease(.04,.16,age)*.2*(1-recover),right:-1.08-ease(.04,.27,age)*1.05*(1-recover)},
-      footPitch:{left:0,right:ease(.045,.16,age)*.35*(1-recover)}};
+      footYaw:{left:-1.23-ease(.04,.16,age)*.2*(1-recover),right:-1.08-ease(.035,.26,age)*1.16*(1-recover)},
+      footPitch:{left:start.footPitch.left*(1-ease(0,.1,age))*(1-recover)+live.footPitch.left*recover,right:ease(.04,.17,age)*.44*(1-recover)}};
   }
   const wrists={left:add(grip,scale(direction,-.028)),right:add(grip,scale(direction,.028))};
   const pose=makeRig({...body,wrists,
@@ -1178,9 +1236,224 @@ class BaseballCharacter {
 
 return {BaseballCharacter};
 })();
+modules["./defense.js"]=(()=>{
+/** Articulated, material-batched defenders. World units are metres, Y is up. */
+const { solveTwoBone }=modules['./motion.js'];
+const PI=Math.PI,TAU=PI*2;
+const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
+const smooth=(a,b,n)=>{const t=clamp((n-a)/(b-a));return t*t*t*(t*(t*6-15)+10);};
+const add=(a,b)=>a.map((v,i)=>v+b[i]);
+const sub=(a,b)=>a.map((v,i)=>v-b[i]);
+const mul=(a,s)=>a.map(v=>v*s);
+const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const unit=(a,fallback=[0,0,1])=>{const n=Math.hypot(...a);return n>1e-8?mul(a,1/n):fallback;};
+const rotate=(p,yaw)=>[Math.cos(yaw)*p[0]+Math.sin(yaw)*p[2],p[1],-Math.sin(yaw)*p[0]+Math.cos(yaw)*p[2]];
+const angleMix=(a,b,t)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*t;
+
+const DEFENSIVE_POSITIONS=Object.freeze([
+  {role:'firstBase',label:'一壘手',base:[21.5,0,-21],number:3},
+  {role:'secondBase',label:'二壘手',base:[14,0,-34.5],number:4},
+  {role:'shortstop',label:'游擊手',base:[-14.5,0,-34],number:6},
+  {role:'thirdBase',label:'三壘手',base:[-23,0,-21.5],number:5},
+  {role:'leftField',label:'左外野手',base:[-42,0,-72],number:7},
+  {role:'centerField',label:'中外野手',base:[0,0,-86],number:8},
+  {role:'rightField',label:'右外野手',base:[43,0,-72],number:9},
+  {role:'catcher',label:'捕手',base:[0,0,1.32],number:2}
+].map(p=>Object.freeze({...p,base:Object.freeze(p.base)})));
+
+function trackedFlight(s,flightPoint) {
+  const inFlight=s.phase==='flight'&&s.flight;
+  const f=inFlight?s.flight:s.trackingFlight;
+  if(!f)return null;
+  const progress=clamp(inFlight?s.flight.progress:s.trackingProgress??1);
+  const returning=!inFlight&&Number.isFinite(s.trackingRecovery);
+  const recovery=returning?1-smooth(0,2.4,s.trackingRecovery):1;
+  const distance=Math.min(103,f.distance||100),direction=clamp(f.direction||0,-1.2,1.2)*.74;
+  const landing=[Math.sin(direction)*distance,0,-Math.cos(direction)*distance];
+  const ball=flightPoint?flightPoint(f,progress):[landing[0]*progress,1+Math.sin(progress*PI)*25,landing[2]*progress];
+  return {f,progress,recovery,landing,ball,returning,returnAge:s.trackingRecovery||0};
+}
+
+/** A deterministic pose sampler also used by the squad and continuity checks. */
+function sampleDefenderPose(index,s={}, {time=0,flightPoint}={}) {
+  const spec=DEFENSIVE_POSITIONS[index];
+  if(!spec)throw new RangeError('Unknown defensive position');
+  const catcher=spec.role==='catcher',outfielder=index>=4&&index<7;
+  const tracked=trackedFlight(s,flightPoint),phaseTime=s.phaseTime||0;
+  const active=['windup','pitch'].includes(s.phase);
+  const delivery=s.deliveryTime??(s.phase==='windup'?phaseTime:1.3+phaseTime);
+  let ready=active?.38+.62*smooth(.2,.95,delivery):['idle','finished','upgrade'].includes(s.phase)?.38:
+    s.phase==='flight'&&tracked?1-smooth(0,.14,tracked.progress):
+    s.phase==='between'?(tracked?.38*smooth(.5,1.25,phaseTime):1-.62*smooth(0,1.25,phaseTime)):0;
+  const homeYaw=catcher?PI:Math.atan2(-spec.base[0],-spec.base[2]);
+  let base=[...spec.base],yaw=homeYaw,running=0,track=0;
+  if(tracked){
+    const {progress,recovery,landing}=tracked;
+    track=smooth(.025+index*.003,.14+index*.003,progress)*recovery;
+    if(!catcher){
+      const vector=sub(landing,base),length=Math.hypot(vector[0],vector[2]);
+      const maximum=outfielder?Math.min(11,length*.42):Math.min(4.5,length*.11);
+      const advance=smooth(.04+index*.004,.92,progress)*maximum*recovery;
+      const move=unit([vector[0],0,vector[2]]);
+      base=add(base,mul(move,advance));
+      const chaseYaw=Math.atan2(move[0],move[2]);
+      yaw=angleMix(homeYaw,chaseYaw,track);
+      // The nearest outfielder takes the longest route; others provide backup.
+      running=track*(1-smooth(.8,.98,progress))*(outfielder?1:.68);
+      if(tracked.returning){
+        const age=tracked.returnAge,q=clamp(age/2.4);
+        running=16*q*q*(1-q)*(1-q);
+        const turn=angleMix(chaseYaw,Math.atan2(-move[0],-move[2]),smooth(0,.45,age));
+        yaw=angleMix(turn,homeYaw,smooth(1.75,2.4,age));
+      }
+    }
+  }
+  ready*=1-running;
+  const stride=Math.sin(time*(outfielder?10.8:10.2)+index*1.37),opposite=-stride;
+  const breath=Math.sin(time*2.1+index*.8)*.007;
+  const stand=catcher?0:track*.055;
+  const pelvis=[0,catcher?.435:.91-ready*.105+stand+Math.abs(stride)*.045*running+breath*.3,catcher?.015:.035*ready];
+  const lean=catcher?.16:.07+ready*.11+running*.12;
+  const chest=add(pelvis,[0,.43*Math.cos(lean),.43*Math.sin(lean)]);
+  const neck=add(chest,[0,.16*Math.cos(lean),.16*Math.sin(lean)]);
+  const head=add(neck,[0,.15,catcher?.035:.015]);
+  const joints={pelvis,chest,neck,head};
+  for(const [side,sign,cycle] of [['left',-1,stride],['right',1,opposite]]){
+    const hip=add(pelvis,[sign*.14,0,0]);
+    const ankle=catcher?[sign*.36,.065,.08]:[sign*(.19+ready*.055),.065+Math.max(0,cycle)*.19*running,cycle*.39*running+.04*ready];
+    const leg=solveTwoBone(hip,ankle,[sign*.3,.35,1.0],.475,.455);
+    const shoulder=add(chest,[sign*.225,.075,0]);
+    const wrist=catcher?(side==='left'?[-.13,.69,.52]:[.14,.54,.20]):
+      [sign*(.23+running*.045),1.05-ready*.37+cycle*.13*running,.23+ready*.14-cycle*.24*running];
+    const arm=solveTwoBone(shoulder,wrist,[sign*.62,.95,.05],.305,.285);
+    Object.assign(joints,{[side+'Hip']:hip,[side+'Knee']:leg.joint,[side+'Ankle']:leg.end,[side+'Shoulder']:shoulder,[side+'Elbow']:arm.joint,[side+'Wrist']:arm.end});
+  }
+  const target=tracked?sub(tracked.ball,add(base,rotate(head,yaw))):sub([0,1.02,0],add(base,rotate(head,yaw)));
+  const headYaw=tracked?angleMix(yaw,Math.atan2(target[0],target[2]),track):homeYaw;
+  // The neck follows the ball without turning the entire running body backwards.
+  const relativeHeadYaw=clamp(Math.atan2(Math.sin(headYaw-yaw),Math.cos(headYaw-yaw)),-.85,.85);
+  const headPitch=tracked?-clamp(Math.atan2(target[1],Math.hypot(target[0],target[2])),-.15,.65)*track:0;
+  return {spec,catcher,base,yaw,headYaw:yaw+relativeHeadYaw,headPitch,running,ready,joints,
+    footYaw:{left:yaw+(catcher?-.38:-.1),right:yaw+(catcher?.38:.1)}};
+}
+
+function basisAlong(axis) {
+  const y=unit(axis,[0,1,0]);
+  const x=unit(cross(y,Math.abs(y[2])>.92?[1,0,0]:[0,0,1]),[1,0,0]);
+  return [x,y,unit(cross(x,y))];
+}
+
+// Low-poly rings give continuous athletic silhouettes without the draw-call cost
+// of dozens of separate spheres. All defenders share one mesh per material.
+class DefenseBatch {
+  constructor(){this.geometry={dynamic:true,version:0};this.positions=[];this.normals=[];this.indices=[];}
+  clear(){this.positions.length=0;this.normals.length=0;this.indices.length=0;}
+  vertex(p,n){const i=this.positions.length/3;this.positions.push(...p);this.normals.push(...n);return i;}
+  ellipsoid(center,radii,yaw=0,rows=5,sides=8,pitch=0){
+    const start=this.positions.length/3;
+    const orient=v=>rotate([v[0],v[1]*Math.cos(pitch)-v[2]*Math.sin(pitch),v[1]*Math.sin(pitch)+v[2]*Math.cos(pitch)],yaw);
+    for(let row=0;row<=rows;row++)for(let col=0;col<=sides;col++){
+      const p=row/rows*PI,a=col/sides*TAU,normal=[Math.sin(p)*Math.cos(a),Math.cos(p),Math.sin(p)*Math.sin(a)];
+      this.vertex(add(center,orient(normal.map((v,i)=>v*radii[i]))),unit(orient(normal.map((v,i)=>v/radii[i]))));
+    }
+    for(let row=0;row<rows;row++)for(let col=0;col<sides;col++){
+      const a=start+row*(sides+1)+col,b=a+sides+1;
+      this.indices.push(a,a+1,b,a+1,b+1,b);
+    }
+  }
+  limb(a,b,r0,r1=r0,sides=8){
+    const start=this.positions.length/3,basis=basisAlong(sub(b,a));
+    for(let end=0;end<2;end++)for(let i=0;i<=sides;i++){
+      const t=i/sides*TAU,n=add(mul(basis[0],Math.cos(t)),mul(basis[2],Math.sin(t)));
+      this.vertex(add(end?b:a,mul(n,end?r1:r0)),n);
+    }
+    for(let i=0;i<sides;i++){const a=start+i,b=a+sides+1;this.indices.push(a,b,a+1,a+1,b,b+1);}
+  }
+  finish(){
+    const g=this.geometry;
+    if(g.positions?.length!==this.positions.length){
+      g.positions=new Float32Array(this.positions.length);g.normals=new Float32Array(this.normals.length);
+      g.uvs=new Float32Array(this.positions.length/3*2);g.indices=new Uint16Array(this.indices.length);
+    }
+    g.positions.set(this.positions);g.normals.set(this.normals);g.indices.set(this.indices);g.version++;
+    return g;
+  }
+}
+
+const DEFENSE_MATERIALS={jersey:'#e6e9df',pants:'#d4ddd6',skin:'#c59470',navy:'#194969',shoe:'#142c35',leather:'#98673e',metal:'#adbab4',shadow:'#234b37'};
+
+class DefenseSquad {
+  constructor(){
+    this.batches=Object.fromEntries(Object.keys(DEFENSE_MATERIALS).map(key=>[key,new DefenseBatch()]));
+    this.lastFlight=null;
+    this.recoveryStartedAt=null;
+  }
+  objects(s,{time=0,flightPoint}={}) {
+    if(s.phase==='flight'&&s.flight){this.lastFlight={...s.flight};this.recoveryStartedAt=null;}
+    if(s.phase==='between'&&this.lastFlight&&this.recoveryStartedAt===null)this.recoveryStartedAt=time-(s.phaseTime||0);
+    const recovering=this.lastFlight&&this.recoveryStartedAt!==null&&['between','windup','upgrade','finished'].includes(s.phase);
+    const recoveryAge=recovering?Math.max(0,time-this.recoveryStartedAt):0;
+    const state=recovering?{...s,trackingFlight:this.lastFlight,trackingProgress:1,trackingRecovery:recoveryAge}:s;
+    if(['idle','pitch'].includes(s.phase)||recovering&&recoveryAge>=2.4){this.lastFlight=null;this.recoveryStartedAt=null;}
+    for(const batch of Object.values(this.batches))batch.clear();
+    for(let i=0;i<DEFENSIVE_POSITIONS.length;i++)this.player(sampleDefenderPose(i,state,{time,flightPoint}));
+    return Object.entries(this.batches).map(([name,batch])=>({mesh:'defense:'+name,geometry:batch.finish(),color:DEFENSE_MATERIALS[name],roughness:.91}));
+  }
+  player(pose){
+    const {joints:j,yaw,base,catcher}=pose,b=this.batches;
+    const world=p=>add(base,rotate(p,yaw));
+    const sphere=(material,p,r,rotation=yaw,rows=5,sides=8,pitch=0)=>b[material].ellipsoid(world(p),r,rotation,rows,sides,pitch);
+    const limb=(material,a,z,r0,r1=r0,sides=8)=>b[material].limb(world(a),world(z),r0,r1,sides);
+    b.shadow.ellipsoid([base[0],.018,base[2]],[catcher?.48:.42,.011,.30],yaw,3,10);
+    sphere('jersey',mix(j.pelvis,j.neck,.48),[.225,.34,.135],yaw,6,10,-.10);
+    sphere('pants',add(j.pelvis,[0,-.04,0]),[.19,.16,.13]);
+    limb('navy',add(j.pelvis,[0,.022,0]),add(j.pelvis,[0,.061,0]),.174,.17,10);
+    limb('skin',j.neck,add(j.head,[0,-.06,0]),.047);
+    sphere('skin',j.head,[.096,.135,.099],pose.headYaw,6,10,pose.headPitch);
+    const capCenter=add(j.head,[0,.105,0]);
+    sphere('navy',capCenter,[.105,.05,.107],pose.headYaw,4,10,pose.headPitch);
+    const faceDirection=rotate([0,0,1],pose.headYaw-yaw);
+    sphere('navy',add(capCenter,mul(faceDirection,.079)),[.104,.012,.08],pose.headYaw,3,8);
+    // A small nose fixes face orientation even at broadcast-camera distance.
+    sphere('skin',add(j.head,mul(faceDirection,.099)),[.023,.035,.028],pose.headYaw,4,6);
+    for(const name of ['left','right']){
+      const hip=j[name+'Hip'],knee=j[name+'Knee'],ankle=j[name+'Ankle'];
+      limb('pants',hip,knee,.103,.072);sphere('pants',knee,[.075,.079,.077]);
+      limb('pants',knee,ankle,.074,.042);
+      const shoe=add(ankle,[0,-.025,.07]);sphere('shoe',shoe,[.065,.046,.14],pose.footYaw[name],4,8);
+      const shoulder=j[name+'Shoulder'],elbow=j[name+'Elbow'],wrist=j[name+'Wrist'];
+      limb('jersey',shoulder,mix(shoulder,elbow,.66),.079,.063);
+      limb('skin',mix(shoulder,elbow,.6),elbow,.054,.047);sphere('skin',elbow,[.05,.05,.05],yaw,4,6);
+      limb('skin',elbow,wrist,.047,.028);
+      sphere(name==='left'?'leather':'skin',wrist,name==='left'?[.092,.115,.046]:[.031,.045,.025],yaw,5,8);
+    }
+    if(catcher){
+      // Chest protector, shin guards and an open cage mask distinguish the catcher.
+      sphere('navy',add(mix(j.pelvis,j.neck,.55),[0,0,.105]),[.19,.28,.065],yaw,6,10,-.12);
+      for(const name of ['left','right']){
+        limb('navy',add(j[name+'Knee'],[0,0,.055]),add(j[name+'Ankle'],[0,0,.045]),.075,.05);
+        sphere('navy',add(j[name+'Knee'],[0,0,.06]),[.09,.10,.045],yaw,4,8);
+      }
+      const head=j.head;
+      const headPoint=p=>add(head,rotate([p[0],p[1]*Math.cos(pose.headPitch)-p[2]*Math.sin(pose.headPitch),p[1]*Math.sin(pose.headPitch)+p[2]*Math.cos(pose.headPitch)],pose.headYaw-yaw));
+      for(const y of [-.06,.015,.085]){
+        const a=headPoint([-.102,y,.113]),c=headPoint([0,y,.151]),z=headPoint([.102,y,.113]);
+        limb('metal',a,c,.007,.007,5);limb('metal',c,z,.007,.007,5);
+      }
+      for(const x of [-.075,.075])limb('metal',headPoint([x,-.115,.11]),headPoint([x,.115,.11]),.008,.008,5);
+    }
+  }
+}
+
+return {DEFENSIVE_POSITIONS,sampleDefenderPose,DefenseSquad};
+})();
 modules["./scene3d.js"]=(()=>{
 const { GLRenderer }=modules['./webgl.js'];
 const { BaseballCharacter }=modules['./character.js'];
+const { DefenseSquad }=modules['./defense.js'];
+const { sampleFlight }=modules['./engine.js'];
 const { posePitcher, poseBatter, PITCH_RELEASE_POINT, SWING_CONTACT_TIME, SWING_DURATION }=modules['./motion.js'];
 const PI=Math.PI, TAU=PI*2;
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
@@ -1199,6 +1472,7 @@ class DiamondScene {
     this.particles=[];
     this.textures={};
     this.staticObjects=[];
+    this.defense=new DefenseSquad();
     this.characters={
       batter:new BaseballCharacter({id:'batter',labelTexture:(text,color)=>this.label(text,.35,.1,color)}),
       pitcher:new BaseballCharacter({id:'pitcher',labelTexture:(text,color)=>this.label(text,.35,.1,color)})
@@ -1303,7 +1577,8 @@ class DiamondScene {
     // Outfield video board and original park signage.
     this.add(o,'box',[0,17,-111.2],[43,20,1.8],'#162a34');
     this.add(o,'box',[0,17,-110.18],[40,17,.1],'#163c4c');
-    this.sign(o,'DIAMOND PARK',[0,19.7,-110.05],[35,5,1],'#ecf3dc');
+    const logo=this.renderer.textTexture('basenefit',{width:1024,height:256,font:'700 176px sans-serif',runs:[{text:'base',color:'#efece4'},{text:'nefit',color:'#cbf24c'}]});
+    this.add(o,'quad',[0,20,-110.05],[36,8.4,1],'#ffffff',[0,0,0],{texture:logo,unlit:true,brand:'basenefit'});
     this.sign(o,'HOME RUN DERBY',[0,14.5,-110.02],[30,3.4,1],'#b6d8df');
     this.sign(o,'400',[0,1.6,-109.5],[3.2,1.4,1],'#f2dfad');
     for(const side of [-1,1]){
@@ -1316,27 +1591,17 @@ class DiamondScene {
       this.add(o,'box',[side*112,39,z],[10,2.3,1.3],'#3a5054');
       for(let row=0;row<2;row++)this.add(o,'box',[side*112,38.5+row*1.1,z+.8],[8.6,.65,.13],'#fff6d2',[0,0,0],{unlit:true});
     }
-    // A pair of fielders creates the expected depth and baseball scale.
-    for(const p of [[-39,0,-64],[38,0,-65]]){
-      this.add(o,'sphere',[p[0],.025,p[2]],[.8,.025,.42],'#183d32');
-      for(const x of [-.14,.14])this.beam(o,[p[0]+x,.1,p[2]],[p[0]+x,.82,p[2]],.095,'#d4ddd4');
-      this.add(o,'sphere',[p[0],1.18,p[2]],[.24,.4,.15],'#dce4da');
-      this.add(o,'sphere',[p[0],1.71,p[2]],[.11,.14,.11],'#bf8c66');
-      this.add(o,'sphere',[p[0],1.81,p[2]],[.13,.07,.13],'#1b5260');
-    }
   }
   event(e) {
     if(e.type==='pitch'||e.type==='reset')this.lastFlight=null;
-    if(e.type==='contact')this.lastFlight={...e.result,apex:Math.max(12,e.result.distance*.28)};
+    if(e.type==='contact')this.lastFlight={...e.state.flight};
     if(e.type==='result'&&e.result.homerun){
       const pos=this.flightPoint(this.lastFlight||e.result,.85);
       for(let i=0;i<18;i++)this.particles.push({p:[...pos],v:[(Math.random()-.5)*20,Math.random()*12+1,(Math.random()-.5)*20],life:1.6+Math.random(),color:i%2?'#dbf283':'#fff2d1'});
     }
   }
   flightPoint(f,p) {
-    const angle=clamp(f.direction||0,-1.2,1.2)*.74;
-    const distance=(f.distance||110)*p;
-    return [Math.sin(angle)*distance,1.02+Math.sin(p*PI)*(f.apex||Math.max(12,(f.distance||110)*.28)),-Math.cos(angle)*distance];
+    return sampleFlight(f,p);
   }
   ball(out,p,r=.065,trail=[]) {
     for(let i=0;i<trail.length;i++)this.add(out,'sphere',trail[i],[r*.55,r*.55,r*.55],i%2?'#d9ecd0':'#f5e9bd',[0,0,0],{alpha:(i+1)/trail.length*.28,unlit:true});
@@ -1350,12 +1615,13 @@ class DiamondScene {
   camera(s) {
     const portrait=this.renderer.w/this.renderer.h<1.12;
     const side=s.hand==='right'?-1:1;
-    const base={eye:portrait?[.6*side,1.48,5.0]:[-.18,1.43,3.45],target:portrait?[.15*side,1.19,-18]:[0,1.19,-18],fov:portrait?51:47,near:.055,far:340};
+    // An elevated broadcast viewpoint clears the crouched catcher's helmet.
+    const base={eye:portrait?[.6*side,2.35,5.0]:[-.18,1.95,3.45],target:portrait?[.15*side,1.16,-18]:[0,1.16,-18],fov:portrait?51:47,near:.055,far:340};
     let f=null,progress=0,blend=0;
     if(s.phase==='flight'&&s.flight){f=s.flight;progress=s.flight.progress;blend=smooth(0,.24,progress);}
     else if(s.phase==='between'&&this.lastFlight){f=this.lastFlight;progress=1;blend=1-smooth(.25,1.2,s.phaseTime);}
     if(f&&blend>0){
-      const ball=this.flightPoint(f,progress),following=[ball[0]+10,Math.min(54,Math.max(13,ball[1]+11)),ball[2]+32];
+      const ball=this.flightPoint(f,progress),following=[ball[0]+10,Math.max(13,ball[1]+11),ball[2]+32];
       base.eye=vMix(base.eye,following,blend);
       base.target=vMix(base.target,[ball[0],ball[1]-.7,ball[2]-2],blend);
       base.fov=mix(base.fov,56,blend);
@@ -1371,6 +1637,7 @@ class DiamondScene {
     const pitcherPose=posePitcher(delivery);
     dynamic.push(...this.characters.batter.objects(batterPose,{base:[1.05,0,.28],mirror:s.hand==='right'?-1:1}));
     dynamic.push(...this.characters.pitcher.objects(pitcherPose,{base:[0,.17,-18.44],mirror:1}));
+    dynamic.push(...this.defense.objects(s,{time:this.time,flightPoint:(f,p)=>this.flightPoint(f,p)}));
     if(s.phase==='pitch'){
       // Keep the visible barrel and ball together throughout the forgiving hit
       // window. The correction eases in only during the short swing anticipation.
@@ -1410,7 +1677,7 @@ class DiamondScene {
 return {DiamondScene};
 })();
 modules["./app.js"]=(()=>{
-const { DerbyEngine, DIFFICULTIES }=modules['./engine.js'];
+const { DerbyEngine, DIFFICULTIES, sampleFlight }=modules['./engine.js'];
 const { DiamondScene:DiamondScene3D }=modules['./scene3d.js'];
 const { DiamondScene:DiamondScene2D }=modules['./scene.js'];
 const $=id=>document.getElementById(id);
@@ -1512,6 +1779,7 @@ const engine=new DerbyEngine({onEvent:e=>{
   if(e.type==='perk'){updateScore(s);sound('start');}
   if(e.type==='swing')sound('swing');
   if(e.type==='contact'){
+    $('launchAngle').textContent=Math.round(e.result.launchAngle);
     sound(e.result.homerun?'homerun':'contact');
     const timing=e.result.timing==='perfect'?'PERFECT · 完美擊球':e.result.timing==='early'?'稍早出棒':'稍晚出棒';
     showToast(e.result.homerun?'HOME RUN!':e.result.label,`${timing} · ${e.result.distance} m`,e.result.homerun?'homerun':'hit',1.2);
@@ -1581,7 +1849,7 @@ function frame(now){
   if(!hostActive){requestAnimationFrame(frame);return;}
   engine.tick(dt);const s=engine.state;
   if(scene)scene.frame(s,s.paused?0:dt);
-  if(s.phase==='flight'&&s.flight)$('flightDistance').textContent=Math.round(s.flight.distance*s.flight.progress);
+  if(s.phase==='flight'&&s.flight){const p=sampleFlight(s.flight,s.flight.progress);$('flightDistance').textContent=Math.round(Math.hypot(p[0],p[2]));}
   if(scene&&!gameReady){gameReady=true;$('launchNotice').hidden=true;$('startBtn').disabled=false;}
   const progress=s.phase==='pitch'?Math.min(1,s.inputProgress/1.18):s.phase==='flight'?s.swingResult?(.91+s.swingResult.offset/s.pitchDuration)/1.18:0:0;
   $('timingMarker').style.left=`${progress*100}%`;
