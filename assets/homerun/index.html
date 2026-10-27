@@ -1012,15 +1012,23 @@ function poseBatter({deliveryTime=0,swingAge=null}={}) {
   if(hasSwing){
     const age=Math.max(0,swingAge),start=readyBatter(Math.max(0,deliveryTime-age)),recover=ease(.67,SWING_DURATION,age);
     const contactDirection=unit(sub(BAT_CONTACT_POINT,[-.49,1.10,-.13]));
-    const track=(frames)=>sampleTrack(frames,Math.min(age,.67));
+    const track=(frames)=>sampleTrack(frames,age);
     const root=track([[0,start.pelvis],[.04,[-.006,.882,.048]],[.10,[-.075,.89,-.03]],[.14,[-.10,.895,-.055]],[.27,[-.105,.91,-.09]],[.48,[-.07,.897,-.075]],[.67,[-.045,.89,-.025]]]);
-    const hips=track([[0,[start.pelvisYaw]],[.035,[-1.12]],[.08,[-1.52]],[.14,[-1.94]],[.26,[-2.57]],[.46,[-2.79]],[.67,[-2.72]]])[0];
-    const torso=track([[0,[start.torsoYaw]],[.045,[-1.00]],[.10,[-1.38]],[.14,[-1.78]],[.29,[-2.62]],[.48,[-2.99]],[.67,[-2.86]]])[0];
+    const hips=track([[0,[start.pelvisYaw]],[.035,[-1.12]],[.08,[-1.52]],[.14,[-1.94]],[.26,[-2.57]],[.46,[-2.79]],[.67,[-2.72]],[.85,[-2.70]]])[0];
+    const torso=track([[0,[start.torsoYaw]],[.045,[-1.00]],[.10,[-1.38]],[.14,[-1.78]],[.29,[-2.62]],[.48,[-2.99]],[.67,[-2.86]],[.85,[-2.82]]])[0];
     const lean=track([[0,[start.torsoLean]],[.14,[.145]],[.3,[.11]],[.67,[.04]]])[0];
     const left=track([[0,start.ankles.left],[.035,[-.15,.11,-.325]],[.08,[-.15,.072,-.425]],[.10,[-.15,.065,-.435]],[.67,[-.15,.065,-.435]]]);
     const right=track([[0,start.ankles.right],[.08,[.15,.075,.29]],[.17,[.16,.12,.275]],[.35,[.18,.135,.25]],[.67,[.18,.09,.25]]]);
-    grip=track([[0,start.grip],[.035,[.045,1.46,.24]],[.075,[-.12,1.34,.075]],[.14,[-.49,1.10,-.13]],[.22,[-.34,1.14,-.43]],[.36,[-.03,1.45,-.43]],[.52,[.14,1.61,-.2]],[.67,[.18,1.58,.025]]]);
-    direction=unit(track([[0,start.direction],[.035,unit([.37,.92,.05])],[.075,unit([-.30,.68,-.67])],[.10,unit([-.72,.32,-.62])],[.14,contactDirection],[.22,unit([-.38,.24,-.89])],[.36,unit([.48,.85,-.22])],[.52,unit([.55,.82,.16])],[.67,unit([.43,.90,.18])]]));
+    grip=track([[0,start.grip],[.035,[.075,1.475,.25]],[.075,[-.10,1.31,.12]],[.10,[-.30,1.15,.02]],[.14,[-.49,1.10,-.13]],[.155,[-.50,1.10,-.195]],[.22,[-.34,1.14,-.43]],[.36,[-.03,1.45,-.43]],[.52,[.14,1.61,-.2]],[.67,[.18,1.60,.025]],[.85,[.15,1.57,.13]],[SWING_DURATION,[.13,1.54,.20]]]);
+    // A continuously advancing azimuth carries the barrel through contact.
+    // Independent XYZ extrema used to stop all rotation at the contact frame
+    // and send the barrel backwards on the next segment.
+    const yaw0=Math.atan2(start.direction[2],start.direction[0]);
+    const contactYaw=Math.atan2(contactDirection[2],contactDirection[0])+Math.PI*2;
+    const contactElevation=Math.asin(contactDirection[1]);
+    const yaw=track([[0,[yaw0]],[.035,[.95]],[.075,[1.75]],[.10,[2.50]],[.14,[contactYaw]],[.22,[4.70]],[.36,[5.80]],[.52,[6.32]],[.67,[6.65]],[.85,[6.90]],[SWING_DURATION,[7.10]]])[0];
+    const elevation=track([[0,[Math.asin(start.direction[1])]],[.035,[1.13]],[.075,[.65]],[.10,[.14]],[.14,[contactElevation]],[.22,[.24]],[.36,[.80]],[.52,[1.08]],[.67,[1.10]],[.85,[1.09]],[SWING_DURATION,[1.10]]])[0];
+    direction=[Math.cos(yaw)*Math.cos(elevation),Math.sin(elevation),Math.sin(yaw)*Math.cos(elevation)];
     grip=blend(grip,live.grip,recover);direction=unit(blend(direction,live.direction,recover));
     body={pelvis:blend(root,live.pelvis,recover),pelvisYaw:hips+(live.pelvisYaw-hips)*recover,torsoYaw:torso+(live.torsoYaw-torso)*recover,torsoLean:lean+(live.torsoLean-lean)*recover,torsoRoll:sampleTrack([[0,[start.torsoRoll]],[.14,[-.08]],[.34,[-.11]],[.67,[-.025]]],Math.min(age,.67))[0]*(1-recover)+live.torsoRoll*recover,
       ankles:{left:blend(left,live.ankles.left,recover),right:blend(right,live.ankles.right,recover)},
@@ -1032,7 +1040,7 @@ function poseBatter({deliveryTime=0,swingAge=null}={}) {
   const pose=makeRig({...body,wrists,
     kneePoles:{left:add(body.pelvis,[-.5,-.25,.7]),right:add(body.pelvis,[-.15,-.3,.85])},
     // Stable anatomical bend planes stay clear of the wrist axis during rotation.
-    elbowPoles:{left:add(body.pelvis,[-.7,.8,.5]),right:add(body.pelvis,[-.4,.25,.5])}});
+    elbowPoles:{left:add(body.pelvis,[-.4,.5,.5]),right:add(body.pelvis,[0,.7,.8])}});
   pose.batGrip=[...grip];pose.batTip=add(grip,scale(direction,.86));
   pose.contactPoint=[...BAT_CONTACT_POINT];
   return pose;
@@ -1059,6 +1067,24 @@ function along(axis,preferred=[1,0,0]) {
   if(Math.hypot(...x)<.01)x=cross(y,[0,0,1]);
   if(Math.hypot(...x)<.01)x=cross(y,[1,0,0]);
   x=norm(x);return [x,y,norm(cross(x,y))];
+}
+
+/** A grip joint denotes the centre of the handle, not the outer wrist surface.
+ * The palm sits between that handle and its own forearm. Using the forearm's
+ * projected direction avoids spinning the glove with an unrelated torso axis.
+ */
+function batterGripFrame(pose,name) {
+  const gripCenter=pose.joints[name+'Wrist'],elbow=pose.joints[name+'Elbow'];
+  const batAxis=norm(sub(pose.batTip,pose.batGrip)),forearm=sub(elbow,gripCenter);
+  let radial=sub(forearm,mul(batAxis,dot(forearm,batAxis)));
+  if(Math.hypot(...radial)<1e-5){
+    const preferred=yawBasis(pose.torsoYaw||0)[0];
+    radial=sub(preferred,mul(batAxis,dot(preferred,batAxis)));
+  }
+  radial=norm(radial);
+  const tangent=norm(cross(batAxis,radial));
+  return {gripCenter,batAxis,radial,tangent,basis:[tangent,batAxis,radial],
+    wristDock:add(gripCenter,mul(radial,.052)),palmCenter:add(gripCenter,mul(radial,.028))};
 }
 
 class MeshBatch {
@@ -1179,10 +1205,11 @@ class BaseballCharacter {
     }
     for(const name of ['left','right']){
       const shoulder=j[name+'Shoulder'],elbow=j[name+'Elbow'],wrist=j[name+'Wrist'];
+      const wristSurface=this.batter?batterGripFrame(pose,name).wristDock:wrist;
       const sleeve=mix(shoulder,elbow,.56),upperAxis=norm(sub(elbow,shoulder));
       b.jersey.limb(add(shoulder,mul(upperAxis,-.035)),sleeve,[[0,.066],[.25,.073],[.7,.066],[1,.059]],side,16);
       b.navy.limb(mix(shoulder,elbow,.53),mix(shoulder,elbow,.58),[[0,.0595],[1,.0585]],side,14);
-      const bareArm=[mix(shoulder,elbow,.55),mix(shoulder,elbow,.75),elbow,mix(elbow,wrist,.2),mix(elbow,wrist,.45),mix(elbow,wrist,.74),wrist];
+      const bareArm=[mix(shoulder,elbow,.55),mix(shoulder,elbow,.75),elbow,mix(elbow,wristSurface,.2),mix(elbow,wristSurface,.45),mix(elbow,wristSurface,.74),wristSurface];
       b.skin.loft(bareArm,[.050,.047,.035,.041,.038,.030,.025],[.050,.047,.035,.041,.038,.030,.025],null,16);
       this.hand(b,pose,name,wrist,elbow,torsoBasis);
     }
@@ -1221,8 +1248,11 @@ class BaseballCharacter {
     if(this.batter&&pose.batGrip&&pose.batTip){
       const grip=pose.batGrip,tip=pose.batTip,axis=norm(sub(tip,grip));
       b.bat.limb(grip,tip,[[0,.012],[.28,.012],[.50,.020],[.73,.029],[.94,.031],[1,.027]],side,18);
-      b.grip.limb(add(grip,mul(axis,-.018)),mix(grip,tip,.28),[[0,.013],[1,.013]],side,14);
-      b.bat.limb(add(grip,mul(axis,-.035)),add(grip,mul(axis,-.014)),[[0,.021],[1,.022]],side,14);
+      // Both hands are stacked around the shared grip midpoint. Extend the
+      // handle below the lower hand so its fingers sit above the end knob.
+      b.bat.limb(add(grip,mul(axis,-.064)),grip,[[0,.012],[1,.012]],side,14);
+      b.grip.limb(add(grip,mul(axis,-.064)),mix(grip,tip,.28),[[0,.013],[1,.013]],side,14);
+      b.bat.limb(add(grip,mul(axis,-.078)),add(grip,mul(axis,-.061)),[[0,.021],[1,.022]],side,14);
       for(let t=.03;t<.25;t+=.035)b.trim.limb(mix(grip,tip,t),mix(grip,tip,t+.004),[[0,.0134],[1,.0134]],side,14);
     }
     const objects=[];
@@ -1253,19 +1283,31 @@ class BaseballCharacter {
       }
       return;
     }
-    const batAxis=this.batter&&pose.batGrip&&pose.batTip?norm(sub(pose.batTip,pose.batGrip)):axis;
-    const basis=along(batAxis,side),material=this.batter?b.glove:b.skin;
-    material.ellipsoid(add(wrist,mul(axis,.012)),[.029,.043,.019],basis,8,12);
     if(this.batter){
-      // Four curled finger strips wrap the same shaft as both gloved palms.
+      const frame=batterGripFrame(pose,name),{batAxis,radial,tangent,basis,wristDock,palmCenter}=frame;
+      const material=b.glove,handSign=name==='left'?-1:1;
+      const onHandle=(alongBat,radius,angle)=>add(add(wrist,mul(batAxis,alongBat)),add(mul(radial,Math.cos(angle)*radius),mul(tangent,Math.sin(angle)*radius)));
+      // Slim palms meet the shaft at its surface; their cuffs join the actual
+      // forearm side rather than passing through the middle of the bat.
+      material.ellipsoid(palmCenter,[.026,.030,.014],basis,8,12);
+      material.limb(wristDock,palmCenter,[[0,.020],[.45,.023],[1,.026]],batAxis,12);
+      // Four separate fingers curl from the palm around the far side of the
+      // handle. Adjacent hands touch without the old oversized palm overlap.
       for(let i=0;i<4;i++){
-        const alongBat=(i-1.5)*.014,center=add(wrist,mul(batAxis,alongBat));
-        const points=[-.8,0,.9,1.65].map(a=>add(center,add(mul(basis[0],Math.cos(a)*.025),mul(basis[2],Math.sin(a)*.023))));
-        material.loft(points,[.0065,.007,.0065,.005],[.0065,.007,.0065,.005],null,7);
+        const alongBat=(i-1.5)*.014;
+        const angles=[-.64,-1.36,-2.18,-2.95],radii=[.025,.024,.022,.020];
+        const points=angles.map((a,index)=>onHandle(alongBat,radii[index],a*handSign));
+        material.loft(points,[.0068,.007,.0063,.005],[.0068,.007,.0063,.005],null,8);
       }
-      material.limb(add(wrist,mul(basis[0],-.028)),add(wrist,add(mul(basis[0],-.016),mul(basis[2],.025))),[[0,.010],[1,.008]],batAxis,8);
-      b.navy.limb(mix(elbow,wrist,.87),mix(elbow,wrist,.98),[[0,.030],[1,.027]],side,12);
+      // The thumbs close over the index-finger side of each fist from opposite
+      // sides, giving a clear lower-hand / upper-hand grip at every bat angle.
+      const thumbRow=name==='left'?.021:-.021;
+      const thumb=[onHandle(thumbRow,.035,handSign*.30),onHandle(thumbRow+handSign*.006,.028,handSign*.93),onHandle(thumbRow+handSign*.004,.020,handSign*1.70)];
+      material.loft(thumb,[.011,.010,.008],[.010,.009,.0075],null,9);
+      b.navy.limb(mix(elbow,wristDock,.90),mix(elbow,wristDock,.985),[[0,.028],[1,.024]],side,12);
     }else{
+      const basis=along(axis,side),material=b.skin;
+      material.ellipsoid(add(wrist,mul(axis,.012)),[.029,.043,.019],basis,8,12);
       for(let i=0;i<4;i++){
         const root=add(wrist,add(mul(basis[0],(i-1.5)*.012),mul(axis,.032)));
         material.limb(root,add(root,mul(axis,.031-Math.abs(i-1.5)*.004)),[[0,.006],[1,.004]],basis[0],7);
@@ -1274,7 +1316,7 @@ class BaseballCharacter {
   }
 }
 
-return {BaseballCharacter};
+return {batterGripFrame,BaseballCharacter};
 })();
 modules["./fielding.js"]=(()=>{
 /** Rare defensive highlights selected from the actual ball trajectory.
