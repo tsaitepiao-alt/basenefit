@@ -200,8 +200,15 @@ let landmarker = null;
 async function ensureModel(onNote){
   if (landmarker) return landmarker;
   onNote('載入姿態模型（第一次約 6MB，之後會快取）…');
-  const vision = await import(`${CDN}/vision_bundle.mjs`);
-  const fileset = await vision.FilesetResolver.forVisionTasks(`${CDN}/wasm`);
+  let vision;
+  try {
+    vision = await import(`${CDN}/vision_bundle.mjs`);
+  } catch (e){
+    throw new Error('無法載入 AI 模型（網路被阻擋或離線）。請連上 Wi-Fi 後重試。');
+  }
+  const fileset = await vision.FilesetResolver.forVisionTasks(`${CDN}/wasm`).catch(() => {
+    throw new Error('AI 模型資源載入失敗（CDN 無回應），請稍後再試。');
+  });
   try {
     landmarker = await vision.PoseLandmarker.createFromOptions(fileset, {
       baseOptions:{ modelAssetPath: MODEL, delegate:'GPU' },
