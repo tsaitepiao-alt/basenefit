@@ -468,6 +468,7 @@
           </div>
           <div class="navsub">
             <a href="#/videos" data-page="videos" class="sub"><span class="mi">🎥</span><span class="nt"><b>動作影片</b><em>VIDEO LIBRARY</em></span></a>
+            <a href="#/swingai" data-page="swingai" class="sub"><span class="mi">🤖</span><span class="nt"><b>AI 動作分析</b><em>AI MOTION</em></span></a>
             <a href="#/assessment" data-page="assessment" class="sub"><span class="mi">📋</span><span class="nt"><b>能力評估</b><em>ASSESSMENT</em></span></a>
             <a href="#/plan" data-page="plan" class="sub"><span class="mi">🗓</span><span class="nt"><b>訓練計畫</b><em>TRAINING PLAN</em></span></a>
             <a href="#/english" data-page="english" class="sub"><span class="mi">🔤</span><span class="nt"><b>棒球英文</b><em>BASEBALL ENGLISH</em></span></a>
@@ -672,6 +673,15 @@
           <div class="hrow"><h2>動作影片庫</h2><span class="pill" id="vid-count">0 支影片</span></div>
           <div id="vid-list"></div>
         </div>
+      </section>
+
+      <!-- ========== 2.5 AI 動作分析 ========== -->
+      <section class="page" id="page-swingai">
+        <div class="eyebrow">AI MOTION ANALYSIS</div>
+        <h2 class="page-title">上傳揮棒影片，讓 AI 告訴你哪裡不順。</h2>
+        <p class="lead">在你的手機上直接做姿態辨識：算出流暢度分數、指出最該修的三件事，並輸出一段「你的動作 vs 標準角度」的對比影片。<b>影片不會上傳到任何伺服器。</b></p>
+        <style>#swingai-frame{display:block;width:100%;height:calc(100dvh - 120px);min-height:620px;border:0;border-radius:14px;background:#0b0f0c}@media(max-width:760px){#swingai-frame{height:calc(100dvh - 96px);min-height:560px}}</style>
+        <iframe id="swingai-frame" title="AI 揮棒動作分析" src="assets/swing-ai.html?v=1" loading="lazy" allow="fullscreen; camera; microphone"></iframe>
       </section>
 
       <!-- ========== 3. 能力評估 ========== -->
@@ -1444,7 +1454,7 @@ const ANALYSIS_VIDEOS={"pitcher":[["大谷翔平｜投球慢動作（第三壘�
 const ANALYSIS_NOTES={"pitcher":[["觀察抬腿時軸心腳如何維持平衡","注意跨步方向與髖部先於肩膀轉動","比較手臂出手位置、前腳落地與完整收尾"],["觀察山本由伸的節奏、重心移動與跨步落點","留意前腳落地前後的髖肩分離","觀察出手後身體如何自然向前延伸"],["由不同鏡位比較抬腿高度、軀幹旋轉及出手點","注意視角不同可能改變動作外觀","用慢速播放觀察重心是否連續向本壘移動"]],"catcher":[["觀察接球後如何迅速轉換握球手勢","注意腳步調整、肩線朝向二壘的時機","觀察傳球出手與身體重心的協調"]],"first":[["觀察一壘手如何預先選擇接球站位","留意踩壘腳與伸展接球的配合","注意來球偏離時如何保持身體平衡"],["觀察判斷球路後的第一步啟動","注意低姿勢伸展、手套朝球移動","留意撲接後的控球與安全落地"]],"second":[["觀察接球前如何提前接近二壘","留意接球、踩壘與轉傳的連續節奏","比較傳球手勢與避開跑者的身體路線"],["觀察補位路線與接球時的腳步安排","注意完成封殺後如何快速轉向一壘","留意傳球前的平衡與重心控制"]],"third":[["觀察低重心預備姿勢與擊球瞬間的第一步","注意手套迎球、身體正面對球的時機","留意接球後轉換握球與傳一壘的動作"],["觀察滑接前如何判斷滾地球方向","注意滑接後軀幹轉正及快速出手","比較傳球時腳步與肩線的配合"]],"shortstop":[["第一步啟動","手套迎球","轉身傳球"],["接球踩壘","快速轉傳","雙殺腳步"]],"outfield":[["觀察接球後轉換握球與跨步方向","留意助跑、髖部旋轉和長傳出手的連貫性","注意傳球落點與中繼手的站位"],["觀察外野手接球後如何快速建立傳球姿勢","留意腳步朝向目標及傳球角度","比較長傳速度與傳球準確性的取捨"]],"batter":[["觀察打擊預備姿勢與重心分配","注意跨步落地後髖部啟動與手部路徑","觀察擊球後延伸及完整收棒"],["比較投手啟動時打者的準備節奏","注意前腳落地、軀幹旋轉與球棒進入擊球區的先後","觀察頭部穩定性與收棒平衡"]],"runner":[["觀察投手動作與跑者啟動時機","注意前幾步加速及接近壘包前的減速判斷","比較滑壘姿勢與觸壘時機"],["觀察離壘距離與起跑預備姿勢","注意第一步爆發與跑動路線","留意滑壘前的安全判斷與壘包接觸"]]};
 const ANALYSIS_SKILLS={"pitcher":["投球機制","軸心腳平衡","跨步與出手"],"catcher":["接捕與擋球","傳二壘","觸殺"],"first":["接傳球與踩壘","牽制","一壘撲接"],"second":["二壘補位","雙殺轉傳","滾地球腳步"],"third":["強勁滾地球","側移反應","長傳"],"shortstop":["左右移動","接球轉傳","6-4-3雙殺"],"outfield":["飛球判斷","長傳","中繼"],"batter":["站姿","揮棒路徑","擊球收棒"],"runner":["離壘起跑","盜壘","滑壘"]};
 const ANALYSIS_ROLES={"analysis-pitcher":{"name":"投手","en":"PITCHER","desc":"投球動作、重心轉移、出手點與補位"},"analysis-catcher":{"name":"捕手","en":"CATCHER","desc":"接捕、擋球、傳二壘與觸殺"},"analysis-first":{"name":"一壘手","en":"FIRST BASE","desc":"接傳球、踩壘、牽制與補位"},"analysis-second":{"name":"二壘手","en":"SECOND BASE","desc":"接滾地球、轉傳與雙殺補位"},"analysis-third":{"name":"三壘手","en":"THIRD BASE","desc":"反應接球、強勁滾地球與傳一壘"},"analysis-shortstop":{"name":"遊擊手","en":"SHORTSTOP","desc":"左右移動、正面接球與6-4-3雙殺"},"analysis-outfield":{"name":"外野手","en":"OUTFIELDER","desc":"飛球判斷、落點追蹤、接球與回傳"},"analysis-batter":{"name":"打擊手","en":"BATTER","desc":"站姿、跨步、揮棒、擊球與收棒"},"analysis-runner":{"name":"跑壘員","en":"BASERUNNER","desc":"起跑、離壘、轉彎、滑壘與回壘"}};
-const TITLES = {home:"運動首頁", videos:"動作影片", assessment:"能力評估", plan:"訓練計畫",
+const TITLES = {home:"運動首頁", videos:"動作影片", swingai:"AI 動作分析", assessment:"能力評估", plan:"訓練計畫",
                 diagrams:"圖解教室", field3d:"3D互動規則教室", scroll3d:"3D互動球場", tactics:"戰術小遊戲", homerun:"3D全壘打挑戰", analysis:"動作解析", english:"棒球英文", "english-quiz":"棒球英文考試", quiz:"棒球小考",
                 progress:"進步追蹤", coach:"教練工作區", settings:"學員與設定"};
 function syncHomerunFrame(){
