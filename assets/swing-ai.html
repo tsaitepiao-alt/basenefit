@@ -55,6 +55,19 @@
   .ring .val span{font-size:10px;color:var(--muted);letter-spacing:.14em;margin-top:3px}
   .verdict{flex:1 1 200px;font-size:13px;line-height:1.7;color:#d8e3cd}
   .verdict b{color:var(--lime)}
+
+  .score-section{margin:12px 0 16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#101510}
+  .score-section h3{font-size:16px;margin:0 0 12px;color:var(--txt)}
+  .score-section .score-note{font-size:13px;line-height:1.7;color:var(--muted);margin:12px 0 0}
+  .score-section .verdict{font-size:14px}
+  #scoreRows{display:grid;gap:12px;margin-top:14px}
+  .score-row{display:grid;grid-template-columns:minmax(92px,1fr) minmax(75px,2fr) 38px;gap:10px;align-items:center;font-size:13px;min-height:30px}
+  .score-row .track{height:9px;border-radius:99px;background:#232b20;overflow:hidden}
+  .score-row .track i{display:block;height:100%;border-radius:99px}
+  .score-row .value{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+  .score-reference{font-size:13px;line-height:1.8;color:#c9d6bd;padding-left:20px;margin:8px 0 0}
+  .score-reference li{margin:8px 0}
+  @media(max-width:380px){.score-row{grid-template-columns:minmax(80px,1fr) minmax(60px,1.3fr) 32px;gap:7px}}
   .feedback-step{border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px;background:#101510}
   .feedback-step h3{font-size:17px;margin:0 0 10px;color:var(--lime)}
   .feedback-step p,.feedback-step li{font-size:15px;line-height:1.8;color:#d8e3cd}
@@ -63,6 +76,21 @@
   .feedback-step .cue{font-size:20px;font-weight:700;color:var(--txt);margin:12px 0}
   .feedback-step .next-check{padding:12px;border-radius:10px;background:var(--card2)}
   .feedback-step .small{font-size:13px;color:var(--muted)}
+  .review-tools{display:grid;gap:12px;margin:12px 0;padding:14px;background:var(--card2);border:1px solid var(--line);border-radius:12px}
+  .review-tools label{display:block;font-size:14px;line-height:1.7;color:var(--txt)}
+  .review-tools select,.review-tools input[type=text]{width:100%;padding:10px;border:1px solid #506044;border-radius:9px;background:#101510;color:var(--txt);font:inherit;min-height:44px}
+  .review-tools input[type=range]{width:100%;min-height:32px;accent-color:var(--lime)}
+  .review-tools input[type=file]{display:block;width:100%;font-size:14px}
+  .review-buttons{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .review-buttons .btn{min-height:44px;flex:1;margin-top:0}
+  .review-guide{padding:14px;border-left:4px solid var(--lime);background:#1a2314;border-radius:10px;margin:12px 0;font-size:15px;line-height:1.8}
+  .review-guide b{color:var(--lime)}
+  .review-guide p{margin:6px 0}
+  #review-callout{font-size:14px;line-height:1.8;min-height:50px}
+  #ref-video{max-height:300px;margin:12px 0}
+  .review-check{display:flex!important;gap:10px;align-items:flex-start;margin-top:12px}
+  .review-check input{width:20px;height:20px;flex:none;margin-top:3px;accent-color:var(--lime)}
+  .review-time{font:14px ui-monospace,monospace;color:var(--lime);text-align:center}
   #feedback-copy{width:auto;min-height:44px}
   #feedback-status{white-space:pre-line;overflow-wrap:anywhere}
   .metrics{display:grid;gap:11px;margin-top:6px}
@@ -106,7 +134,7 @@
 <body>
 <div class="eyebrow">AI MOTION ANALYSIS</div>
 <h1>AI 動作分析</h1>
-<p class="lead">選一項（投球／打擊／守備），選一段 3–8 秒影片。先一起看懂畫面，再選<b>一件小事</b>慢慢練。你會拿到一句口訣、三次練習與下次錄影的觀察重點。<b>影片不會上傳到任何伺服器。</b></p>
+<p class="lead">選一項（投球／打擊／守備），選一段 3–8 秒影片。保留<b>總分與分項評分</b>，再用慢放、逐格與身體部位標示看懂這次的重點。你會拿到一句口訣、三次練習與下次錄影的觀察方式。<b>影片不會上傳到任何伺服器。</b></p>
 
 <div class="card" id="step-mode">
   <h2><span class="num">1</span>選分析項目</h2>
@@ -122,7 +150,7 @@
   <h2><span class="num">2</span>選一段影片</h2>
   <div class="drop" id="drop">
     <b>點這裡選檔，或把影片拖進來</b>
-    <div class="hint">MP4 / MOV / WebM · 建議 3–8 秒 · 全身（必要時含球棒或手套）都在畫面內<br>手機可直接錄影上傳</div>
+    <div class="hint">MP4 / MOV / WebM · 建議 3–8 秒 · 只留一人入鏡，全身與雙腳拍清楚<br>手機固定不移動，必要時包含球棒或手套；可直接錄影選檔</div>
     <input type="file" id="file" accept="video/*">
   </div>
   <div class="row" style="margin-top:12px">
@@ -145,6 +173,23 @@
 
 <div class="card hide" id="step-result">
   <h2><span class="num">4</span>給你的小回饋</h2>
+
+  <section class="score-section" aria-labelledby="score-heading">
+    <h3 id="score-heading">這次的參考評分</h3>
+    <div class="score-wrap">
+      <div class="ring" role="img" id="scoreRing" aria-label="尚未評分">
+        <svg width="104" height="104" viewBox="0 0 104 104" aria-hidden="true">
+          <circle cx="52" cy="52" r="46" fill="none" stroke="#242c20" stroke-width="9"></circle>
+          <circle id="scoreArc" cx="52" cy="52" r="46" fill="none" stroke="#cbf24c" stroke-width="9" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289"></circle>
+        </svg>
+        <div class="val"><b id="scoreTotal">—</b><span>參考總分 / 100</span></div>
+      </div>
+      <div class="verdict" id="scoreSummary" role="status"></div>
+    </div>
+    <div id="scoreRows" aria-label="各項參考分數"></div>
+    <p class="score-note">用同項目、同角度、同距離的影片比較自己的變化。分數需要搭配動作畫面，和教練一起確認。</p>
+    <details><summary>每項測量與參考範圍</summary><ul class="score-reference" id="scoreReference"></ul></details>
+  </section>
   <div id="feedback" aria-live="polite"></div>
   <button class="btn ghost" id="feedback-copy" type="button">複製回饋給教練</button>
   <div class="status" id="feedback-status" role="status"></div>
@@ -158,12 +203,40 @@
 <div class="card hide" id="step-compare">
   <h2><span class="num">5</span>回看這次的小重點</h2>
   <p class="small" id="compare-focus" style="margin:0 0 10px">左邊看原影片，右邊看同一個動作的骨架。亮圈標出這次要觀察的部位。</p>
+  <div class="review-tools">
+    <label for="review-focus">這一輪先看哪個環節？</label><select id="review-focus"></select>
+    <div class="review-guide" id="review-guide"></div>
+    <label for="review-rate">播放速度</label>
+    <select id="review-rate"><option value="0.125">0.125×｜最慢，逐點看</option><option value="0.25" selected>0.25×｜慢動作</option><option value="0.5">0.5×｜看接續</option><option value="1">1×｜原速</option></select>
+    <div class="review-buttons"><button class="btn ghost sm" id="review-prev" type="button">上一格</button><button class="btn ghost sm" id="review-key" type="button">停在觀察點</button><button class="btn ghost sm" id="review-next" type="button">下一格</button></div>
+    <label for="review-time">拖曳回看位置</label><input id="review-time" type="range" min="0" max="1" step="0.0416667" value="0">
+    <div class="review-time" id="review-clock">0.00 秒</div>
+    <label class="review-check"><input type="checkbox" id="review-labels" checked>顯示身體部位名稱（左右以學員本人為準）</label>
+  </div>
   <canvas id="cmp" width="720" height="1280"></canvas>
-  <div class="legend"><span><i style="background:#cbf24c"></i>這次觀察的部位</span><span><i style="background:#6b7a63"></i>原影片的姿態估計</span></div>
+  <div class="legend"><span><i style="background:#5bd8ff"></i>學員身體部位</span><span><i style="background:#ffb45c"></i>教練示範部位</span><span><i style="background:#ff79bf"></i>已對齊環節的位置差距</span></div>
+  <div class="review-guide" id="review-callout" role="status" aria-live="polite"></div>
+  <details id="reference-panel"><summary>加入教練示範，對齊同一個環節比較</summary>
+    <p>選一段同視角、全身入鏡的示範影片，再把兩邊停在同一個環節，例如「前腳落地」。確認後才顯示位置差距。職業示範仍可在第 6 步觀看。</p>
+    <div class="review-tools">
+      <label for="ref-name">示範者名稱</label><input id="ref-name" type="text" maxlength="30" placeholder="例如：Aaron 教練" value="教練示範">
+      <label for="ref-file">選擇 3–8 秒示範影片（只在裝置上分析）</label><input id="ref-file" type="file" accept="video/*">
+      <video id="ref-video" class="hide" controls playsinline muted preload="metadata"></video>
+      <div class="status" id="ref-status" role="status">尚未加入示範影片。</div>
+      <label for="ref-event">兩邊對齊的環節</label><input id="ref-event" type="text" maxlength="24" value="前腳落地" placeholder="例如：前腳落地、收尾站穩">
+      <div class="review-buttons"><button class="btn ghost sm" id="anchor-student" type="button">學員：用目前這格</button><button class="btn ghost sm" id="anchor-reference" type="button" disabled>示範：用目前這格</button></div>
+      <div class="status" id="anchor-status">先各選出同一個環節，再設為關鍵點。</div>
+      <label class="review-check"><input id="ref-mirror" type="checkbox">示範左右對調（對照另一側慣用手）</label>
+      <label class="review-check"><input id="ref-confirm" type="checkbox">教練已確認兩段影片視角相近，關鍵點是同一個動作環節。</label>
+      <button class="btn ghost sm" id="compare-key" type="button" disabled>停在兩邊關鍵點，看部位差距</button>
+      <p class="small">位置差距會以髖部中心與身體大小對齊，不旋轉或扭曲姿勢。差距不等於錯誤，請教練結合原影片確認。未對齊的時刻只做播放對照。</p>
+    </div>
+  </details>
   <div class="phase" id="phases"></div>
   <div class="row" style="margin-top:12px">
     <button class="btn" id="recBtn" type="button">下載動作與練習提醒</button>
     <button class="btn ghost sm" id="playBtn" type="button">回看動作片段</button>
+    <button class="btn ghost sm" id="pauseBtn" type="button" disabled>暫停</button>
   </div>
   <div class="status" id="recStatus"></div>
   <a id="dl" class="btn ghost hide" download="analysis-comparison.webm" style="text-decoration:none">下載對比影片</a>
@@ -181,18 +254,22 @@
 </div>
 
 <script type="module">
+import {JOINT_LABELS,SKELETON_SEGMENTS,pointVisible,nearestFrame,fitFrame,bodyTransform,projectPoint,comparePose} from './motion-review.js?v=1';
 /* =========================================================================
-   basenefit · AI 動作分析 v2
+   basenefit · AI 動作分析 v3 · 同步慢放與教練關鍵點對照
    模式：打擊 / 投球 / 守備（各自指標、階段與偵測點）
    分析：MediaPipe PoseLandmarker（按下去才載入）→ 3 幀平滑 → 區間偵測 → 指標
-   輸出：720×1280，左「你的動作」右「標準角度」→ MediaRecorder
+   輸出：720×1280，原影片部位標示／已對齊示範差距＋練習提醒 → MediaRecorder
    ========================================================================= */
 const VISION_VER = '0.10.14';
 const CDN = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${VISION_VER}`;
 const MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+const FRAME_TOLERANCE = 1/48 + .002;
 
 const $ = (id) => document.getElementById(id);
-const state = { mode:'hit', file:null, url:null, frames:[], metrics:null, feedback:null, analysisId:0, playbackId:0, playing:false, videoW:0, videoH:0 };
+const state = { mode:'hit', file:null, url:null, frames:[], metrics:null, feedback:null, analysisId:0, playbackId:0, playing:false, analysing:false, videoW:0, videoH:0,
+  reviewFocus:null, reviewTime:0, renderId:0, studentAnchor:null,
+  reference:{file:null,url:null,frames:[],mode:null,id:0,busy:false,anchor:null} };
 window.__swing = state;
 
 /* ---------------- 模式 ---------------- */
@@ -215,6 +292,7 @@ const MODES = {
 };
 
 function setMode(m){
+  if (state.mode !== m) resetReference();
   clearAnalysis();
   state.mode = m;
   document.querySelectorAll('.mode').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
@@ -231,6 +309,10 @@ function clearAnalysis(){
   $('vid').pause();
   state.playbackId++; state.playing = false; setPlaybackBusy(false);
   state.analysisId++; state.frames = []; state.metrics = null; state.feedback = null;
+  state.analysing = false; state.renderId++; state.reviewFocus = null; state.studentAnchor = null;
+  state.referenceViewTime = null; state.reviewTime = 0;
+  if(state.exportUrl){URL.revokeObjectURL(state.exportUrl);state.exportUrl=null;}
+  $('ref-confirm').checked = false; updateAnchorStatus();
   $('step-result').classList.add('hide'); $('step-compare').classList.add('hide');
   $('dl').classList.add('hide'); $('feedback-status').textContent = '';
   $('run').disabled = false; $('prog').style.width = '0%';
@@ -272,8 +354,13 @@ $('reset').onclick = () => {
 };
 
 /* ---------------- 模型 ---------------- */
-let landmarker = null;
+let landmarker = null, modelPromise = null;
 async function ensureModel(onNote){
+  if (landmarker) return landmarker;
+  if (!modelPromise) modelPromise = loadPoseModel(onNote).catch(err=>{modelPromise=null;throw err;});
+  return modelPromise;
+}
+async function loadPoseModel(onNote){
   if (landmarker) return landmarker;
   onNote('載入姿態模型（第一次約 6MB，之後會快取）…');
   let vision;
@@ -284,12 +371,12 @@ async function ensureModel(onNote){
   });
   try {
     landmarker = await vision.PoseLandmarker.createFromOptions(fileset, {
-      baseOptions:{ modelAssetPath: MODEL, delegate:'GPU' }, runningMode:'IMAGE', numPoses:1,
+      baseOptions:{ modelAssetPath: MODEL, delegate:'GPU' }, runningMode:'IMAGE', numPoses:2,
       minPoseDetectionConfidence:.5, minPosePresenceConfidence:.5, minTrackingConfidence:.5
     });
   } catch (e) {
     landmarker = await vision.PoseLandmarker.createFromOptions(fileset, {
-      baseOptions:{ modelAssetPath: MODEL, delegate:'CPU' }, runningMode:'IMAGE', numPoses:1
+      baseOptions:{ modelAssetPath: MODEL, delegate:'CPU' }, runningMode:'IMAGE', numPoses:2
     });
   }
   return landmarker;
@@ -301,12 +388,16 @@ const IDX = { nose:0, lSho:11, rSho:12, lElb:13, rElb:14, lWri:15, rWri:16,
 const NEED = Object.keys(IDX);
 
 function seekTo(v, t){
-  return new Promise(res => {
+  return new Promise((res, reject) => {
+    if (!Number.isFinite(t) || t < 0){ reject(new Error('無法讀取這個影片時間點。')); return; }
+    if (v.readyState >= 2 && !v.seeking && Math.abs(v.currentTime-t) < .001){ res(); return; }
     let done = false;
-    const fin = () => { if (done) return; done = true; v.removeEventListener('seeked', fin); res(); };
-    v.addEventListener('seeked', fin);
-    try { v.currentTime = t; } catch(e){ fin(); }
-    setTimeout(fin, 1200);
+    const finish = err => { if (done) return; done = true; clearTimeout(timer); v.removeEventListener('seeked', onSeek); v.removeEventListener('error', onError); err ? reject(err) : res(); };
+    const onSeek = () => finish(v.readyState < 2 || Math.abs(v.currentTime-t) > .025 ? new Error('這一格未讀取完成，請重新分析影片。') : null);
+    const onError = () => finish(new Error('無法讀取影片，請換一段 MP4 影片。'));
+    const timer = setTimeout(() => finish(new Error('讀取影片畫面逾時，請重試或換一段較短的影片。')), 3000);
+    v.addEventListener('seeked', onSeek); v.addEventListener('error', onError);
+    try { v.pause(); v.currentTime = t; } catch(e){ finish(e); }
   });
 }
 const dist = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
@@ -319,18 +410,21 @@ const median = (a) => { const b=[...a].sort((x,y)=>x-y); const m=b.length>>1; re
 async function analyse(){
   const v = $('vid');
   if (!state.file) return;
+  if (state.reference.busy){ $('runStatus').textContent = '示範影片分析中，完成後再分析學員影片。'; return; }
   clearAnalysis();
   const analysisId = ++state.analysisId, analysisMode = state.mode;
+  state.analysing = true;
   $('run').disabled = true; $('prog').style.width = '0%';
   $('step-result').classList.add('hide'); $('step-compare').classList.add('hide');
-  const note = (s) => $('runStatus').innerHTML = `<span class="spinner"></span> ${s}`;
+  const note = (s) => {if(analysisId===state.analysisId)$('runStatus').innerHTML = `<span class="spinner"></span> ${s}`;};
   try {
     const lm = await ensureModel(note);
     if (analysisId !== state.analysisId) return;
     if (!v.videoWidth) await new Promise(r => v.onloadedmetadata = r);
     await seekTo(v, 0);
 
-    const dur = Math.min(v.duration || 8, 15);
+    if (!Number.isFinite(v.duration) || v.duration <= 0) throw new Error('無法讀取影片長度，請重新匯出為 MP4 後再試。');
+    const dur = Math.min(v.duration, 15);
     const fps = 24, step = 1/fps;
     const total = Math.max(12, Math.floor(dur/step));
     const frames = [];
@@ -339,10 +433,10 @@ async function analyse(){
       await seekTo(v, t);
       if (analysisId !== state.analysisId) return;
       let res; try { res = lm.detect(v); } catch(e){ res = null; }
-      const pts = res && res.landmarks && res.landmarks[0];
+      const pts = res?.landmarks?.length === 1 ? res.landmarks[0] : null;
       if (pts && NEED.every(k => pts[IDX[k]])){
         const W = v.videoWidth, H = v.videoHeight, P = {};
-        for (const k of NEED){ const p = pts[IDX[k]]; P[k] = { x:p.x*W, y:p.y*H, v:p.visibility ?? 1 }; }
+        for (const k of NEED){ const p = pts[IDX[k]]; P[k] = { x:p.x*W, y:p.y*H, v:Number.isFinite(p.visibility) && p.x>=0 && p.x<=1 && p.y>=0 && p.y<=1 ? Math.min(p.visibility,p.presence ?? 1) : 0 }; }
         const core = (P.lSho.v + P.rSho.v + P.lHip.v + P.rHip.v)/4;
         if (core > .4){
           const shoMid = mid(P.lSho, P.rSho), hipMid = mid(P.lHip, P.rHip);
@@ -362,18 +456,20 @@ async function analyse(){
     $('prog').style.width = '100%';
     $('runStatus').textContent = `完成：${MODES[state.mode].label}・分析 ${frames.length} 幀`;
     renderResult(metrics);
+    setupReview();
     $('step-compare').classList.remove('hide');
     $('phases').innerHTML = MODES[state.mode].phases.map(p => `<span>${p}</span>`).join('');
-    await seekTo(v, state.feedback.startT);
+    await showReviewTime(reviewKeyTime());
     if (analysisId !== state.analysisId) return;
-    drawFrameAt(0, frameIndexForTime(state.feedback.startT));
-    $('recStatus').textContent = '回看亮圈部位，再和教練一起確認這次的觀察。';
+    $('recStatus').textContent = '已停在觀察點。可用上一格／下一格，或 0.125× 慢看部位變化。';
     $('run').disabled = false;
   } catch (err){
     if (analysisId !== state.analysisId) return;
     window.__err = (err && err.stack) || String(err);
     $('run').disabled = false; $('prog').style.width = '0%';
     $('runStatus').innerHTML = `<span style="color:var(--bad)">${err.message || err}</span>`;
+  } finally {
+    if (analysisId === state.analysisId) state.analysing = false;
   }
 }
 $('run').onclick = analyse;
@@ -572,6 +668,46 @@ function pack(items, window){
 
 /* ---------------- 結果畫面 ---------------- */
 function colorFor(v){ return v>=75 ? '#cbf24c' : v>=55 ? '#ffb020' : '#ff6b5e'; }
+
+function scoreReadiness(m, feedback, frames){
+  const sample = frames.slice(m.window.startI, m.window.endI + 1);
+  const visible = sample.filter(f => NEED.every(k => f.P?.[k] && f.P[k].v >= .6));
+  return Boolean(feedback && !feedback.needsRetake && Number.isFinite(m.total)
+    && m.items.length && m.items.every(it => Number.isFinite(it.s) && Number.isFinite(it.v))
+    && m.coverage >= .6 && sample.length && visible.length / sample.length >= .7);
+}
+function renderScorePanel(m, feedback){
+  const ready = scoreReadiness(m, feedback, state.frames);
+  const value = score => Math.round(clamp(score, 0, 100));
+  const total = ready ? value(m.total) : null;
+  $('scoreTotal').textContent = ready ? String(total) : '—';
+  $('scoreArc').setAttribute('stroke-dashoffset', ready ? (289 * (1-total/100)).toFixed(1) : '289');
+  $('scoreArc').style.stroke = ready ? colorFor(total) : 'var(--muted)';
+  $('scoreRing').setAttribute('aria-label', ready ? `本次參考總分 ${total} 分，滿分 100 分` : '辨識不足，這次暫不評分');
+  $('scoreSummary').textContent = ready
+    ? '保留總分與各項分數，方便看自己的變化。先回看這次的重點，再選一件事慢慢練。'
+    : '這段身體關節沒有持續清楚被辨識，暫不顯示分數。先補拍，再一起確認。';
+  const rows = $('scoreRows'); rows.replaceChildren();
+  const references = $('scoreReference'); references.replaceChildren();
+  const labels = {sep:'肩髖投影角度差',elbow:'手臂投影夾角',glove:'手腕位置',stance:'預備位置',release:'手腕與肩線位置',transfer:'動作後段時間',tempo:'手部加速區間',rot:'肩線投影角速度'};
+  const confirm = {elbow:'投影夾角需由教練確認',release:'依個人出手方式確認',glove:'手腕高度不等於手套面向',stance:'預備位置需搭配腳步確認',transfer:'需確認真正接球與轉傳時刻'};
+  for (const it of m.items){
+    const name = labels[it.k] || it.label;
+    const row = document.createElement('div'); row.className = 'score-row';
+    const label = document.createElement('span'); label.textContent = name;
+    const track = document.createElement('span'); track.className = 'track';
+    const bar = document.createElement('i');
+    bar.style.width = ready ? value(it.s) + '%' : '0%';
+    bar.style.background = ready ? colorFor(it.s) : 'var(--muted)';
+    track.appendChild(bar);
+    const number = document.createElement('span'); number.className = 'value'; number.textContent = ready ? String(value(it.s)) : '—';
+    row.append(label, track, number); rows.appendChild(row);
+    const reference = document.createElement('li');
+    const reading = ready ? it.fmt(it.v) : '本次辨識不足';
+    reference.textContent = `${name}：${reading}；參考：${confirm[it.k] || it.ideal}。`;
+    references.appendChild(reference);
+  }
+}
 const FINISH_GUIDES = {
   hit:{title:'收棒後，能不能自然站穩', cue:'慢慢揮，做完站一下。', action:'空手慢慢做一次揮棒，收尾時自然站穩 2 秒，再放鬆。'},
   pitch:{title:'投球動作做完後的平衡', cue:'順順做完，站一下。', action:'空手慢慢做一次投球動作，收尾時自然站穩 2 秒，再放鬆。'},
@@ -654,6 +790,7 @@ $('feedback-copy').onclick = copyFeedback;
 function renderResult(m){
   $('step-result').classList.remove('hide');
   const f = buildFeedback(m, state.frames); state.feedback = f;
+  renderScorePanel(m, f);
   $('feedback').innerHTML = `<section class="feedback-step"><h3>第一段｜這次看見什麼</h3>
     <p><b>先保留：</b>${f.keep}</p><p><b>一起觀察：</b>${f.observed}</p>
     <p class="small">回看片段：${f.time}。和教練一起確認這次的觀察。</p>
@@ -694,12 +831,40 @@ function drawSkeletonFrom(c, P, dx, dy, sc, color, lw, alpha){
   const pt = (k) => ({ x: dx + P[k].x*sc, y: dy + P[k].y*sc });
   const seg = (a,b) => { c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke(); };
   c.save(); c.globalAlpha = alpha ?? 1; c.strokeStyle = color; c.lineWidth = lw; c.lineCap = 'round';
-  [['lSho','rSho'],['lSho','lElb'],['lElb','lWri'],['rSho','rElb'],['rElb','rWri'],
-   ['lSho','lHip'],['rSho','rHip'],['lHip','rHip'],['lHip','lKnee'],['lKnee','lAnk'],
-   ['rHip','rKnee'],['rKnee','rAnk'],['nose','lSho'],['nose','rSho']].forEach(([a,b]) => seg(pt(a), pt(b)));
+  SKELETON_SEGMENTS.forEach(([a,b]) => {if(pointVisible(P[a]) && pointVisible(P[b]))seg(pt(a),pt(b));});
   c.fillStyle = color;
-  ['nose','lWri','rWri','lAnk','rAnk'].forEach(k => { const p = pt(k); c.beginPath(); c.arc(p.x,p.y,lw*0.7,0,Math.PI*2); c.fill(); });
+  Object.keys(JOINT_LABELS).forEach(k => {if(!pointVisible(P[k]))return; const p = pt(k); c.beginPath(); c.arc(p.x,p.y,lw*1.1,0,Math.PI*2); c.fill(); });
   c.restore();
+}
+function selectedPose(c,P,project,rect,keys,color,{mirror=false,labels=true}={}){
+  const keyOf = k => !mirror || k==='nose' ? k : k.startsWith('l') ? 'r'+k.slice(1) : 'l'+k.slice(1);
+  const points = new Map();
+  for(const key of keys){const raw=P[keyOf(key)];if(!pointVisible(raw))continue;const p=project(raw);if(p&&p.x>=rect.x&&p.x<=rect.x+rect.w&&p.y>=rect.y&&p.y<=rect.y+rect.h)points.set(key,p);}
+  c.save(); c.lineWidth=4.5;c.strokeStyle=color;c.fillStyle=color;
+  for(const [a,b]of SKELETON_SEGMENTS){if(points.has(a)&&points.has(b)){const p=points.get(a),q=points.get(b);c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);c.stroke();}}
+  for(const p of points.values()){c.beginPath();c.arc(p.x,p.y,7,0,Math.PI*2);c.fill();c.strokeStyle='#08100c';c.lineWidth=2;c.stroke();}
+  if(labels){
+    const entries=[...points.entries()].sort((a,b)=>a[1].y-b[1].y);let leftY=rect.y+12,rightY=rect.y+12;
+    c.font='600 21px "PingFang TC",sans-serif';
+    for(const [key,p]of entries){
+      const text=key==='nose'?'頭部（鼻尖）':JOINT_LABELS[key], width=c.measureText(text).width+14;
+      const left=p.x<rect.x+rect.w/2;
+      const y=clamp(Math.max(p.y-12,left?leftY:rightY),rect.y+12,rect.y+rect.h-50);
+      if(left)leftY=y+30;else rightY=y+30;
+      const x=left?rect.x+4:rect.x+rect.w-width-4;
+      c.strokeStyle=color;c.lineWidth=1.5;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(left?x+width:x,y+12);c.stroke();
+      c.fillStyle='rgba(5,12,8,.92)';roundRect(c,x,y,width,27,5);c.fill();c.fillStyle=color;c.fillText(text,x+7,y+21);
+    }
+  }
+  c.restore();return points;
+}
+function mirrorKey(key){return key==='nose'?key:key.startsWith('l')?'r'+key.slice(1):'l'+key.slice(1);}
+function drawNormalisedPose(frame,rect,keys,color,mirror=false,labels=true){
+  const transform=bodyTransform(frame.P,rect,{mirror});if(!transform)return null;
+  const project=p=>projectPoint(p,transform);
+  ctx.save();ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.globalAlpha=.45;
+  for(const [a,b]of SKELETON_SEGMENTS){const p=frame.P[mirror?mirrorKey(a):a],q=frame.P[mirror?mirrorKey(b):b];if(!pointVisible(p)||!pointVisible(q))continue;const x=project(p),y=project(q);ctx.beginPath();ctx.moveTo(x.x,x.y);ctx.lineTo(y.x,y.y);ctx.stroke();}
+  ctx.restore();selectedPose(ctx,frame.P,project,rect,keys,color,{mirror,labels});return transform;
 }
 function roundRect(c,x,y,w,h,r){
   c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
@@ -709,118 +874,259 @@ function phaseOf(prog){
   if (prog < .18) return 0; if (prog < .35) return 1; if (prog < .55) return 2;
   if (prog < .70) return 3; if (prog < .86) return 4; return 5;
 }
-function canvasText(text, x, y, width, lineHeight){
-  let line = '';
+function canvasText(text, x, y, width, lineHeight, maxLines=Infinity){
+  let line = '',lines=1;
   for (const char of text){
-    if (line && ctx.measureText(line + char).width > width){ ctx.fillText(line, x, y); y += lineHeight; line = ''; }
+    if (line && ctx.measureText(line + char).width > width){ if(lines>=maxLines){ctx.fillText(line.slice(0,-1)+'…',x,y);return y+lineHeight;}ctx.fillText(line, x, y); y += lineHeight; line = '';lines++; }
     line += char;
   }
   if (line) ctx.fillText(line, x, y);
   return y + lineHeight;
 }
 
-function drawFrameAt(prog, frameIdx){
-  const m = state.metrics, frames = state.frames;
-  if (!m || !frames.length) return;
-  const W = CMP.w, H = CMP.h, mode = MODES[state.mode];
-  ctx.fillStyle = '#0b0f0c'; ctx.fillRect(0,0,W,H);
-
-  ctx.fillStyle = '#cbf24c'; ctx.font = '600 20px "PingFang TC",sans-serif';
-  ctx.fillText(`basenefit · ${mode.label}分析`, 24, 42);
-  ctx.fillStyle = '#8c9a84'; ctx.font = '14px "PingFang TC",sans-serif';
-  ctx.fillText('一起看懂畫面，再練一件小事 · 2D 影像觀察', 24, 66);
-
-  const padX = 24, gap = 12, top = 96;
-  const pw = (W - padX*2 - gap)/2, ph = Math.round(pw*1.30);
-  ctx.fillStyle = '#9aa894'; ctx.font = '600 13px "PingFang TC",sans-serif';
-  ctx.fillText('你的動作', padX, top-10);
-  ctx.fillStyle = '#cbf24c'; ctx.fillText('亮圈：這次觀察部位', padX + pw + gap, top-10);
-
-  const v = $('vid'), f = frames[frameIdx];
-
-  // 左：原片 + 骨架
-  ctx.save(); ctx.beginPath(); roundRect(ctx, padX, top, pw, ph, 14); ctx.clip();
-  ctx.fillStyle = '#000'; ctx.fillRect(padX, top, pw, ph);
-  let s = 1, dx = padX, dy = top;
+const REVIEW_PARTS = {
+  tempo:{keys:['lSho','rSho','lHip','rHip'],watch:'看肩膀與髖部開始移動到手部加速的接續。',check:'若每次開始都忽快忽慢，先用舒服速度慢做 3 次，找回可重複的節奏。'},
+  sep:{keys:['lSho','rSho','lHip','rHip'],watch:'看肩線與髖線的轉動先後。',check:'若肩和髖突然一起甩動，請教練帶著慢做動作順序，不要硬扭到某個角度。'},
+  shift:{keys:['lHip','rHip','lAnk','rAnk'],watch:'看髖部和雙腳的位置，確認身體如何移動。',check:'若做完還要踏步找平衡，先空手慢做，讓每次腳步自然落在相近的位置。'},
+  path:{keys:['lElb','rElb','lWri','rWri'],watch:'看雙手腕走過的路線，對照手肘是否順暢接續。',check:'若手在中途突然換方向，先空手慢做 3 次，請教練確認路線；不用刻意拉成直線。'},
+  head:{keys:['nose','lSho','rSho'],watch:'看頭部相對雙肩的位置，找突然額外晃動的那一格。',check:'若頭突然偏離原本方向，視線看前方記號、空手慢做；頭部仍可自然跟著身體移動。'},
+  rot:{keys:['lSho','rSho','lHip','rHip'],watch:'看肩線與髖線如何接續轉動。',check:'若中途有停頓或突然甩動，先慢做接續，不要為了分數加速。'},
+  finish:{keys:['nose','lHip','rHip','lAnk','rAnk'],watch:'看動作最後的身體與雙腳，是否還要踏步找平衡。',check:'若做完會晃，空手慢做，收尾自然站穩 2 秒，再放鬆。'},
+  lift:{keys:['lHip','rHip','lKnee','rKnee','lAnk','rAnk'],watch:'看動作前段的髖部與雙腳，是否需要額外踏步。',check:'若抬腿時會晃，把腿抬到舒服的高度，先慢慢抬起、放下 3 次。'},
+  stride:{keys:['lHip','rHip','lKnee','rKnee','lAnk','rAnk'],watch:'看跨步時腳踝的落點和膝蓋方向。',check:'若每次落腳差很多，地上放方向記號、空手慢做；跨多遠由教練確認。'},
+  elbow:{keys:['lSho','rSho','lElb','rElb','lWri','rWri'],watch:'看肩、手肘、手腕的接續，先和教練確認真正出手的畫面。',check:'若手臂看起來卡住，停在那一格請教練示範；不要自己硬拉手肘或追求固定角度。'},
+  release:{keys:['lSho','rSho','lElb','rElb','lWri','rWri'],watch:'看手腕相對肩膀的位置，和教練確認出手時刻。',check:'先慢做自然的投球動作；出手方式因人而異，不需要把手抬得越高越好。'},
+  stance:{keys:['lHip','rHip','lKnee','rKnee','lAnk','rAnk'],watch:'看準備時髖、膝、腳踝的位置。',check:'若開始移動前還要重新站好，請教練示範準備姿勢，再放鬆重做 3 次。'},
+  first:{keys:['lHip','rHip','lKnee','rKnee','lAnk','rAnk'],watch:'看開始移動的第一段，腳步是否反覆換方向。',check:'先確認要移動的方向，再用慢速移動兩步；是否需要調整由教練確認。'},
+  glove:{keys:['lElb','rElb','lWri','rWri'],watch:'標點是手腕；手套的面向要看原影片。',check:'若手套準備得太晚，請教練先示範，慢做「先準備，再接球」3 次。'},
+  stable:{keys:['lHip','rHip','lKnee','rKnee'],watch:'看髖部移動時是否突然上下跳動。',check:'若有突然起伏，朝同一方向慢慢移動兩步，保持舒服姿勢，不用刻意蹲得更低。'},
+  transfer:{keys:['lElb','rElb','lWri','rWri','lHip','rHip'],watch:'看手部與身體在接球後如何接續；實際接球時刻請教練確認。',check:'若接好球後突然停住，先慢做「接好，再順順接下一步」，不用急著快速傳球。'}
+};
+function activeReview(){
+  const key = state.reviewFocus || state.feedback?.key || 'finish';
+  const item = state.metrics?.items.find(it => it.k === key);
+  return {key,title:item?.label || state.feedback?.title || '收尾平衡',...REVIEW_PARTS[key] || REVIEW_PARTS.finish};
+}
+function setupReview(){
+  state.reviewFocus = state.feedback?.key || 'finish';
+  const select = $('review-focus'); select.replaceChildren();
+  const ready = scoreReadiness(state.metrics,state.feedback,state.frames);
+  for (const item of state.metrics.items){
+    const option = document.createElement('option'); option.value = item.k;
+    option.textContent = item.label + (ready ? `｜${Math.round(item.s)} 分` : '｜待確認'); select.appendChild(option);
+  }
+  select.value = state.reviewFocus;
+  $('review-time').min = state.frames[0].t;
+  $('review-time').max = state.frames[state.frames.length-1].t;
+  updateReviewGuide(); updateAnchorStatus();
+}
+function updateReviewGuide(){
+  const focus = activeReview();
+  $('review-guide').innerHTML = `<b>先看：${focus.title}</b><p>${focus.watch}</p><p><b>怎麼練：</b>${focus.check}</p>`;
+}
+function reviewKeyTime(){
+  if (!state.metrics || !state.frames.length) return 0;
+  const focus = activeReview(), w = state.metrics.window;
+  if (focus.key === 'finish') return state.frames[state.frames.length-1].t;
+  if (['stance','lift','first'].includes(focus.key)) return state.frames[w.startI]?.t || state.frames[0].t;
+  if (focus.key === 'head' || focus.key === 'stable'){
+    const eligible = state.frames.slice(w.startI,w.endI+1).filter(f => pointVisible(f.P.nose) && pointVisible(f.P.lHip) && pointVisible(f.P.rHip));
+    if (eligible.length){
+      const baseline = eligible[0];
+      const value = f => focus.key === 'head' ? Math.hypot((f.P.nose.x-f.hipMid.x)/f.scale-(baseline.P.nose.x-baseline.hipMid.x)/baseline.scale,(f.P.nose.y-f.hipMid.y)/f.scale-(baseline.P.nose.y-baseline.hipMid.y)/baseline.scale) : Math.abs(f.hipMid.y-baseline.hipMid.y)/baseline.scale;
+      return eligible.reduce((a,b)=>value(b)>value(a)?b:a).t;
+    }
+  }
+  return w.peakT;
+}
+function pauseReview(){
+  state.playbackId++; state.playing = false; state.renderId++;
+  $('vid').pause(); $('ref-video').pause(); setPlaybackBusy(false);
+}
+async function showReviewTime(time){
+  if (!state.metrics || !state.frames.length) return false;
+  if (state.reference.busy){ $('recStatus').textContent = '示範分析中，請完成後再回看。'; return false; }
+  const renderId = ++state.renderId;
+  let t = clamp(Number(time),state.frames[0].t,state.frames[state.frames.length-1].t);
+  if (!Number.isFinite(t)) return false;
+  const snap=nearestFrame(state.frames,t,FRAME_TOLERANCE);if(snap)t=snap.t;
   try {
-    if (v.readyState >= 2 && v.videoWidth){
-      s = Math.min(pw/v.videoWidth, ph/v.videoHeight);
-      dx = padX + (pw - v.videoWidth*s)/2; dy = top + (ph - v.videoHeight*s)/2;
-      ctx.drawImage(v, dx, dy, v.videoWidth*s, v.videoHeight*s);
+    await seekTo($('vid'),t);
+    if (renderId !== state.renderId) return false;
+    state.referenceViewTime = null;
+    const ref = state.reference;
+    if (ref.frames.length && ref.mode === state.mode && state.studentAnchor !== null && ref.anchor !== null){
+      const rt = ref.anchor + t - state.studentAnchor;
+      if (rt >= ref.frames[0].t && rt <= ref.frames[ref.frames.length-1].t){
+        const sample=nearestFrame(ref.frames,rt,FRAME_TOLERANCE),seekTime=sample?sample.t:rt;
+        try { await seekTo($('ref-video'),seekTime); if (renderId !== state.renderId) return false; state.referenceViewTime = seekTime; }
+        catch (err){ if (renderId === state.renderId) $('ref-status').textContent = '這一格示範無法讀取，暫不顯示示範標線。'; }
+      }
     }
-  } catch(e){}
-  if (f) drawSkeletonFrom(ctx, f.P, dx, dy, s, 'rgba(203,242,76,.95)', 3.2, 1);
-  ctx.restore();
+    if (renderId !== state.renderId) return false;
+    state.reviewTime = t; $('review-time').value = t;
+    $('review-clock').textContent = t.toFixed(2) + ' 秒';
+    const end = state.frames[state.frames.length-1].t, start = state.frames[0].t;
+    drawFrameAt(clamp((t-start)/Math.max(.01,end-start),0,1),frameIndexForTime(t));
+    return true;
+  } catch (err){ if (renderId === state.renderId) $('recStatus').textContent = err.message; return false; }
+}
+function reviewStep(direction){
+  pauseReview(); if (!state.frames.length) return;
+  const index = state.frames.reduce((best,f,i)=>Math.abs(f.t-state.reviewTime)<Math.abs(state.frames[best].t-state.reviewTime)?i:best,0);
+  showReviewTime(state.frames[clamp(index+direction,0,state.frames.length-1)].t);
+}
+$('review-prev').onclick = () => reviewStep(-1);
+$('review-next').onclick = () => reviewStep(1);
+$('review-key').onclick = () => {pauseReview();showReviewTime(reviewKeyTime());};
+$('review-time').oninput = e => {pauseReview();showReviewTime(e.target.value);};
+$('review-focus').onchange = e => {pauseReview();state.reviewFocus=e.target.value;updateReviewGuide();showReviewTime(reviewKeyTime());};
+$('review-labels').onchange = () => {pauseReview();showReviewTime(state.reviewTime);};
+$('pauseBtn').onclick = pauseReview;
 
-  // 右：保留原姿態，只圈出回饋對應部位；不生成虛構的標準動作。
-  const rx = padX + pw + gap;
-  ctx.save(); ctx.beginPath(); roundRect(ctx, rx, top, pw, ph, 14); ctx.clip();
-  const g = ctx.createLinearGradient(rx, top, rx, top+ph);
-  g.addColorStop(0,'#131a10'); g.addColorStop(1,'#0d120c');
-  ctx.fillStyle = g; ctx.fillRect(rx, top, pw, ph);
-  ctx.strokeStyle = '#1f2a1b'; ctx.lineWidth = 1;
-  for (let yy = top+20; yy < top+ph; yy += 28){ ctx.beginPath(); ctx.moveTo(rx,yy); ctx.lineTo(rx+pw,yy); ctx.stroke(); }
-  if (f){
-    const s2 = Math.min(pw/f.W, ph/f.H) * 0.94;
-    const dx2 = rx + (pw - f.W*s2)/2, dy2 = top + (ph - f.H*s2)/2;
-    drawSkeletonFrom(ctx, f.P, dx2, dy2, s2, '#6b7a63', 2.6, .55);
-    ctx.strokeStyle = '#cbf24c'; ctx.lineWidth = 3;
-    for (const key of state.feedback?.points || []){
-      const point = f.P[key]; if (!point || point.v < .6) continue;
-      ctx.beginPath(); ctx.arc(dx2 + point.x*s2, dy2 + point.y*s2, 10, 0, Math.PI*2); ctx.stroke();
+function resetReference(){
+  const ref = state.reference;
+  ref.id++; ref.busy = false; ref.frames = []; ref.mode = null; ref.anchor = null; ref.file = null;
+  if (ref.url) URL.revokeObjectURL(ref.url); ref.url = null;
+  $('ref-video').pause(); $('ref-video').removeAttribute('src'); $('ref-video').classList.add('hide');
+  $('ref-file').value = ''; $('ref-confirm').checked = false;
+  $('ref-status').textContent = '尚未加入這個項目的示範影片。'; updateAnchorStatus();
+}
+function updateAnchorStatus(){
+  const s = state.studentAnchor, r = state.reference.anchor;
+  $('anchor-status').textContent = `學員：${s === null ? '尚未設定' : s.toFixed(2)+' 秒'}；示範：${r === null ? '尚未設定' : r.toFixed(2)+' 秒'}。請確認為同一環節。`;
+  $('anchor-reference').disabled = !state.reference.frames.length || state.playing;
+  $('compare-key').disabled = s === null || r === null || !$('ref-confirm').checked || state.playing;
+}
+async function openReference(file){
+  if (state.analysing || state.playing){ $('ref-status').textContent = '請先暫停回放或等學員影片分析完成，再加入示範。'; return; }
+  if (!file.type.startsWith('video/') || file.size > 120*1048576){ $('ref-status').textContent = '請選擇 120MB 內的影片。'; return; }
+  resetReference(); const ref = state.reference, id = ++ref.id, mode = state.mode;
+  ref.busy = true; ref.file = file; ref.url = URL.createObjectURL(file);
+  const video = $('ref-video'); video.classList.remove('hide'); video.controls=false;
+  try {
+    const loaded = new Promise((resolve,reject)=>{const timer=setTimeout(()=>{cleanup();reject(new Error('示範影片讀取逾時。'));},10000);const cleanup=()=>{clearTimeout(timer);video.removeEventListener('loadedmetadata',ok);video.removeEventListener('error',bad);};const ok=()=>{cleanup();resolve();};const bad=()=>{cleanup();reject(new Error('無法讀取示範影片。'));};video.addEventListener('loadedmetadata',ok);video.addEventListener('error',bad);});
+    video.src = ref.url; await loaded;
+    if (ref.id !== id) return;
+    if (!Number.isFinite(video.duration) || video.duration <= 0) throw new Error('請改用可讀取長度的 MP4 示範影片。');
+    const lm = await ensureModel(s=>{if(ref.id===id)$('ref-status').textContent=s;});
+    if (ref.id !== id) return;
+    const duration=Math.min(video.duration,15), total=Math.floor(duration*24), frames=[];
+    for (let i=0;i<total;i++){
+      const t=i/24; await seekTo(video,t); if (ref.id !== id || mode !== state.mode) return;
+      const result=lm.detect(video), pts=result.landmarks?.length===1?result.landmarks[0]:null;
+      if (pts && NEED.every(k=>pts[IDX[k]])){
+        const W=video.videoWidth,H=video.videoHeight,P={};
+        for(const k of NEED){const p=pts[IDX[k]];P[k]={x:p.x*W,y:p.y*H,v:Number.isFinite(p.visibility)&&p.x>=0&&p.x<=1&&p.y>=0&&p.y<=1?Math.min(p.visibility,p.presence??1):0};}
+        if (['lSho','rSho','lHip','rHip'].every(k=>pointVisible(P[k],.4))){const hipMid=mid(P.lHip,P.rHip),shoMid=mid(P.lSho,P.rSho);frames.push({t,W,H,P,hipMid,shoMid,scale:Math.max(20,dist(hipMid,shoMid))});}
+      }
+      if(i%6===0){$('ref-status').textContent=`分析示範中：${Math.round(i/total*100)}%`;await new Promise(resolve=>setTimeout(resolve,0));}
     }
-    ctx.fillStyle = 'rgba(11,15,12,.86)'; roundRect(ctx, rx+8, top+ph-40, pw-16, 30, 8); ctx.fill();
-    ctx.fillStyle = '#cbf24c'; ctx.font = '600 12.5px "PingFang TC",sans-serif';
-    ctx.fillText(state.feedback?.part || '原影片姿態估計', rx+16, top+ph-19);
+    if(frames.length<8 || frames.length/Math.max(1,total)<.6)throw new Error('示範影片的身體辨識不足，請換成全身入鏡、光線清楚的影片。');
+    ref.frames=frames;ref.mode=mode;await seekTo(video,frames[0].t);if(ref.id!==id||mode!==state.mode)return;video.playbackRate=.25;
+    $('ref-status').textContent=`已辨識 ${frames.length} 格。請拖動示範影片，停在要對齊的環節，再按「示範：用目前這格」。`;
+  } catch(err){if(ref.id===id){ref.frames=[];$('ref-status').textContent=err.message;}}
+  finally {if(ref.id===id){ref.busy=false;video.controls=true;updateAnchorStatus();}}
+}
+$('ref-file').onchange = e => {if(e.target.files?.[0])openReference(e.target.files[0]);};
+$('anchor-student').onclick = () => {pauseReview();if(state.metrics){const f=nearestFrame(state.frames,state.reviewTime,FRAME_TOLERANCE);if(!f){$('recStatus').textContent='這格沒有可靠標點，請移到清楚可辨識的畫面。';return;}state.studentAnchor=f.t;$('ref-confirm').checked=false;updateAnchorStatus();}};
+$('anchor-reference').onclick = () => {pauseReview();const f=nearestFrame(state.reference.frames,$('ref-video').currentTime,FRAME_TOLERANCE);if(!f){$('ref-status').textContent='這格沒有可靠標點，請移到清楚可辨識的畫面。';return;}state.reference.anchor=f.t;$('ref-confirm').checked=false;updateAnchorStatus();};
+$('ref-confirm').onchange = updateAnchorStatus;
+$('ref-mirror').onchange = () => {pauseReview();$('ref-confirm').checked=false;updateAnchorStatus();showReviewTime(state.reviewTime);};
+$('ref-name').oninput = () => {if(state.metrics&&!state.playing)showReviewTime(state.reviewTime);};
+$('ref-event').oninput = () => {$('ref-confirm').checked=false;updateAnchorStatus();};
+$('compare-key').onclick = () => {pauseReview();showReviewTime(state.studentAnchor);};
+
+function drawFrameAt(prog, frameIdx){
+  const m=state.metrics,frames=state.frames;if(!m||!frames.length)return;
+  const W=CMP.w,H=CMP.h,mode=MODES[state.mode],focus=activeReview();
+  const video=$('vid'),candidate=frames[frameIdx];
+  const f=candidate&&!video.seeking&&Math.abs(candidate.t-video.currentTime)<=.025?candidate:null;
+  const ref=state.reference,refFrame=state.referenceViewTime===null||$('ref-video').seeking||Math.abs($('ref-video').currentTime-state.referenceViewTime)>.025?null:nearestFrame(ref.frames,state.referenceViewTime,FRAME_TOLERANCE);
+  const mirror=$('ref-mirror').checked,labels=$('review-labels').checked;
+  const coach=$('ref-name').value.trim()||'教練示範';
+  const aligned=!!(f&&refFrame&&ref.mode===state.mode&&state.studentAnchor!==null&&ref.anchor!==null&&$('ref-confirm').checked&&Math.abs(state.reviewTime-state.studentAnchor)<=.025&&Math.abs(state.referenceViewTime-ref.anchor)<=.025);
+  ctx.fillStyle='#0b0f0c';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#cbf24c';ctx.font='600 22px "PingFang TC",sans-serif';ctx.fillText('basenefit · '+mode.label+'｜'+focus.title,24,38);
+  ctx.fillStyle='#b8c7af';ctx.font='16px "PingFang TC",sans-serif';
+  const scored=scoreReadiness(m,state.feedback,frames);
+  ctx.fillText((scored?'參考總分 '+m.total+' / 100　':'辨識不足，暫不評分　')+state.reviewTime.toFixed(2)+' 秒',24,65);
+  const pad=24,gap=12,top=108,pw=(W-pad*2-gap)/2,ph=430;
+  const left={x:pad,y:top,w:pw,h:ph},right={x:pad+pw+gap,y:top,w:pw,h:ph};
+  ctx.font='600 18px "PingFang TC",sans-serif';ctx.fillStyle='#5bd8ff';ctx.fillText('學員｜原影片與部位',left.x,top-13);
+  ctx.fillStyle='#ffb45c';ctx.fillText(aligned?'同環節｜身形大小對齊':refFrame?'示範｜'+coach.slice(0,13):'放大看選定部位',right.x,top-13);
+  const clip=rect=>{ctx.save();ctx.beginPath();roundRect(ctx,rect.x,rect.y,rect.w,rect.h,12);ctx.clip();ctx.fillStyle='#08100b';ctx.fillRect(rect.x,rect.y,rect.w,rect.h);};
+  clip(left);
+  if(video.readyState>=2&&video.videoWidth){
+    const fit=fitFrame(video.videoWidth,video.videoHeight,left);ctx.drawImage(video,fit.dx,fit.dy,video.videoWidth*fit.scale,video.videoHeight*fit.scale);
+    if(f){drawSkeletonFrom(ctx,f.P,fit.dx,fit.dy,fit.scale,'#c5dec7',2.2,.55);selectedPose(ctx,f.P,p=>({x:fit.dx+p.x*fit.scale,y:fit.dy+p.y*fit.scale}),left,focus.keys,'#5bd8ff',{labels});}
   }
+  ctx.restore();clip(right);
+  let differences=[],studentTransform=null,referenceTransform=null;
+  if(aligned){
+    studentTransform=drawNormalisedPose(f,right,focus.keys,'#5bd8ff',false,false);
+    referenceTransform=drawNormalisedPose(refFrame,right,focus.keys,'#ffb45c',mirror,labels);
+    differences=comparePose(f,refFrame,{mirror,keys:focus.keys});
+    if(studentTransform&&referenceTransform){
+      for(const difference of differences){
+        if(difference.distance<.12)continue;
+        const a=projectPoint(f.P[difference.key],studentTransform);
+        const b=projectPoint(refFrame.P[mirror?mirrorKey(difference.key):difference.key],referenceTransform);
+        if(!a||!b)continue;ctx.save();ctx.strokeStyle='#ff79bf';ctx.lineWidth=3;ctx.setLineDash([6,5]);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore();
+      }
+    }
+  } else if(refFrame&&$('ref-video').readyState>=2){
+    const rv=$('ref-video'),fit=fitFrame(refFrame.W,refFrame.H,right);
+    ctx.save();if(mirror){ctx.translate(right.x*2+right.w,0);ctx.scale(-1,1);}ctx.drawImage(rv,fit.dx,fit.dy,refFrame.W*fit.scale,refFrame.H*fit.scale);ctx.restore();
+    const project=p=>({x:mirror?right.x*2+right.w-(fit.dx+p.x*fit.scale):fit.dx+p.x*fit.scale,y:fit.dy+p.y*fit.scale});
+    selectedPose(ctx,refFrame.P,project,right,focus.keys,'#ffb45c',{mirror,labels});
+  } else if(f){
+    studentTransform=drawNormalisedPose(f,right,focus.keys,'#5bd8ff',false,labels);
+  }
+  if(!f){ctx.fillStyle='#d5decf';ctx.font='21px "PingFang TC",sans-serif';canvasText('這格辨識不足，不沿用舊標點。',right.x+14,right.y+60,pw-28,32);}
   ctx.restore();
-
-  // 階段
-  const py = top + ph + 16;
-  const p = phaseOf(prog);
-  ctx.fillStyle = '#141912'; roundRect(ctx, padX, py, W-padX*2, 66, 12); ctx.fill();
-  ctx.strokeStyle = '#2a3327'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.fillStyle = '#8c9a84'; ctx.font = '12px "PingFang TC",sans-serif'; ctx.fillText('播放位置（非事件辨識）', padX+14, py+26);
-  ctx.fillStyle = '#cbf24c'; ctx.font = '700 20px "PingFang TC",sans-serif'; ctx.fillText(mode.phases[p], padX+14, py+52);
-  ctx.fillStyle = '#d3dfc7'; ctx.font = '14px "PingFang TC",sans-serif'; ctx.fillText(state.feedback?.cue || '', padX+200, py+46);
-
-  // 讓下載影片也帶走兩段回饋，不只帶走骨架與數字。
-  const by = py + 82;
-  const feedback = state.feedback;
-  if (feedback){
-    ctx.fillStyle = '#141912'; roundRect(ctx, padX, by, W-padX*2, 196, 12); ctx.fill();
-    ctx.fillStyle = '#cbf24c'; ctx.font = '700 24px "PingFang TC",sans-serif';
-    ctx.fillText('第一段｜這次看見什麼', padX+16, by+36);
-    ctx.fillStyle = '#eef3e6'; ctx.font = '22px "PingFang TC",sans-serif';
-    canvasText(feedback.observed, padX+16, by+76, W-padX*2-32, 32);
-    const nextY = by + 212;
-    ctx.fillStyle = '#141912'; roundRect(ctx, padX, nextY, W-padX*2, 368, 12); ctx.fill();
-    ctx.fillStyle = '#cbf24c'; ctx.font = '700 24px "PingFang TC",sans-serif';
-    ctx.fillText(feedback.needsRetake ? '第二段｜先補拍，再回饋' : '第二段｜下次只練一件事', padX+16, nextY+36);
-    ctx.fillStyle = '#eef3e6'; ctx.font = '700 27px "PingFang TC",sans-serif';
-    let textY = canvasText('「' + feedback.cue + '」', padX+16, nextY+78, W-padX*2-32, 36);
-    ctx.font = '22px "PingFang TC",sans-serif';
-    textY = canvasText(feedback.action + (feedback.needsRetake ? '' : ' 慢做 3 次，每次放鬆後再開始。'), padX+16, textY+12, W-padX*2-32, 32);
-    ctx.fillStyle = '#c9d6bd';
-    canvasText('下次怎麼看：' + feedback.check, padX+16, textY+14, W-padX*2-32, 32);
-  }
-  ctx.fillStyle = '#9aa894'; ctx.font = '17px "PingFang TC",sans-serif';
-  ctx.fillText('影像估計需要教練確認；動作不舒服就停下。', padX, H-46);
-  ctx.fillStyle = '#232b20'; ctx.fillRect(padX, H-30, W-padX*2, 5);
-  ctx.fillStyle = '#cbf24c'; ctx.fillRect(padX, H-30, (W-padX*2)*clamp(prog,0,1), 5);
+  let message=focus.watch;
+  const visible=f?focus.keys.filter(k=>pointVisible(f.P[k])).length:0;
+  if(!f||visible<2)message='這格的觀察部位沒有清楚被辨識，標點標線先隱藏。請移到清楚的一格，或重新拍攝。';
+  else if(ref.frames.length&&state.referenceViewTime!==null&&!refFrame)message='示範這格沒有可靠標點，暫不比較差距；請移到兩邊都清楚的一格。';
+  else if(!refFrame&&!studentTransform)message='這格肩髖辨識不足，暫不放大標線。請移到身體拍清楚的一格。';
+  else if(aligned&&!differences.length)message='這格的肩髖或所選部位辨識不足，暫不比較差距。';
+  else if(aligned&&differences.length){
+    const d=differences[0];
+    if(d.distance<.12)message='已對齊「'+($('ref-event').value.trim()||'關鍵點')+'」。這格所選部位位置接近示範，再回看前後的接續。';
+    else {
+      const direction=Math.abs(d.dx)>=Math.abs(d.dy)?(d.dx>0?'畫面右方':'畫面左方'):(d.dy>0?'畫面下方':'畫面上方');
+      message='已對齊「'+($('ref-event').value.trim()||'關鍵點')+'」：'+d.label+'位置差距較明顯，學員相對示範偏向'+direction+'。先看粉紅虛線兩端，再和教練確認是否需要調整。';
+    }
+  } else if(ref.frames.length)message=$('ref-confirm').checked?'目前是相對時間播放對照；按「停在兩邊關鍵點」才比較同環節差距。':'示範已加入；先設定兩邊同一環節並確認視角，再標出部位差距。';
+  $('review-callout').textContent=message;
+  const by=top+ph+18;
+  ctx.fillStyle='#141912';roundRect(ctx,pad,by,W-pad*2,176,12);ctx.fill();
+  ctx.fillStyle='#cbf24c';ctx.font='700 24px "PingFang TC",sans-serif';ctx.fillText('看哪裡｜'+focus.title,pad+16,by+35);
+  ctx.fillStyle='#eef3e6';ctx.font='22px "PingFang TC",sans-serif';canvasText(message,pad+16,by+74,W-pad*2-32,31,4);
+  const next=by+192;
+  ctx.fillStyle='#141912';roundRect(ctx,pad,next,W-pad*2,350,12);ctx.fill();
+  ctx.fillStyle='#cbf24c';ctx.font='700 24px "PingFang TC",sans-serif';ctx.fillText('怎麼改｜先慢做，再確認',pad+16,next+36);
+  ctx.fillStyle='#eef3e6';ctx.font='24px "PingFang TC",sans-serif';
+  const y=canvasText(focus.check,pad+16,next+83,W-pad*2-32,35);
+  ctx.fillStyle='#c9d6bd';ctx.font='22px "PingFang TC",sans-serif';
+  canvasText('練習後用同一角度再錄一次，停在同環節，看看這個部位的變化。',pad+16,y+25,W-pad*2-32,33);
+  ctx.fillStyle='#9aa894';ctx.font='17px "PingFang TC",sans-serif';
+  ctx.fillText('標點是影像估計；差距需教練確認，動作不舒服就停下。',pad,H-47);
+  ctx.fillStyle='#263223';ctx.fillRect(pad,H-28,W-pad*2,5);ctx.fillStyle='#cbf24c';ctx.fillRect(pad,H-28,(W-pad*2)*clamp(prog,0,1),5);
 }
 
 function frameIndexForTime(t){
-  const fr = state.frames; if (!fr.length) return 0;
-  let best = 0, bd = Infinity;
-  for (let i=0;i<fr.length;i++){ const d = Math.abs(fr[i].t - t); if (d < bd){ bd = d; best = i; } }
-  return best;
+  const frame=nearestFrame(state.frames,t,FRAME_TOLERANCE);return frame?state.frames.indexOf(frame):-1;
 }
 function setPlaybackBusy(busy){
-  for (const id of ['playBtn','recBtn','feedback-replay']) if ($(id)) $(id).disabled = busy;
+  for (const id of ['playBtn','recBtn','feedback-replay','review-prev','review-next','review-key','review-time','review-focus','ref-file','anchor-student']) if ($(id)) $(id).disabled = busy;
+  $('pauseBtn').disabled=!busy;$('ref-video').controls=!busy&&!state.reference.busy;
+  updateAnchorStatus();
 }
 async function withPlayback(action){
   if (state.playing || !state.metrics) return;
+  if (state.reference.busy || state.analysing){$('recStatus').textContent='請等影片分析完成後再回看。';return;}
   const playbackId = ++state.playbackId;
   state.playing = true; setPlaybackBusy(true);
   try { await action(playbackId); }
@@ -828,27 +1134,23 @@ async function withPlayback(action){
   finally { if (playbackId === state.playbackId) { state.playing = false; setPlaybackBusy(false); } }
 }
 async function playWindow(playbackId){
-  const v = $('vid'), m = state.metrics;
-  const t0 = Math.max(0, state.feedback?.startT ?? m.window.startT - .35);
-  const t1 = Math.min(v.duration || Infinity, state.feedback?.endT ?? m.window.endT + .35);
-  v.muted = true; v.playbackRate = 0.5; v.currentTime = t0;
-  await v.play().catch(()=>{});
-  return new Promise(res => {
-    const tick = () => {
-      if (playbackId !== state.playbackId){ res(); return; }
-      if (v.paused || v.ended || v.currentTime >= t1){ v.pause(); res(); return; }
-      const prog = clamp((v.currentTime - t0)/Math.max(.1, t1-t0), 0, 1);
-      drawFrameAt(prog, frameIndexForTime(v.currentTime));
-      const p = phaseOf(prog);
-      document.querySelectorAll('#phases span').forEach((el,i)=>el.classList.toggle('on', i===p));
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  });
+  const first=state.frames[0].t,last=state.frames[state.frames.length-1].t;
+  const start=state.reviewTime>=last-.05?first:Math.max(first,state.reviewTime);
+  // 每一格先等影片 seeked，再畫同一時間的姿態。漏檢處不沿用舊標點。
+  for(let t=start;t<=last+.001;t+=1/24){
+    if(playbackId!==state.playbackId)break;
+    const began=performance.now();if(!await showReviewTime(Math.min(t,last)))break;
+    if(playbackId!==state.playbackId)break;
+    const prog=(t-first)/Math.max(.01,last-first),p=phaseOf(prog);
+    document.querySelectorAll('#phases span').forEach((el,i)=>el.classList.toggle('on',i===p));
+    const rate=clamp(Number($('review-rate').value)||.25,.125,1);
+    const delay=Math.max(0,1000/24/rate-(performance.now()-began));
+    if(delay)await new Promise(resolve=>setTimeout(resolve,delay));
+  }
 }
 $('playBtn').onclick = async () => {
   await withPlayback(async playbackId => {
-    $('recStatus').textContent = '播放中（0.5 倍速），一起看看亮圈部位…';
+    $('recStatus').textContent = '逐格同步慢放中，可按暫停停在要看的部位。';
     await playWindow(playbackId);
     if (playbackId === state.playbackId) $('recStatus').textContent = '回看完成。照口訣慢練，再用同角度錄一次。';
   });
@@ -856,28 +1158,29 @@ $('playBtn').onclick = async () => {
 
 async function recordComparison(){
   return withPlayback(async playbackId => {
-  const m = state.metrics; if (!m) return;
-  if (!window.MediaRecorder){ $('recStatus').textContent = '這個瀏覽器不支援影片錄製，請改用截圖或 Safari 最新版。'; return; }
-  if (typeof cmp.captureStream !== 'function'){ $('recStatus').textContent = '這個瀏覽器不支援 Canvas 錄影（captureStream），請改用 Safari／Chrome 最新版。'; return; }
-  const mime = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'].find(t => MediaRecorder.isTypeSupported(t));
-  if (!mime){ $('recStatus').textContent = '此瀏覽器不支援可用的錄影格式。'; return; }
-  const rec = new MediaRecorder(cmp.captureStream(30), { mimeType: mime, videoBitsPerSecond: 3_500_000 });
-  const chunks = []; rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
-  const done = new Promise(res => rec.onstop = res);
-  rec.start(200);
-  $('recStatus').innerHTML = '<span class="spinner"></span> 錄製中，請不要切換頁面…';
-  await playWindow(playbackId);
-  await new Promise(r => setTimeout(r, 300));
-  rec.stop(); await done;
-  if (m !== state.metrics) return;
-  if (!chunks.length){ $('recStatus').textContent = '錄製失敗（沒有取得畫面資料）。請改用 Chrome／Safari 最新版。'; return; }
-  const blob = new Blob(chunks, { type: mime.split(';')[0] });
-  const url = URL.createObjectURL(blob);
-  const a = $('dl');
-  a.href = url; a.download = `analysis-${state.mode}-${Date.now()}.${mime.includes('mp4')?'mp4':'webm'}`;
-  a.classList.remove('hide');
-  $('recStatus').innerHTML = `完成（${(blob.size/1048576).toFixed(1)} MB）。<a href="${url}" download="${a.download}" style="color:var(--lime)">下載</a>`;
-  a.click();
+    const m=state.metrics;if(!m)return;
+    if(!window.MediaRecorder||typeof cmp.captureStream!=='function'){$('recStatus').textContent='這個瀏覽器不支援錄製，仍可慢放與逐格查看。';return;}
+    const mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));
+    if(!mime){$('recStatus').textContent='此瀏覽器不支援可用的錄影格式。';return;}
+    const stream=cmp.captureStream(30),rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3500000}),chunks=[];
+    rec.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data);};
+    const done=new Promise((resolve,reject)=>{rec.onstop=resolve;rec.onerror=()=>reject(new Error('錄製失敗，請重試。'));});
+    done.catch(()=>{});
+    try{
+      rec.start(200);
+      $('recStatus').textContent='錄製目前速度的慢動作與練習提醒中，可按暫停取消。';
+      await playWindow(playbackId);await new Promise(resolve=>setTimeout(resolve,150));
+      if(rec.state!=='inactive')rec.stop();await done;
+      if(m!==state.metrics||playbackId!==state.playbackId)return;
+      if(!chunks.length)throw new Error('錄製失敗，沒有取得畫面資料。');
+      const blob=new Blob(chunks,{type:mime.split(';')[0]}),url=URL.createObjectURL(blob);
+      const a=$('dl');if(state.exportUrl)URL.revokeObjectURL(state.exportUrl);state.exportUrl=url;
+      a.href=url;a.download='analysis-'+state.mode+'-'+Date.now()+'.'+(mime.includes('mp4')?'mp4':'webm');a.classList.remove('hide');
+      $('recStatus').textContent='完成（'+(blob.size/1048576).toFixed(1)+' MB），影片含評分、部位標示與練習提醒。';a.click();
+    }finally{
+      if(rec.state!=='inactive')try{rec.stop();}catch(e){}
+      stream.getTracks().forEach(track=>track.stop());
+    }
   });
 }
 $('recBtn').onclick = recordComparison;
