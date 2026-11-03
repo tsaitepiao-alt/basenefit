@@ -3,18 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>AI 揮棒分析 · basenefit</title>
+<title>AI 動作分析 · basenefit</title>
 <style>
   :root{
     --bg:#0b0f0c; --card:#141912; --card2:#1b221a; --line:#2a3327;
     --lime:#cbf24c; --lime-d:#a8cf2f; --txt:#eef3e6; --muted:#9aa894;
-    --warn:#ffb020; --bad:#ff6b5e; --good:#7ee787;
+    --warn:#ffb020; --bad:#ff6b5e; --good:#7ee787; --blue:#5bb8ff;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
-    font-family:"PingFang TC","Noto Sans TC","Helvetica Neue",Arial,sans-serif;
-    -webkit-font-smoothing:antialiased}
-  body{padding:16px 14px calc(28px + env(safe-area-inset-bottom));max-width:760px;margin:0 auto}
+    font-family:"PingFang TC","Noto Sans TC","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  body{padding:16px 14px calc(28px + env(safe-area-inset-bottom));max-width:820px;margin:0 auto}
   h1{font-size:20px;margin:2px 0 6px;letter-spacing:.5px}
   .eyebrow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;
     letter-spacing:.22em;color:var(--lime);text-transform:uppercase;opacity:.85}
@@ -23,8 +22,16 @@
   .card h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
   .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
     border-radius:50%;background:var(--lime);color:#141412;font-size:12px;font-weight:700}
-  .drop{border:1.5px dashed #3a4634;border-radius:14px;padding:22px 14px;text-align:center;
-    background:#101510;transition:.2s}
+  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .mode{border:1.5px solid var(--line);background:#101510;border-radius:14px;padding:12px 8px;
+    text-align:center;cursor:pointer;transition:.18s;color:var(--txt);font-family:inherit}
+  .mode b{display:block;font-size:14px;margin-top:4px}
+  .mode em{display:block;font-style:normal;font-family:ui-monospace,Menlo,monospace;
+    font-size:9px;letter-spacing:.14em;color:var(--muted);margin-top:3px}
+  .mode .ic{font-size:22px;line-height:1}
+  .mode.on{border-color:var(--lime);background:#1a2313;box-shadow:0 0 0 1px rgba(203,242,76,.28) inset}
+  .mode.on em{color:var(--lime)}
+  .drop{border:1.5px dashed #3a4634;border-radius:14px;padding:20px 14px;text-align:center;background:#101510;transition:.2s}
   .drop.hover{border-color:var(--lime);background:#131a10}
   .drop b{display:block;font-size:14px;margin-bottom:6px}
   .drop .hint{color:var(--muted);font-size:12px;line-height:1.6}
@@ -49,41 +56,63 @@
   .verdict{flex:1 1 200px;font-size:13px;line-height:1.7;color:#d8e3cd}
   .verdict b{color:var(--lime)}
   .metrics{display:grid;gap:11px;margin-top:6px}
-  .m{display:grid;grid-template-columns:82px 1fr 34px;gap:10px;align-items:center;font-size:12.5px}
+  .m{display:grid;grid-template-columns:88px 1fr 34px;gap:10px;align-items:center;font-size:12.5px}
   .m .track{height:7px;border-radius:99px;background:#232b20;overflow:hidden}
   .m .track i{display:block;height:100%;width:0;border-radius:99px;transition:width .5s}
   .m .v{text-align:right;font-family:ui-monospace,Menlo,monospace;color:#cfdcc2}
   details{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px}
   details summary{cursor:pointer;font-size:13px;color:var(--lime);list-style:none}
   details summary::-webkit-details-marker{display:none}
-  details p{font-size:12.5px;line-height:1.75;color:#c9d6bd;margin:8px 0 0}
+  details p{font-size:12.5px;line-height:1.75;color:#c9d6bd;margin:8px 0 0;white-space:pre-line}
   ul.tips{margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.8;color:#d3dfc7}
   ul.tips li{margin-bottom:6px}
-  .pill{display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:10px;
-    padding:3px 8px;border-radius:99px;background:#243019;color:var(--lime);letter-spacing:.1em}
   .phase{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
   .phase span{font-size:11px;padding:4px 9px;border-radius:99px;background:#1d241a;color:#8c9a84}
   .phase span.on{background:var(--lime);color:#141412;font-weight:700}
   .small{font-size:11.5px;color:var(--muted);line-height:1.65}
   .hide{display:none!important}
-  .err{background:#2a1614;border-color:#5a2a24;color:#ffd9d4}
   .spinner{width:16px;height:16px;border:2px solid #3c4a33;border-top-color:var(--lime);
     border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:-3px}
   @keyframes spin{to{transform:rotate(360deg)}}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:8px}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:2px}
+  .pro{display:grid;gap:10px}
+  .pro .item{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#101510}
+  .pro .item.active{border-color:var(--lime-d);box-shadow:0 0 0 1px rgba(203,242,76,.18) inset}
+  .pro .head{display:flex;align-items:baseline;gap:8px;padding:10px 12px 6px}
+  .pro .head b{font-size:14px}
+  .pro .head em{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;color:var(--muted);letter-spacing:.12em}
+  .pro .note{padding:0 12px 8px;font-size:11.5px;color:var(--muted);line-height:1.5}
+  .pro .thumb{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;display:block;width:100%;border:0;padding:0}
+  .pro .thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.86}
+  .pro .thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.9)}
+  .pro .thumb .tag{position:absolute;left:10px;top:10px;background:rgba(11,15,12,.82);border:1px solid var(--line);color:var(--lime);font-size:11px;padding:3px 8px;border-radius:99px}
+  .pro iframe,.pro .player{width:100%;aspect-ratio:16/9;border:0;display:block;background:#000}
+  .pro .ctl{display:flex;gap:6px;padding:8px 10px 10px;flex-wrap:wrap}
+  .pro .ctl button{flex:1;min-width:60px;background:#1d241a;border:1px solid var(--line);color:#d3dfc7;border-radius:10px;padding:8px;font-size:12px;font-family:inherit;cursor:pointer}
+  .pro .ctl button.on{background:var(--lime);color:#141412;font-weight:700;border-color:var(--lime)}
 </style>
 </head>
 <body>
 <div class="eyebrow">AI MOTION ANALYSIS</div>
-<h1>AI 揮棒分析</h1>
-<p class="lead">上傳一段 3–8 秒的揮棒影片（全身入鏡、橫向或正面皆可），系統在你的手機上直接做姿態辨識，
-算出流暢度分數、指出三個最該修的地方，並輸出一段「你的動作 vs 標準角度」的對比影片。<b>影片不會上傳到任何伺服器。</b></p>
+<h1>AI 動作分析</h1>
+<p class="lead">選一項（投球／打擊／守備），上傳 3–8 秒影片。系統在你的手機上做姿態辨識，算出該項目的流暢度分數、指出最該修的三件事，並輸出一段「<b>你的動作 / 標準動作</b>」雙畫面對比影片。<b>影片不會上傳到任何伺服器。</b></p>
 
-<!-- 1 上傳 -->
+<div class="card" id="step-mode">
+  <h2><span class="num">1</span>選分析項目</h2>
+  <div class="modes" id="modes">
+    <button class="mode on" data-mode="hit" type="button"><span class="ic">🏏</span><b>打擊</b><em>BATTING</em></button>
+    <button class="mode" data-mode="pitch" type="button"><span class="ic">⚾</span><b>投球</b><em>PITCHING</em></button>
+    <button class="mode" data-mode="field" type="button"><span class="ic">🧤</span><b>守備</b><em>FIELDING</em></button>
+  </div>
+  <div class="status" id="modeDesc"></div>
+</div>
+
 <div class="card" id="step-upload">
-  <h2><span class="num">1</span>選一段揮棒影片</h2>
+  <h2><span class="num">2</span>選一段影片</h2>
   <div class="drop" id="drop">
     <b>點這裡選檔，或把影片拖進來</b>
-    <div class="hint">MP4 / MOV / WebM · 建議 3–8 秒 · 全身與球棒都在畫面內<br>手機可直接錄影上傳</div>
+    <div class="hint">MP4 / MOV / WebM · 建議 3–8 秒 · 全身（必要時含球棒或手套）都在畫面內<br>手機可直接錄影上傳</div>
     <input type="file" id="file" accept="video/*">
   </div>
   <div class="row" style="margin-top:12px">
@@ -93,9 +122,8 @@
   <div class="status" id="pickStatus"></div>
 </div>
 
-<!-- 2 預覽＋開始 -->
 <div class="card hide" id="step-preview">
-  <h2><span class="num">2</span>確認畫面</h2>
+  <h2><span class="num">3</span>確認畫面</h2>
   <video id="vid" playsinline muted preload="metadata"></video>
   <div class="row" style="margin-top:12px">
     <button class="btn" id="run" type="button">開始分析</button>
@@ -105,9 +133,8 @@
   <div class="bar"><i id="prog"></i></div>
 </div>
 
-<!-- 3 結果 -->
 <div class="card hide" id="step-result">
-  <h2><span class="num">3</span>分析結果</h2>
+  <h2><span class="num">4</span>分析結果</h2>
   <div class="score-wrap">
     <div class="ring">
       <svg width="104" height="104" viewBox="0 0 104 104">
@@ -120,47 +147,88 @@
     <div class="verdict" id="verdict"></div>
   </div>
   <div class="metrics" id="metrics"></div>
-  <details>
-    <summary>▸ 每個分數怎麼算的</summary>
-    <p id="howText"></p>
-  </details>
+  <details><summary>▸ 每個分數怎麼算的</summary><p id="howText"></p></details>
   <div style="margin-top:14px"><b style="font-size:13px">先修這三件事</b><ul class="tips" id="tips"></ul></div>
 </div>
 
-<!-- 4 對比影片 -->
 <div class="card hide" id="step-compare">
-  <h2><span class="num">4</span>對比影片</h2>
-  <p class="small" style="margin:0 0 10px">左邊是你的動作（骨架疊圖＋標準角度線），右邊是每個階段的標準值。錄製約 8 秒，可直接下載傳給教練。</p>
+  <h2><span class="num">5</span>雙畫面對比</h2>
+  <p class="small" style="margin:0 0 10px">左：你的動作（骨架疊圖）。右：同一幀的「標準角度」版本（灰＝你原本、綠＝修正後）。錄製約 8 秒，可直接下載傳給教練。</p>
   <canvas id="cmp" width="720" height="1280"></canvas>
+  <div class="legend"><span><i style="background:#5bb8ff"></i>髖線</span><span><i style="background:#ff9f43"></i>肩線</span><span><i style="background:#cbf24c"></i>標準姿態</span><span><i style="background:#6b7a63"></i>你的原始姿態</span></div>
   <div class="phase" id="phases"></div>
   <div class="row" style="margin-top:12px">
     <button class="btn" id="recBtn" type="button">產生並下載對比影片</button>
     <button class="btn ghost sm" id="playBtn" type="button">先看一次</button>
   </div>
   <div class="status" id="recStatus"></div>
-  <a id="dl" class="btn ghost hide" download="swing-comparison.webm" style="text-decoration:none">下載對比影片</a>
+  <a id="dl" class="btn ghost hide" download="analysis-comparison.webm" style="text-decoration:none">下載對比影片</a>
+</div>
+
+<div class="card" id="step-pro">
+  <h2><span class="num">6</span>職業示範動作（0.25× 慢動作）</h2>
+  <p class="small" style="margin:0 0 10px">看你這個項目的職業動作，用 0.25 倍速一格一格對照剛剛的角度。影片由 YouTube 原頻道播放，不會下載到本站。</p>
+  <div class="pro" id="proList"></div>
+  <div class="status" id="proStatus">點卡片載入影片（第一次會慢一點）。</div>
 </div>
 
 <div class="small" style="margin-top:18px;opacity:.8">
-  分析在你的裝置上完成，影片與骨架資料不會離開手機。評分為訓練參考，非醫療或專業診斷。
+  分析在你的裝置上完成，影片與骨架資料不會離開手機。評分與角度為訓練參考，非醫療或專業診斷。
 </div>
 
 <script type="module">
 /* =========================================================================
-   basenefit · AI 揮棒分析
-   1) MediaPipe PoseLandmarker（僅在按下分析時載入）
-   2) 逐幀取樣 → 正規化 → 揮棒區間偵測 → 七項指標 → 流暢度分數
-   3) Canvas 合成「你的動作 vs 標準角度」對比影片（MediaRecorder）
+   basenefit · AI 動作分析 v2
+   模式：打擊 / 投球 / 守備（各自指標、階段與偵測點）
+   分析：MediaPipe PoseLandmarker（按下去才載入）→ 3 幀平滑 → 區間偵測 → 指標
+   輸出：720×1280，左「你的動作」右「標準角度」→ MediaRecorder
    ========================================================================= */
 const VISION_VER = '0.10.14';
 const CDN = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${VISION_VER}`;
 const MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
 
 const $ = (id) => document.getElementById(id);
-const state = { file:null, url:null, frames:[], metrics:null, swing:null, videoW:0, videoH:0 };
+const state = { mode:'hit', file:null, url:null, frames:[], metrics:null, videoW:0, videoH:0 };
 window.__swing = state;
 
-/* ---------- 選檔 ---------- */
+/* ---------------- 模式 ---------------- */
+const MODES = {
+  hit: {
+    label:'打擊', en:'BATTING',
+    desc:'看「力量有沒有從地面傳到球棒」：揮棒節奏、髖肩分離、重心轉移、手部路徑、頭部穩定、旋轉速度、收棒平衡。',
+    phases:['準備','啟動','加速','觸球','延伸','收棒'],
+    phaseHints:['髖肩同步蓄力','髖先動、肩留住','髖肩分離 24–48°','手直送、頭不動','延伸、不繞棒','收棒停穩 2 秒'],
+    targetSep: 36
+  },
+  pitch: {
+    label:'投球', en:'PITCHING',
+    desc:'看「節奏與傳導」：抬腿平衡、髖肩分離、跨步長度、手臂路徑、重心前移、出手高度、收尾平衡。',
+    phases:['抬腿','蓄力','跨步','出手','延伸','收尾'],
+    phaseHints:['軸心腳站穩、抬腿不過高','髖部先轉、肩留住','跨步方向朝本壘','手臂延伸、肘不過早開','胸口朝捕手、身體前壓','收尾平衡 2 秒'],
+    targetSep: 40
+  },
+  field: {
+    label:'守備', en:'FIELDING',
+    desc:'看「啟動與移動效率」：預備重心、第一步啟動、移動路徑、手套位置、重心穩定、接球到轉傳、收球平衡。',
+    phases:['預備','啟動','移動','接球','轉傳','收球'],
+    phaseHints:['低重心、手套在前','第一步要快、不要墊步','路徑要直、不要繞','手套低、手掌朝球','接球同時轉向','收球穩定、球在胸前'],
+    targetSep: 26
+  }
+};
+
+function setMode(m){
+  state.mode = m;
+  document.querySelectorAll('.mode').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  const d = MODES[m];
+  $('modeDesc').innerHTML = `<b style="color:var(--lime)">${d.label}</b>｜${d.desc}`;
+  $('step-compare').classList.add('hide');
+  if (window.__proReady) syncProActive();
+  if (state.metrics) $('runStatus').textContent = '已切換項目，請重新按「開始分析」。';
+}
+document.querySelectorAll('.mode').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+setMode('hit');
+
+/* ---------------- 選檔 ---------------- */
 $('pick').onclick = () => $('file').click();
 $('pick2').onclick = () => $('file').click();
 $('drop').onclick = (e) => { if (e.target.tagName !== 'INPUT') $('file').click(); };
@@ -186,47 +254,41 @@ function openFile(f){
   v.onloadedmetadata = () => {
     state.videoW = v.videoWidth; state.videoH = v.videoHeight;
     $('runStatus').textContent = `影片 ${v.videoWidth}×${v.videoHeight}，${v.duration.toFixed(1)} 秒`;
-    if (v.duration > 15) $('runStatus').textContent += '（超過 15 秒只分析前 15 秒）';
   };
 }
 $('reset').onclick = () => {
   $('step-preview').classList.add('hide'); $('step-result').classList.add('hide'); $('step-compare').classList.add('hide');
-  $('file').value = ''; state.file = null; state.frames = []; state.metrics = null;
-  $('pickStatus').textContent = '';
+  $('file').value = ''; state.file = null; state.frames = []; state.metrics = null; $('pickStatus').textContent = '';
 };
 
-/* ---------- 姿態模型 ---------- */
+/* ---------------- 模型 ---------------- */
 let landmarker = null;
 async function ensureModel(onNote){
   if (landmarker) return landmarker;
   onNote('載入姿態模型（第一次約 6MB，之後會快取）…');
   let vision;
-  try {
-    vision = await import(`${CDN}/vision_bundle.mjs`);
-  } catch (e){
-    throw new Error('無法載入 AI 模型（網路被阻擋或離線）。請連上 Wi-Fi 後重試。');
-  }
+  try { vision = await import(`${CDN}/vision_bundle.mjs`); }
+  catch(e){ throw new Error('無法載入 AI 模型（網路被阻擋或離線）。請連上 Wi-Fi 後重試。'); }
   const fileset = await vision.FilesetResolver.forVisionTasks(`${CDN}/wasm`).catch(() => {
     throw new Error('AI 模型資源載入失敗（CDN 無回應），請稍後再試。');
   });
   try {
     landmarker = await vision.PoseLandmarker.createFromOptions(fileset, {
-      baseOptions:{ modelAssetPath: MODEL, delegate:'GPU' },
-      runningMode:'VIDEO', numPoses:1,
+      baseOptions:{ modelAssetPath: MODEL, delegate:'GPU' }, runningMode:'IMAGE', numPoses:1,
       minPoseDetectionConfidence:.5, minPosePresenceConfidence:.5, minTrackingConfidence:.5
     });
   } catch (e) {
     landmarker = await vision.PoseLandmarker.createFromOptions(fileset, {
-      baseOptions:{ modelAssetPath: MODEL, delegate:'CPU' },
-      runningMode:'VIDEO', numPoses:1
+      baseOptions:{ modelAssetPath: MODEL, delegate:'CPU' }, runningMode:'IMAGE', numPoses:1
     });
   }
   return landmarker;
 }
 
-/* ---------- 抽幀分析 ---------- */
+/* ---------------- 抽幀 ---------------- */
 const IDX = { nose:0, lSho:11, rSho:12, lElb:13, rElb:14, lWri:15, rWri:16,
               lHip:23, rHip:24, lKnee:25, rKnee:26, lAnk:27, rAnk:28 };
+const NEED = Object.keys(IDX);
 
 function seekTo(v, t){
   return new Promise(res => {
@@ -242,19 +304,17 @@ const mid = (a,b) => ({ x:(a.x+b.x)/2, y:(a.y+b.y)/2 });
 const ang = (a,b) => Math.atan2(b.y-a.y, b.x-a.x) * 180/Math.PI;
 function angDiff(a,b){ let d = a-b; while (d>180) d-=360; while (d<-180) d+=360; return d; }
 const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
-const lerp = (a,b,t) => a + (b-a)*t;
+const median = (a) => { const b=[...a].sort((x,y)=>x-y); const m=b.length>>1; return b.length%2?b[m]:(b[m-1]+b[m])/2; };
 
 async function analyse(){
   const v = $('vid');
   if (!state.file) return;
-  $('run').disabled = true;
-  $('prog').style.width = '0%';
-  $('step-result').classList.add('hide');
-  $('step-compare').classList.add('hide');
+  $('run').disabled = true; $('prog').style.width = '0%';
+  $('step-result').classList.add('hide'); $('step-compare').classList.add('hide');
   const note = (s) => $('runStatus').innerHTML = `<span class="spinner"></span> ${s}`;
   try {
     const lm = await ensureModel(note);
-    if (!v.videoWidth) { await new Promise(r => v.onloadedmetadata = r); }
+    if (!v.videoWidth) await new Promise(r => v.onloadedmetadata = r);
     await seekTo(v, 0);
 
     const dur = Math.min(v.duration || 8, 15);
@@ -264,376 +324,407 @@ async function analyse(){
     for (let i=0; i<total; i++){
       const t = Math.min(i*step, dur - 0.001);
       await seekTo(v, t);
-      let res;
-      try { res = lm.detectForVideo(v, Math.round(t*1000)); } catch(e){ res = null; }
+      let res; try { res = lm.detect(v); } catch(e){ res = null; }
       const pts = res && res.landmarks && res.landmarks[0];
-      const NEED = ['nose','lSho','rSho','lWri','rWri','lHip','rHip','lAnk','rAnk','lKnee','rKnee'];
       if (pts && NEED.every(k => pts[IDX[k]])){
-        const W = v.videoWidth, H = v.videoHeight;
-        const P = {};
-        for (const k in IDX) { const p = pts[IDX[k]]; P[k] = { x:p.x*W, y:p.y*H, v:p.visibility ?? 1 }; }
-        // 只留可信的幀
+        const W = v.videoWidth, H = v.videoHeight, P = {};
+        for (const k of NEED){ const p = pts[IDX[k]]; P[k] = { x:p.x*W, y:p.y*H, v:p.visibility ?? 1 }; }
         const core = (P.lSho.v + P.rSho.v + P.lHip.v + P.rHip.v)/4;
-        if (core > .4) {
+        if (core > .4){
           const shoMid = mid(P.lSho, P.rSho), hipMid = mid(P.lHip, P.rHip);
-          const scale = Math.max(20, dist(shoMid, hipMid));
-          const handMid = mid(P.lWri, P.rWri);
-          frames.push({
-            t, W, H, P, shoMid, hipMid, handMid, scale,
-            shoAng: ang(P.lSho, P.rSho),
-            hipAng: ang(P.lHip, P.rHip),
-            sep: Math.abs(angDiff(ang(P.lSho, P.rSho), ang(P.lHip, P.rHip))),
-            stepW: dist(P.lAnk, P.rAnk)
-          });
+          frames.push({ t, W, H, P, shoMid, hipMid, scale: Math.max(20, dist(shoMid, hipMid)),
+            shoAng: ang(P.lSho, P.rSho), hipAng: ang(P.lHip, P.rHip),
+            sep: Math.abs(angDiff(ang(P.lSho, P.rSho), ang(P.lHip, P.rHip))) });
         }
       }
       if (i % 6 === 0){ $('prog').style.width = (i/total*88).toFixed(0)+'%'; await new Promise(r => setTimeout(r, 0)); }
     }
     $('prog').style.width = '92%';
-    if (frames.length < 8) throw new Error('偵測不到穩定的人體，請確認全身與球棒都在畫面內、光線足夠。');
+    if (frames.length < 8) throw new Error('偵測不到穩定的人體，請確認全身在畫面內、光線足夠。');
 
-    const metrics = computeMetrics(frames);
+    const metrics = computeMetrics(frames, state.mode);
     state.frames = frames; state.metrics = metrics;
     $('prog').style.width = '100%';
-    $('runStatus').textContent = `完成：分析 ${frames.length} 幀`;
-    renderResult(metrics, frames);
-    buildComparison(metrics, frames);
+    $('runStatus').textContent = `完成：${MODES[state.mode].label}・分析 ${frames.length} 幀`;
+    renderResult(metrics);
+    $('step-compare').classList.remove('hide');
+    $('phases').innerHTML = MODES[state.mode].phases.map(p => `<span>${p}</span>`).join('');
+    $('recStatus').textContent = '按「先看一次」預覽，或直接產生影片。';
     $('run').disabled = false;
   } catch (err){
     window.__err = (err && err.stack) || String(err);
-    $('run').disabled = false;
-    $('prog').style.width = '0%';
+    $('run').disabled = false; $('prog').style.width = '0%';
     $('runStatus').innerHTML = `<span style="color:var(--bad)">${err.message || err}</span>`;
   }
 }
 $('run').onclick = analyse;
 
-/* ---------- 指標 ---------- */
-function computeMetrics(frames){
-  // 1) 平滑關鍵點（3 幀移動平均），避免 landmark 抖動放大成假速度
-  const S = frames.map((f,i) => {
+/* ---------------- 平滑 / 速度 ---------------- */
+function smoothFrames(frames){
+  return frames.map((f,i) => {
     const w = frames.slice(Math.max(0,i-1), Math.min(frames.length, i+2));
-    const avg = (k) => ({
-      x: w.reduce((a,g)=>a+g.P[k].x, 0)/w.length,
-      y: w.reduce((a,g)=>a+g.P[k].y, 0)/w.length
-    });
-    const lW = avg('lWri'), rW = avg('rWri');
-    const lH = avg('lHip'), rH = avg('rHip');
-    const lS = avg('lSho'), rS = avg('rSho');
+    const avg = (k) => ({ x: w.reduce((a,g)=>a+g.P[k].x,0)/w.length, y: w.reduce((a,g)=>a+g.P[k].y,0)/w.length });
+    const lW = avg('lWri'), rW = avg('rWri'), lH = avg('lHip'), rH = avg('rHip');
+    const lS = avg('lSho'), rS = avg('rSho'), lA = avg('lAnk'), rA = avg('rAnk');
     const nose = avg('nose');
-    const hipMid = { x:(lH.x+rH.x)/2, y:(lH.y+rH.y)/2 };
-    const shoMid = { x:(lS.x+rS.x)/2, y:(lS.y+rS.y)/2 };
-    const scale = Math.max(20, Math.hypot(shoMid.x-hipMid.x, shoMid.y-hipMid.y));
-    return { t:f.t, P:f.P, lW, rW, lS, rS, lH, rH, nose, hipMid, shoMid, scale,
-             shoAng: Math.atan2(rS.y-lS.y, rS.x-lS.x)*180/Math.PI,
-             hipAng: Math.atan2(rH.y-lH.y, rH.x-lH.x)*180/Math.PI };
+    const hipMid = mid(lH, rH), shoMid = mid(lS, rS), ankMid = mid(lA, rA);
+    return { t:f.t, P:f.P, lW, rW, lH, rH, lS, rS, lA, rA, nose, hipMid, shoMid, ankMid,
+      scale: Math.max(20, dist(shoMid, hipMid)),
+      shoAng: ang(lS, rS), hipAng: ang(lH, rH), sep: Math.abs(angDiff(ang(lS,rS), ang(lH,rH))) };
   });
-
-  // 2) 主手：整段位移量較大的那隻手腕（揮棒時帶動的是這一隻）
-  const travel = (k) => { let d = 0; for (let i=1;i<S.length;i++) d += dist(S[i][k], S[i-1][k]); return d; };
-  const leadKey = travel('lW') >= travel('rW') ? 'lW' : 'rW';
-
-  // 3) 手部速度（以軀幹長正規化，單位：軀幹長／秒）
-  const spd = S.map((f,i) => i === 0 ? 0 :
-    dist(f[leadKey], S[i-1][leadKey]) / f.scale / Math.max(1e-3, f.t - S[i-1].t));
-  const smooth = spd.map((s,i) => {
-    const a = spd[Math.max(0,i-1)], b = spd[Math.min(spd.length-1,i+1)];
-    return (a + 2*s + b)/4;
-  });
-  let peakI = 0; smooth.forEach((s,i) => { if (s > smooth[peakI]) peakI = i; });
-  const peak = smooth[peakI] || 0;
-  if (peak < 0.6) throw new Error('看不出明顯的揮棒加速，請確認影片包含完整揮擊（不要只拍站姿）。');
-
-  // 4) 揮棒區間
-  let startI = peakI;
-  while (startI > 0 && smooth[startI] > peak*0.12) startI--;
-  let endI = peakI;
-  while (endI < S.length-1 && smooth[endI] > peak*0.25) endI++;
-  endI = Math.min(S.length-1, endI + 3);
-  startI = Math.max(0, startI - 1);
-
-  const A = S[startI], C = S[peakI], F = S[endI];
-  const tempo = C.t - A.t;
-  const inWin = S.slice(startI, Math.min(endI+1, S.length));
-
-  // 5) 髖肩分離：整段最大夾角差（角度已平滑）
-  const sepMax = Math.max(...inWin.map(f => Math.abs(angDiff(f.shoAng, f.hipAng))));
-
-  // 6) 重心轉移：髖中心水平位移 ÷ 軀幹長
-  const shift = Math.abs(C.hipMid.x - A.hipMid.x) / Math.max(1e-3, A.scale);
-
-  // 7) 手部路徑效率（主手，啟動 → 觸球）
-  let path = 0;
-  for (let i=startI+1; i<=peakI; i++) path += dist(S[i][leadKey], S[i-1][leadKey]);
-  const straight = path > 1e-3 ? dist(S[peakI][leadKey], S[startI][leadKey])/path : 0;
-
-  // 8) 頭部穩定：鼻子相對髖部（以軀幹長正規化）的離散程度
-  const noseRel = inWin.map(f => ({
-    x: (f.nose.x - f.hipMid.x)/f.scale, y: (f.nose.y - f.hipMid.y)/f.scale
-  }));
-  const medX = median(noseRel.map(p=>p.x)), medY = median(noseRel.map(p=>p.y));
-  const headSd = Math.sqrt(noseRel.reduce((s,p)=>s+(p.x-medX)**2+(p.y-medY)**2,0)/noseRel.length);
-
-  // 9) 肩線角速度峰值（先解 wrap，再 3 點平滑，上限 1500 度/秒避免追蹤跳點）
-  const unwrapped = [S[startI].shoAng];
-  for (let i=startI+1; i<=endI; i++) unwrapped.push(unwrapped[unwrapped.length-1] + angDiff(S[i].shoAng, S[i-1].shoAng));
-  const vels = [];
-  for (let i=1; i<unwrapped.length; i++){
-    const dt = Math.max(1e-3, S[startI+i].t - S[startI+i-1].t);
-    vels.push((unwrapped[i]-unwrapped[i-1])/dt);
-  }
-  const vs = vels.map((v,i) => {
-    const a = vels[Math.max(0,i-1)], b = vels[Math.min(vels.length-1,i+1)];
-    return (a + 2*v + b)/4;
-  });
-  const maxRot = Math.min(1500, Math.max(...vs.map(v => Math.abs(v)), 0));
-
-  // 10) 收棒平衡
-  const finTilt = Math.abs(angDiff(ang(F.P.lHip, F.P.lSho), -90));
-  const finBalance = clamp(1 - Math.abs((F.nose.x - F.hipMid.x)/F.scale) / 0.5, 0, 1);
-
-  const s = {
-    tempo:   scoreTempo(tempo),
-    sep:     scoreRange(sepMax, 24, 48, 8, 20),
-    shift:   scoreRange(shift, .28, .68, .20, .35),
-    path:    scoreRange(straight, .78, .95, .42, .2),
-    head:    scoreRange(-headSd, -0.10, -0.045, .06, .05),
-    rot:     scoreRange(maxRot, 600, 1200, 250, 300),
-    finish:  Math.round(100*clamp(.55*finBalance + .45*clamp(1 - Math.abs(finTilt-12)/28, 0, 1), 0, 1))
-  };
-  const W = { tempo:.14, sep:.20, shift:.18, path:.16, head:.12, rot:.10, finish:.10 };
-  const total = Math.round(Object.keys(W).reduce((a,k) => a + s[k]*W[k], 0));
-  return { total, sub:s, raw:{ tempo, sepMax, shift, straight, headSd, maxRot, finTilt },
-           window:{ startT:A.t, contactT:C.t, endT:F.t, startI, peakI, endI },
-           series:{ speed:smooth, sep:frames.map(f=>f.sep) } };
 }
-function median(a){ const b=[...a].sort((x,y)=>x-y); const m=b.length>>1; return b.length%2?b[m]:(b[m-1]+b[m])/2; }
-function scoreTempo(t){ // 理想 0.18–0.32 秒
-  if (t <= 0) return 0;
-  if (t < 0.12) return Math.round(60*t/0.12);
-  if (t < 0.18) return Math.round(60 + 40*(t-0.12)/0.06);
-  if (t <= 0.32) return 100;
-  if (t <= 0.55) return Math.round(100 - 45*(t-0.32)/0.23);
-  return Math.max(20, Math.round(55 - (t-0.55)*40));
+function seriesSpeed(S, key){
+  const sp = S.map((f,i) => i === 0 ? 0 : dist(f[key], S[i-1][key]) / f.scale / Math.max(1e-3, f.t - S[i-1].t));
+  return sp.map((s,i) => { const a = sp[Math.max(0,i-1)], b = sp[Math.min(sp.length-1,i+1)]; return (a + 2*s + b)/4; });
 }
+const travelOf = (S, key) => { let d = 0; for (let i=1;i<S.length;i++) d += dist(S[i][key], S[i-1][key]); return d; };
+function findWindow(sig, thr0, thr1){
+  let peakI = 0; sig.forEach((s,i) => { if (s > sig[peakI]) peakI = i; });
+  const peak = sig[peakI] || 0;
+  let startI = peakI; while (startI > 0 && sig[startI] > peak*thr0) startI--;
+  let endI = peakI; while (endI < sig.length-1 && sig[endI] > peak*thr1) endI++;
+  return { peakI, peak, startI: Math.max(0,startI-1), endI: Math.min(sig.length-1, endI+3) };
+}
+function peakAngular(S, a, b){
+  const un = [S[a].shoAng];
+  for (let i=a+1;i<=b;i++) un.push(un[un.length-1] + angDiff(S[i].shoAng, S[i-1].shoAng));
+  const v = [];
+  for (let i=1;i<un.length;i++){ const dt = Math.max(1e-3, S[a+i].t - S[a+i-1].t); v.push((un[i]-un[i-1])/dt); }
+  const sm = v.map((x,i) => { const p = v[Math.max(0,i-1)], n = v[Math.min(v.length-1,i+1)]; return (p+2*x+n)/4; });
+  return Math.min(1500, Math.max(...sm.map(x=>Math.abs(x)), 0));
+}
+function scoreTempo(t){ if (t<=0) return 0; if (t<0.12) return Math.round(60*t/0.12); if (t<0.18) return Math.round(60+40*(t-0.12)/0.06); if (t<=0.32) return 100; if (t<=0.55) return Math.round(100-45*(t-0.32)/0.23); return Math.max(20, Math.round(55-(t-0.55)*40)); }
+function scoreTempoStep(t){ if (t<=0) return 0; if (t<0.10) return Math.round(50*t/0.10); if (t<=0.30) return 100; if (t<=0.55) return Math.round(100-55*(t-0.30)/0.25); return Math.max(20, Math.round(45-(t-0.55)*30)); }
 function scoreRange(v, lo, hi, outerLo, outerHi){
-  if (v >= lo && v <= hi) return 100;
-  if (v < lo) return Math.round(clamp(100*(1 - (lo-v)/outerLo), 0, 100));
-  return Math.round(clamp(100*(1 - (v-hi)/outerHi), 0, 100));
+  if (v>=lo && v<=hi) return 100;
+  if (v<lo) return Math.round(clamp(100*(1-(lo-v)/outerLo),0,100));
+  return Math.round(clamp(100*(1-(v-hi)/outerHi),0,100));
 }
 
-/* ---------- 結果畫面 ---------- */
-const LABELS = {
-  tempo:'揮棒節奏', sep:'髖肩分離', shift:'重心轉移', path:'手部路徑',
-  head:'頭部穩定', rot:'旋轉速度', finish:'收棒平衡'
-};
-const HOW = {
-  tempo:'從「手開始往球移動」到「觸球瞬間（手部速度峰值）」的時間。太短代表用手硬拉，太長代表力量沒有串起來。理想 0.18–0.32 秒。',
-  sep:'髖部與肩線的最大夾角差（髖肩分離）。理想 24–48 度，這是力量從下半身傳到球棒的核心。',
-  shift:'啟動到觸球之間，髖部中心往投手方向的水平位移（以軀幹長正規化）。理想 0.55–1.15。',
-  path:'手部實際走的路徑長度 ÷ 起點到觸球的直線距離。越接近 1 代表越直接、越不容易「繞棒」。理想 0.78 以上。',
-  head:'頭部相對髖部的晃動量。越小越好，眼睛穩定才能看清球。',
-  rot:'肩線角速度峰值（度／秒）。理想 420–900，過低是下半身沒帶動，過高通常是上半身硬甩。',
-  finish:'收棒時重心是否留在前腳上方、軀幹角度是否合理。'
-};
-function colorFor(v){ return v >= 75 ? '#cbf24c' : v >= 55 ? '#ffb020' : '#ff6b5e'; }
+/* ---------------- 指標 ---------------- */
+function computeMetrics(frames, mode){
+  const S = smoothFrames(frames);
+  const leadKey = travelOf(S,'lW') >= travelOf(S,'rW') ? 'lW' : 'rW';
+  const wrist = seriesSpeed(S, leadKey);
+  const foot = seriesSpeed(S, 'ankMid');
+  if (mode === 'pitch') return pitchMetrics(S, wrist, foot);
+  if (mode === 'field') return fieldMetrics(S, wrist, foot);
+  return hitMetrics(S, wrist, foot);
+}
 
-function renderResult(m, frames){
+function hitMetrics(S, wrist){
+  const w = findWindow(wrist, .12, .25);
+  if (w.peak < .6) throw new Error('看不出明顯的揮棒加速，請確認影片包含完整揮擊。');
+  const A = S[w.startI], C = S[w.peakI], F = S[w.endI];
+  const inWin = S.slice(w.startI, w.endI+1);
+  const tempo = C.t - A.t;
+  const sepMax = Math.max(...inWin.map(f => f.sep));
+  const shift = Math.abs(C.hipMid.x - A.hipMid.x) / Math.max(1e-3, A.scale);
+  const leadKey = travelOf(S,'lW') >= travelOf(S,'rW') ? 'lW' : 'rW';
+  let path = 0; for (let i=w.startI+1;i<=w.peakI;i++) path += dist(S[i][leadKey], S[i-1][leadKey]);
+  const straight = path > 1e-3 ? dist(S[w.peakI][leadKey], S[w.startI][leadKey])/path : 0;
+  const noseRel = inWin.map(f => ({ x:(f.nose.x-f.hipMid.x)/f.scale, y:(f.nose.y-f.hipMid.y)/f.scale }));
+  const mx = median(noseRel.map(p=>p.x)), my = median(noseRel.map(p=>p.y));
+  const headSd = Math.sqrt(noseRel.reduce((s,p)=>s+(p.x-mx)**2+(p.y-my)**2,0)/noseRel.length);
+  const rot = peakAngular(S, w.startI, w.endI);
+  const finTilt = Math.abs(angDiff(ang(F.P.lHip, F.P.lSho), -90));
+  const finBal = clamp(1 - Math.abs((F.nose.x-F.hipMid.x)/F.scale)/0.5, 0, 1);
+
+  return pack([
+    { k:'tempo', label:'揮棒節奏', v:tempo, s:scoreTempo(tempo), fmt:v=>v.toFixed(2)+' 秒', ideal:'0.18–0.32 秒',
+      how:'從手開始往球移動，到觸球（手部速度峰值）的時間。太短＝用手硬拉；太長＝力量沒串起來。',
+      tip:`節奏 ${tempo.toFixed(2)} 秒：練「先慢後快」——啟動只讓髖部轉，手留著，髖轉一半才讓手跟上。` },
+    { k:'sep', label:'髖肩分離', v:sepMax, s:scoreRange(sepMax,24,48,8,20), fmt:v=>Math.round(v)+'°', ideal:'24–48°',
+      how:'髖部線與肩線的最大夾角差，是力量從下半身傳到球棒的核心。',
+      tip:`髖肩分離只有 ${Math.round(sepMax)} 度：做「髖轉、肩不動」分解練習，10 下 × 3 組。` },
+    { k:'shift', label:'重心轉移', v:shift, s:scoreRange(shift,.28,.68,.20,.35), fmt:v=>v.toFixed(2), ideal:'0.28–0.68',
+      how:'啟動到觸球，髖部中心往投手方向的位移（以軀幹長正規化）。',
+      tip:`重心轉移不足（${shift.toFixed(2)}）：啟動時把體重壓到後腳內側，觸球前推到前腳。` },
+    { k:'path', label:'手部路徑', v:straight, s:scoreRange(straight,.78,.95,.42,.2), fmt:v=>(v*100).toFixed(0)+'%', ideal:'≥78%',
+      how:'手實際走的路徑長 ÷ 起點到觸球的直線距離，越接近 1 越直接。',
+      tip:`手部路徑繞了（效率 ${(straight*100).toFixed(0)}%）：球棒留在身後久一點，手先往球的方向直送。` },
+    { k:'head', label:'頭部穩定', v:headSd, s:scoreRange(-headSd,-0.10,-0.045,.06,.05), fmt:v=>v.toFixed(3), ideal:'≤0.10',
+      how:'頭部相對髖部的晃動量（以軀幹長正規化），越小越好。',
+      tip:`頭部晃動 ${headSd.toFixed(3)}：擊球前後眼睛盯同一個點，頭先不要跟著身體轉。` },
+    { k:'rot', label:'旋轉速度', v:rot, s:scoreRange(rot,600,1200,250,300), fmt:v=>Math.round(v)+'°/s', ideal:'600–1200°/s',
+      how:'肩線角速度峰值。過低＝下半身沒帶動；過高通常是上半身硬甩。',
+      tip:`旋轉速度峰值 ${Math.round(rot)}°/s：加藥球旋轉拋與髖部爆發，把「轉」練成力量。` },
+    { k:'finish', label:'收棒平衡', v:finTilt, s:Math.round(100*clamp(.55*finBal + .45*clamp(1-Math.abs(finTilt-12)/28,0,1),0,1)),
+      fmt:v=>'軀幹 '+Math.round(v)+'°', ideal:'收棒停穩 2 秒',
+      how:'收棒時重心是否留在前腳上方、軀幹角度是否合理。',
+      tip:'收棒重心不穩：收棒後停在原地 2 秒不能晃，這是平衡與核心的驗收。' }
+  ], { startT:A.t, peakT:C.t, endT:F.t, startI:w.startI, peakI:w.peakI, endI:w.endI });
+}
+
+function pitchMetrics(S, wrist){
+  const w = findWindow(wrist, .10, .22);
+  if (w.peak < .8) throw new Error('看不出明顯的投球加速，請確認影片包含完整投球動作（含抬腿與出手）。');
+  const A = S[w.startI], C = S[w.peakI], F = S[w.endI];
+  const inWin = S.slice(w.startI, w.endI+1);
+  let liftI = w.startI, best = Infinity;
+  for (let i=w.startI;i<=w.peakI;i++){ const h = S[i].P.lKnee.y - S[i].hipMid.y; if (h < best){ best = h; liftI = i; } }
+  const L = S[liftI];
+  const seg = S.slice(Math.max(0,liftI-3), Math.min(S.length, liftI+4));
+  const liftBal = Math.sqrt(seg.reduce((s,f)=>s+(f.hipMid.x-seg[0].hipMid.x)**2,0)/seg.length) / Math.max(1e-3, L.scale);
+  const sepMax = Math.max(...inWin.map(f => f.sep));
+  const stride = Math.abs(C.ankMid.x - A.ankMid.x) / Math.max(1e-3, C.scale);
+  const elbow = Math.abs(angDiff(ang(C.P.rSho, C.P.rElb), ang(C.P.rElb, C.P.rWri)));
+  const shift = Math.abs(C.hipMid.x - A.hipMid.x) / Math.max(1e-3, A.scale);
+  const releaseH = clamp(1 - Math.abs(C.P.rWri.y - C.shoMid.y)/Math.max(1e-3, C.scale*2), 0, 1);
+  const finBal = clamp(1 - Math.abs((F.P.rWri.x - F.hipMid.x)/F.scale)/0.9, 0, 1);
+  const finTilt = Math.abs(angDiff(ang(F.P.lHip, F.P.lSho), -90));
+
+  return pack([
+    { k:'lift', label:'抬腿平衡', v:liftBal, s:scoreRange(-liftBal,-0.10,-0.03,.06,.06), fmt:v=>v.toFixed(3), ideal:'髖部穩定',
+      how:'抬腿到最高點前後髖部的左右晃動量（以軀幹長正規化）。晃太多＝軸心腳撐不住。',
+      tip:`抬腿時髖部晃 ${liftBal.toFixed(3)}：抬腿降一點，先練單腳站 20 秒不晃再投。` },
+    { k:'sep', label:'髖肩分離', v:sepMax, s:scoreRange(sepMax,26,50,8,20), fmt:v=>Math.round(v)+'°', ideal:'26–50°',
+      how:'髖部先轉、肩還留住的最大夾角差，是投球速度的來源。',
+      tip:`髖肩分離 ${Math.round(sepMax)}°：練「髖轉、肩不轉」的分解投球，10 球 × 3 組。` },
+    { k:'stride', label:'跨步長度', v:stride, s:scoreRange(stride,.55,1.05,.25,.30), fmt:v=>v.toFixed(2), ideal:'0.55–1.05',
+      how:'啟動到出手兩腳踝中點的水平位移（以軀幹長正規化）。太短＝只用上半身；太長＝重心失控。',
+      tip:`跨步 ${stride.toFixed(2)}：地上畫一條線，要求前腳每次踩同一位置。` },
+    { k:'elbow', label:'手臂路徑', v:elbow, s:scoreRange(elbow,140,172,60,40), fmt:v=>Math.round(v)+'°', ideal:'140–172°',
+      how:'出手瞬間投球手的肘關節伸直程度。太彎＝沒延伸；過直＝壓力大。',
+      tip:`出手時肘部 ${Math.round(elbow)}°：練長傳延伸——接球後手臂先往後拉長再出手。` },
+    { k:'shift', label:'重心前移', v:shift, s:scoreRange(shift,.35,.85,.10,.40), fmt:v=>v.toFixed(2), ideal:'0.35–0.85',
+      how:'從啟動到出手，髖部中心往本壘方向的位移。',
+      tip:`重心前移 ${shift.toFixed(2)}：出手前把胸口往捕手方向壓，不要停在後腳。` },
+    { k:'release', label:'出手高度', v:releaseH, s:Math.round(100*clamp(releaseH,0,1)), fmt:v=>(v*100).toFixed(0)+'%', ideal:'越高越好',
+      how:'出手點相對肩線的高度，看的是有沒有「向上延伸」。',
+      tip:'出手點偏低：出手後手指指向捕手手套，把延伸做滿。' },
+    { k:'finish', label:'收尾平衡', v:finTilt, s:Math.round(100*clamp(.55*finBal + .45*clamp(1-Math.abs(finTilt-25)/30,0,1),0,1)),
+      fmt:v=>'軀幹 '+Math.round(v)+'°', ideal:'胸口朝捕手',
+      how:'出手後身體是否面向捕手、重心留在前腳，這決定控球。',
+      tip:'收尾不穩：出手後停在原地 2 秒，胸口朝向捕手不能歪。' }
+  ], { startT:A.t, peakT:C.t, endT:F.t, startI:w.startI, peakI:w.peakI, endI:w.endI, liftI });
+}
+
+function fieldMetrics(S, wrist, foot){
+  const combined = wrist.map((v,i) => v*0.6 + foot[i]*0.4);
+  const w = findWindow(combined, .15, .30);
+  if (w.peak < .5) throw new Error('看不出明顯的守備移動，請確認影片包含啟動與接球。');
+  const A = S[w.startI], C = S[w.peakI], F = S[w.endI];
+  const inWin = S.slice(w.startI, w.endI+1);
+  const legLen = Math.max(1e-3, (dist(A.P.lHip, A.P.lKnee) + dist(A.P.lKnee, A.P.lAnk))/2);
+  const stance = (A.hipMid.y - A.ankMid.y) / Math.max(1e-3, legLen*2);
+  const firstStep = Math.max(0.05, C.t - A.t);
+  const hipPath = (() => { let p = 0; for (let i=w.startI+1;i<=w.endI;i++) p += dist(S[i].hipMid, S[i-1].hipMid); return p; })();
+  const hipStraight = hipPath > 1e-3 ? dist(S[w.endI].hipMid, S[w.startI].hipMid)/hipPath : 0;
+  const gloveLow = clamp(1 - (Math.min(A.P.lWri.y, A.P.rWri.y) - A.hipMid.y)/Math.max(1e-3, A.scale*1.6), 0, 1);
+  const ys = inWin.map(f => f.hipMid.y), my = median(ys);
+  const hipSd = Math.sqrt(ys.reduce((s,y)=>s+(y-my)**2,0)/ys.length) / Math.max(1e-3, A.scale);
+  const transTime = Math.max(0, F.t - C.t);
+  const finBal = clamp(1 - Math.abs((F.nose.x-F.hipMid.x)/F.scale)/0.6, 0, 1);
+
+  return pack([
+    { k:'stance', label:'預備重心', v:stance, s:scoreRange(-stance,-1.05,-0.85,.35,.35), fmt:v=>(v*100).toFixed(0)+'%', ideal:'蹲低、膝微彎',
+      how:'預備時髖部高度 ÷ 腿長。越接近蹲低越好，站太直第一步會慢。',
+      tip:'預備太高：屁股坐下去、膝蓋微彎，手套放到膝蓋高度。' },
+    { k:'first', label:'第一步啟動', v:firstStep, s:scoreTempoStep(firstStep), fmt:v=>v.toFixed(2)+' 秒', ideal:'0.15–0.30 秒',
+      how:'從開始移動到速度峰值（第一步爆發）的時間。',
+      tip:`第一步 ${firstStep.toFixed(2)} 秒：練「聽到球棒聲就啟動」，不要先墊步。` },
+    { k:'path', label:'移動路徑', v:hipStraight, s:scoreRange(hipStraight,.80,.96,.45,.2), fmt:v=>(v*100).toFixed(0)+'%', ideal:'≥80%',
+      how:'髖部實際移動距離 ÷ 起點到終點直線距離。繞路＝多跑好幾步。',
+      tip:`路徑效率 ${(hipStraight*100).toFixed(0)}%：先跑到球的「前面」再減速，不要邊跑邊修。` },
+    { k:'glove', label:'手套位置', v:gloveLow, s:Math.round(100*clamp(gloveLow,0,1)), fmt:v=>(v*100).toFixed(0)+'%', ideal:'低、手掌朝球',
+      how:'接球前手套相對髖部的高度。手套太高＝下手接不到。',
+      tip:'手套太高：接滾地球時手套要在膝蓋以下，手掌朝球。' },
+    { k:'stable', label:'重心穩定', v:hipSd, s:scoreRange(-hipSd,-0.09,-0.04,.05,.05), fmt:v=>v.toFixed(3), ideal:'≤0.09',
+      how:'移動期間髖部上下起伏（以軀幹長正規化）。起伏太大＝腳步碎、力量漏掉。',
+      tip:`重心起伏 ${hipSd.toFixed(3)}：縮小步幅、保持膝蓋角度不變。` },
+    { k:'transfer', label:'接球到轉傳', v:transTime, s:scoreRange(-transTime,-0.35,-0.18,.25,.25), fmt:v=>v.toFixed(2)+' 秒', ideal:'≤0.35 秒',
+      how:'接球瞬間到下一次手部速度峰值的時間，越短轉傳越快。',
+      tip:`接球到轉傳 ${transTime.toFixed(2)} 秒：練「接球同時轉向」，手套與傳球手不要分兩段。` },
+    { k:'finish', label:'收球平衡', v:finBal, s:Math.round(100*clamp(finBal,0,1)), fmt:v=>(v*100).toFixed(0)+'%', ideal:'收球不晃',
+      how:'動作結束時頭部是否留在髖部上方（不歪不倒）。',
+      tip:'收球會晃：接完球先停住 2 秒，把球拿到胸前再傳。' }
+  ], { startT:A.t, peakT:C.t, endT:F.t, startI:w.startI, peakI:w.peakI, endI:w.endI });
+}
+
+const WMAP = { tempo:.14, sep:.20, shift:.18, path:.16, head:.12, rot:.10, finish:.10,
+               lift:.15, stride:.15, elbow:.15, release:.10,
+               stance:.15, first:.18, glove:.15, stable:.15, transfer:.17 };
+function pack(items, window){
+  let sum = 0, wsum = 0;
+  items.forEach(it => { it.w = WMAP[it.k] ?? .14; sum += it.s*it.w; wsum += it.w; });
+  return { mode: state.mode, total: Math.round(sum/Math.max(1e-6,wsum)), items, window };
+}
+
+/* ---------------- 結果畫面 ---------------- */
+function colorFor(v){ return v>=75 ? '#cbf24c' : v>=55 ? '#ffb020' : '#ff6b5e'; }
+function renderResult(m){
   $('step-result').classList.remove('hide');
   $('scoreNum').textContent = m.total;
-  const arc = 289 * (1 - m.total/100);
   $('ringArc').style.stroke = colorFor(m.total);
-  $('ringArc').setAttribute('stroke-dashoffset', arc.toFixed(1));
+  $('ringArc').setAttribute('stroke-dashoffset', (289*(1-m.total/100)).toFixed(1));
 
-  const weak = Object.keys(m.sub).sort((a,b)=>m.sub[a]-m.sub[b]).slice(0,2);
-  const strong = Object.keys(m.sub).sort((a,b)=>m.sub[b]-m.sub[a])[0];
-  const verdictTxt = m.total >= 80 ? '整體流暢，動作串連得很完整。'
-    : m.total >= 65 ? '有基本串連，但還有明顯可以「省力換速度」的空間。'
-    : m.total >= 50 ? '力量多半來自上半身，下半身還沒真正參與。'
-    : '目前在「用手打球」的階段，先修節奏與髖肩分離，速度會馬上升。';
-  $('verdict').innerHTML = `${verdictTxt}<br><br>最強項：<b>${LABELS[strong]}</b>（${m.sub[strong]}）<br>
-    最該修：<b>${LABELS[weak[0]]}</b>（${m.sub[weak[0]]}）、<b>${LABELS[weak[1]]}</b>（${m.sub[weak[1]]}）`;
+  const sorted = [...m.items].sort((a,b)=>a.s-b.s);
+  const weak = sorted.slice(0,2), strong = sorted[sorted.length-1];
+  const txt = m.total>=80 ? '整體流暢，動作串連得很完整。'
+    : m.total>=65 ? '有基本串連，但還有明顯可以「省力換速度」的空間。'
+    : m.total>=50 ? '力量多半來自上半身，下半身還沒真正參與。'
+    : '還沒串起來，先修節奏與重心，效率會馬上升。';
+  $('verdict').innerHTML = `${txt}<br><br>最強項：<b>${strong.label}</b>（${strong.s}）<br>
+    最該修：<b>${weak[0].label}</b>（${weak[0].s}）、<b>${weak[1].label}</b>（${weak[1].s}）`;
 
   const box = $('metrics'); box.innerHTML = '';
-  Object.keys(LABELS).forEach(k => {
-    const v = m.sub[k], c = colorFor(v);
+  m.items.forEach(it => {
     const row = document.createElement('div'); row.className = 'm';
-    row.innerHTML = `<span>${LABELS[k]}</span><span class="track"><i style="width:${v}%;background:${c}"></i></span><span class="v">${v}</span>`;
+    row.innerHTML = `<span>${it.label}</span><span class="track"><i style="width:${it.s}%;background:${colorFor(it.s)}"></i></span><span class="v">${it.s}</span>`;
     box.appendChild(row);
   });
-  $('howText').textContent = Object.entries(HOW).map(([k,t]) => `${LABELS[k]}：${t}`).join('\n\n');
-  $('howText').style.whiteSpace = 'pre-line';
-
-  const tips = [];
-  const r = m.raw;
-  if (m.sub.tempo < 75) tips.push(`節奏 ${r.tempo.toFixed(2)} 秒：練習「先慢後快」——啟動時只讓髖部轉，手先留著，等髖轉到一半才讓手跟上。`);
-  if (m.sub.sep < 75) tips.push(`髖肩分離只有 ${Math.round(r.sepMax)} 度：做「髖轉、肩不動」的分解練習，每次 10 下 × 3 組，讓上下半身真的分開。`);
-  if (m.sub.shift < 75) tips.push(`重心轉移不足（${r.shift.toFixed(2)}）：啟動時把體重壓到後腳內側，觸球前推到前腳，感覺像「把地面踩穿」。`);
-  if (m.sub.path < 75) tips.push(`手部路徑繞了（效率 ${(r.straight*100).toFixed(0)}%）：把球棒留在身體後面久一點，手先往球的方向直送，不要提早外甩。`);
-  if (m.sub.head < 75) tips.push(`頭部晃動 ${r.headSd.toFixed(3)}：擊球前後眼睛盯住同一個點，頭先不要跟著身體轉。`);
-  if (m.sub.rot < 75) tips.push(`旋轉速度峰值 ${Math.round(r.maxRot)} 度/秒：加入藥球旋轉拋與髖部爆發練習，先把「轉」练成力量。`);
-  if (m.sub.finish < 75) tips.push(`收棒重心不穩：收棒後停在原地 2 秒不能晃，這是平衡與核心的驗收。`);
-  if (!tips.length) tips.push('七項都在標準內：把這段動作當成你的基準，之後每次練習都錄一段比對。');
-  $('tips').innerHTML = tips.slice(0,3).map(t => `<li>${t}</li>`).join('');
-
+  $('howText').textContent = m.items.map(it => `${it.label}：${it.how}｜本次 ${it.fmt(it.v)}，標準 ${it.ideal}`).join('\n\n');
+  $('tips').innerHTML = sorted.slice(0,3).map(it => `<li>${it.tip}</li>`).join('');
   $('step-result').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-/* ---------- 對比影片 ---------- */
+/* ---------------- 雙畫面對比 ---------------- */
 const CMP = { w:720, h:1280 };
-const PHASES = ['準備','啟動','加速','觸球','延伸','收棒'];
-
-function buildComparison(m, frames){
-  $('step-compare').classList.remove('hide');
-  $('phases').innerHTML = PHASES.map((p,i)=>`<span data-i="${i}">${p}</span>`).join('');
-  $('recStatus').textContent = '按「先看一次」預覽，或直接產生影片。';
-  state.metrics = m;
-}
-
 const cmp = $('cmp'), ctx = cmp.getContext('2d');
 cmp.width = CMP.w; cmp.height = CMP.h;
 
-function drawSkeleton(c, f, dx, dy, sc, color, lw){
-  const P = (k) => ({ x: dx + f.P[k].x*sc, y: dy + f.P[k].y*sc });
-  const seg = (a,b) => { c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke(); };
-  c.save(); c.strokeStyle = color; c.lineWidth = lw; c.lineCap = 'round';
-  const pairs = [['lSho','rSho'],['lSho','lElb'],['lElb','lWri'],['rSho','rElb'],['rElb','rWri'],
-                 ['lSho','lHip'],['rSho','rHip'],['lHip','rHip'],['lHip','lKnee'],['lKnee','lAnk'],
-                 ['rHip','rKnee'],['rKnee','rAnk'],['nose','lSho'],['nose','rSho']];
-  pairs.forEach(([a,b]) => seg(P(a), P(b)));
-  c.restore();
-  c.fillStyle = color;
-  ['nose','lWri','rWri','lAnk','rAnk'].forEach(k => {
-    const p = P(k); c.beginPath(); c.arc(p.x, p.y, lw*0.75, 0, Math.PI*2); c.fill();
-  });
+function rot(p, c, deg){
+  const r = deg*Math.PI/180, dx = p.x-c.x, dy = p.y-c.y;
+  return { x: c.x + dx*Math.cos(r) - dy*Math.sin(r), y: c.y + dx*Math.sin(r) + dy*Math.cos(r) };
 }
-
+function drawSkeletonFrom(c, P, dx, dy, sc, color, lw, alpha){
+  const pt = (k) => ({ x: dx + P[k].x*sc, y: dy + P[k].y*sc });
+  const seg = (a,b) => { c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke(); };
+  c.save(); c.globalAlpha = alpha ?? 1; c.strokeStyle = color; c.lineWidth = lw; c.lineCap = 'round';
+  [['lSho','rSho'],['lSho','lElb'],['lElb','lWri'],['rSho','rElb'],['rElb','rWri'],
+   ['lSho','lHip'],['rSho','rHip'],['lHip','rHip'],['lHip','lKnee'],['lKnee','lAnk'],
+   ['rHip','rKnee'],['rKnee','rAnk'],['nose','lSho'],['nose','rSho']].forEach(([a,b]) => seg(pt(a), pt(b)));
+  c.fillStyle = color;
+  ['nose','lWri','rWri','lAnk','rAnk'].forEach(k => { const p = pt(k); c.beginPath(); c.arc(p.x,p.y,lw*0.7,0,Math.PI*2); c.fill(); });
+  c.restore();
+}
+function correctedPose(f, mode){
+  const target = MODES[mode].targetSep;
+  const sign = Math.sign(angDiff(f.shoAng, f.hipAng)) || 1;
+  const delta = (target - (f.sep||0)) * sign;
+  const out = {};
+  for (const k in f.P) out[k] = { ...f.P[k] };
+  const c = f.shoMid;
+  ['lSho','rSho','lElb','rElb','lWri','rWri','nose'].forEach(k => { out[k] = rot(f.P[k], c, delta); });
+  return { P: out, sep: target, shoAng: f.shoAng + delta };
+}
+function roundRect(c,x,y,w,h,r){
+  c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+}
 function phaseOf(prog){
   if (prog < .18) return 0; if (prog < .35) return 1; if (prog < .55) return 2;
-  if (prog < .68) return 3; if (prog < .85) return 4; return 5;
+  if (prog < .70) return 3; if (prog < .86) return 4; return 5;
 }
 
 function drawFrameAt(prog, frameIdx){
   const m = state.metrics, frames = state.frames;
   if (!m || !frames.length) return;
-  const W = CMP.w, H = CMP.h;
+  const W = CMP.w, H = CMP.h, mode = MODES[state.mode];
   ctx.fillStyle = '#0b0f0c'; ctx.fillRect(0,0,W,H);
 
-  // 標題
   ctx.fillStyle = '#cbf24c'; ctx.font = '600 20px "PingFang TC",sans-serif';
-  ctx.fillText('basenefit · AI 揮棒分析', 28, 46);
+  ctx.fillText(`basenefit · ${mode.label}分析`, 24, 42);
   ctx.fillStyle = '#8c9a84'; ctx.font = '14px "PingFang TC",sans-serif';
-  ctx.fillText(`流暢度 ${m.total} / 100`, 28, 72);
+  ctx.fillText(`流暢度 ${m.total} / 100`, 24, 66);
 
-  // 上方：影片＋骨架
-  const vw = W - 56, vh = Math.round(vw * (state.videoH/Math.max(1,state.videoW)) * 0.72);
-  const vx = 28, vy = 96;
-  ctx.save();
-  ctx.beginPath(); roundRect(ctx, vx, vy, vw, vh, 16); ctx.clip();
-  ctx.fillStyle = '#000'; ctx.fillRect(vx, vy, vw, vh);
-  const v = $('vid');
-  let s = 1, dx = vx, dy = vy;
+  const padX = 24, gap = 12, top = 96;
+  const pw = (W - padX*2 - gap)/2, ph = Math.round(pw*1.30);
+  ctx.fillStyle = '#9aa894'; ctx.font = '600 13px "PingFang TC",sans-serif';
+  ctx.fillText('你的動作', padX, top-10);
+  ctx.fillStyle = '#cbf24c'; ctx.fillText('標準動作', padX + pw + gap, top-10);
+
+  const v = $('vid'), f = frames[frameIdx];
+
+  // 左：原片 + 骨架
+  ctx.save(); ctx.beginPath(); roundRect(ctx, padX, top, pw, ph, 14); ctx.clip();
+  ctx.fillStyle = '#000'; ctx.fillRect(padX, top, pw, ph);
+  let s = 1, dx = padX, dy = top;
   try {
-    if (v.readyState >= 2 && v.videoWidth) {
-      s = Math.min(vw / v.videoWidth, vh / v.videoHeight);
-      const dw = v.videoWidth * s, dh = v.videoHeight * s;
-      dx = vx + (vw-dw)/2; dy = vy + (vh-dh)/2;
-      ctx.drawImage(v, dx, dy, dw, dh);
+    if (v.readyState >= 2 && v.videoWidth){
+      s = Math.min(pw/v.videoWidth, ph/v.videoHeight);
+      dx = padX + (pw - v.videoWidth*s)/2; dy = top + (ph - v.videoHeight*s)/2;
+      ctx.drawImage(v, dx, dy, v.videoWidth*s, v.videoHeight*s);
     }
   } catch(e){}
-  const f = frames[frameIdx];
-  if (f){
-    drawSkeleton(ctx, f, dx, dy, s, 'rgba(203,242,76,.95)', 4);
-    // 對比：把「髖線 vs 肩線」畫出來，並標出分離角度與標準區間
-    const hp1 = {x: dx + f.P.lHip.x*s, y: dy + f.P.lHip.y*s};
-    const hp2 = {x: dx + f.P.rHip.x*s, y: dy + f.P.rHip.y*s};
-    const sp1 = {x: dx + f.P.lSho.x*s, y: dy + f.P.lSho.y*s};
-    const sp2 = {x: dx + f.P.rSho.x*s, y: dy + f.P.rSho.y*s};
-    ctx.save();
-    ctx.setLineDash([9,7]); ctx.lineWidth = 3;
-    ctx.strokeStyle = '#5bb8ff';
-    ctx.beginPath();
-    const ext = (a,b) => ({ x: a.x + (b.x-a.x)*1.9, y: a.y + (b.y-a.y)*1.9 });
-    const hx = ext(hp1, hp2);
-    ctx.moveTo(hp1.x - (hp2.x-hp1.x)*0.9, hp1.y - (hp2.y-hp1.y)*0.9); ctx.lineTo(hx.x, hx.y); ctx.stroke();
-    ctx.strokeStyle = '#ff9f43';
-    const sx = ext(sp1, sp2);
-    ctx.beginPath(); ctx.moveTo(sp1.x - (sp2.x-sp1.x)*0.9, sp1.y - (sp2.y-sp1.y)*0.9); ctx.lineTo(sx.x, sx.y); ctx.stroke();
-    ctx.restore();
+  if (f) drawSkeletonFrom(ctx, f.P, dx, dy, s, 'rgba(203,242,76,.95)', 3.2, 1);
+  ctx.restore();
 
-    const sep = Math.abs(f.sep || 0);
-    const inRange = sep >= 24 && sep <= 48;
-    const c = inRange ? '#cbf24c' : '#ff9f43';
-    const bx = vx + 14, by = vy + vh - 46;
-    ctx.fillStyle = 'rgba(11,15,12,.82)';
-    roundRect(ctx, bx, by, 300, 34, 10); ctx.fill();
-    ctx.fillStyle = '#5bb8ff'; ctx.font = '600 13px "PingFang TC",sans-serif';
-    ctx.fillText('髖', bx+10, by+22);
-    ctx.fillStyle = '#ff9f43'; ctx.fillText('肩', bx+34, by+22);
-    ctx.fillStyle = c; ctx.font = '600 14px "PingFang TC",sans-serif';
-    ctx.fillText(`分離 ${Math.round(sep)}° · 標準 24–48°`, bx+60, by+22);
+  // 右：修正後（標準角度）
+  const rx = padX + pw + gap;
+  ctx.save(); ctx.beginPath(); roundRect(ctx, rx, top, pw, ph, 14); ctx.clip();
+  const g = ctx.createLinearGradient(rx, top, rx, top+ph);
+  g.addColorStop(0,'#131a10'); g.addColorStop(1,'#0d120c');
+  ctx.fillStyle = g; ctx.fillRect(rx, top, pw, ph);
+  ctx.strokeStyle = '#1f2a1b'; ctx.lineWidth = 1;
+  for (let yy = top+20; yy < top+ph; yy += 28){ ctx.beginPath(); ctx.moveTo(rx,yy); ctx.lineTo(rx+pw,yy); ctx.stroke(); }
+  if (f){
+    const cp = correctedPose(f, state.mode);
+    const s2 = Math.min(pw/f.W, ph/f.H) * 0.94;
+    const dx2 = rx + (pw - f.W*s2)/2, dy2 = top + (ph - f.H*s2)/2;
+    drawSkeletonFrom(ctx, f.P, dx2, dy2, s2, '#6b7a63', 2.6, .55);
+    drawSkeletonFrom(ctx, cp.P, dx2, dy2, s2, '#cbf24c', 3.4, 1);
+    const cxm = dx2 + f.hipMid.x*s2, cym = dy2 + f.hipMid.y*s2, r = f.scale*s2*0.9;
+    ctx.save(); ctx.setLineDash([7,6]); ctx.lineWidth = 2.4;
+    ctx.strokeStyle = '#5bb8ff';
+    ctx.beginPath(); ctx.moveTo(cxm, cym); ctx.lineTo(cxm + Math.cos(f.hipAng*Math.PI/180)*r, cym + Math.sin(f.hipAng*Math.PI/180)*r); ctx.stroke();
+    const sx2 = dx2 + f.shoMid.x*s2, sy2 = dy2 + f.shoMid.y*s2;
+    ctx.strokeStyle = '#ff9f43';
+    ctx.beginPath(); ctx.moveTo(sx2, sy2); ctx.lineTo(sx2 + Math.cos(cp.shoAng*Math.PI/180)*r*0.85, sy2 + Math.sin(cp.shoAng*Math.PI/180)*r*0.85); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = 'rgba(11,15,12,.86)'; roundRect(ctx, rx+8, top+ph-40, pw-16, 30, 8); ctx.fill();
+    ctx.fillStyle = '#cbf24c'; ctx.font = '600 12.5px "PingFang TC",sans-serif';
+    const inStd = f.sep >= 24 && f.sep <= (state.mode === 'hit' ? 48 : 52);
+    const sepTxt = inStd ? `髖肩分離 ${Math.round(f.sep)}°（已在標準內）`
+                         : `髖肩分離 ${Math.round(f.sep)}° → ${MODES[state.mode].targetSep}°`;
+    ctx.fillText(sepTxt, rx+16, top+ph-19);
   }
   ctx.restore();
 
-  // 標準角度示意（觸球框）
-  const label = PHASES[phaseOf(prog)];
-  ctx.fillStyle = '#141912'; roundRect(ctx, 28, vy+vh+14, W-56, 92, 14); ctx.fill();
+  // 階段
+  const py = top + ph + 16;
+  const p = phaseOf(prog);
+  ctx.fillStyle = '#141912'; roundRect(ctx, padX, py, W-padX*2, 66, 12); ctx.fill();
   ctx.strokeStyle = '#2a3327'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.fillStyle = '#8c9a84'; ctx.font = '13px "PingFang TC",sans-serif';
-  ctx.fillText('階段', 46, vy+vh+42);
-  ctx.fillStyle = '#cbf24c'; ctx.font = '700 22px "PingFang TC",sans-serif';
-  ctx.fillText(label, 46, vy+vh+74);
-  const target = { 0:'髖肩同步蓄力', 1:'髖先動、肩留住', 2:'髖肩分離 24–48°', 3:'手直送、頭不動', 4:'延伸、不繞棒', 5:'收棒停穩 2 秒' }[phaseOf(prog)];
-  ctx.fillStyle = '#d3dfc7'; ctx.font = '15px "PingFang TC",sans-serif';
-  ctx.fillText(target, 150, vy+vh+66);
+  ctx.fillStyle = '#8c9a84'; ctx.font = '12px "PingFang TC",sans-serif'; ctx.fillText('階段', padX+14, py+26);
+  ctx.fillStyle = '#cbf24c'; ctx.font = '700 20px "PingFang TC",sans-serif'; ctx.fillText(mode.phases[p], padX+14, py+52);
+  ctx.fillStyle = '#d3dfc7'; ctx.font = '14px "PingFang TC",sans-serif'; ctx.fillText(mode.phaseHints[p], padX+96, py+46);
 
-  // 下方：指標條
-  const keys = Object.keys(LABELS);
-  const baseY = vy+vh+130;
-  ctx.fillStyle = '#eef3e6'; ctx.font = '600 16px "PingFang TC",sans-serif';
-  ctx.fillText('你的分項', 28, baseY);
-  keys.forEach((k,i) => {
-    const y = baseY + 26 + i*42;
-    ctx.fillStyle = '#8c9a84'; ctx.font = '14px "PingFang TC",sans-serif';
-    ctx.fillText(LABELS[k], 28, y+4);
-    const bx = 130, bw = W - 200, v = m.sub[k];
-    ctx.fillStyle = '#232b20'; roundRect(ctx, bx, y-9, bw, 12, 6); ctx.fill();
-    ctx.fillStyle = colorFor(v); roundRect(ctx, bx, y-9, bw*v/100, 12, 6); ctx.fill();
-    ctx.fillStyle = '#cfdcc2'; ctx.font = '13px ui-monospace,Menlo,monospace';
-    ctx.fillText(String(v), W-58, y+2);
+  // 分項
+  const by = py + 82;
+  ctx.fillStyle = '#eef3e6'; ctx.font = '600 15px "PingFang TC",sans-serif';
+  ctx.fillText('你的分項', padX, by);
+  m.items.slice(0,7).forEach((it,i) => {
+    const y = by + 22 + i*34;
+    ctx.fillStyle = '#8c9a84'; ctx.font = '13px "PingFang TC",sans-serif';
+    ctx.fillText(it.label, padX, y+3);
+    const bx = padX + 104, bw = W - padX*2 - 150;
+    ctx.fillStyle = '#232b20'; roundRect(ctx, bx, y-7, bw, 10, 5); ctx.fill();
+    ctx.fillStyle = colorFor(it.s); roundRect(ctx, bx, y-7, bw*it.s/100, 10, 5); ctx.fill();
+    ctx.fillStyle = '#cfdcc2'; ctx.font = '12px ui-monospace,Menlo,monospace';
+    ctx.fillText(String(it.s), W-padX-24, y+3);
   });
-  // 進度條
-  ctx.fillStyle = '#232b20'; ctx.fillRect(28, H-34, W-56, 5);
-  ctx.fillStyle = '#cbf24c'; ctx.fillRect(28, H-34, (W-56)*clamp(prog,0,1), 5);
-}
-function roundRect(c,x,y,w,h,r){
-  c.beginPath();
-  c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
-  c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+
+  ctx.fillStyle = '#232b20'; ctx.fillRect(padX, H-30, W-padX*2, 5);
+  ctx.fillStyle = '#cbf24c'; ctx.fillRect(padX, H-30, (W-padX*2)*clamp(prog,0,1), 5);
 }
 
-/* 取樣：把影片時間對到最近的骨架幀 */
 function frameIndexForTime(t){
   const fr = state.frames; if (!fr.length) return 0;
   let best = 0, bd = Infinity;
   for (let i=0;i<fr.length;i++){ const d = Math.abs(fr[i].t - t); if (d < bd){ bd = d; best = i; } }
   return best;
 }
-
-async function playPreview(){
+async function playWindow(){
   const v = $('vid'), m = state.metrics;
-  if (!m) return;
-  v.muted = true; v.playbackRate = 0.5;
-  const t0 = m.window.startT - 0.35, t1 = m.window.endT + 0.35;
-  v.currentTime = Math.max(0, t0);
+  const t0 = Math.max(0, m.window.startT - 0.35), t1 = m.window.endT + 0.35;
+  v.muted = true; v.playbackRate = 0.5; v.currentTime = t0;
   await v.play().catch(()=>{});
-  $('recStatus').textContent = '播放中（0.5 倍速）…';
   return new Promise(res => {
     const tick = () => {
-      if (v.paused || v.ended || v.currentTime >= t1){
-        v.pause(); $('recStatus').textContent = '預覽結束。'; res(); return;
-      }
-      const prog = clamp((v.currentTime - t0) / Math.max(.1, t1 - t0), 0, 1);
+      if (v.paused || v.ended || v.currentTime >= t1){ v.pause(); res(); return; }
+      const prog = clamp((v.currentTime - t0)/Math.max(.1, t1-t0), 0, 1);
       drawFrameAt(prog, frameIndexForTime(v.currentTime));
       const p = phaseOf(prog);
       document.querySelectorAll('#phases span').forEach((el,i)=>el.classList.toggle('on', i===p));
@@ -642,53 +733,132 @@ async function playPreview(){
     requestAnimationFrame(tick);
   });
 }
-$('playBtn').onclick = playPreview;
+$('playBtn').onclick = async () => {
+  if (!state.metrics) return;
+  $('recStatus').textContent = '播放中（0.5 倍速）…';
+  await playWindow();
+  $('recStatus').textContent = '預覽結束。';
+};
 
 async function recordComparison(){
   const m = state.metrics; if (!m) return;
   if (!window.MediaRecorder){ $('recStatus').textContent = '這個瀏覽器不支援影片錄製，請改用截圖或 Safari 最新版。'; return; }
   if (typeof cmp.captureStream !== 'function'){ $('recStatus').textContent = '這個瀏覽器不支援 Canvas 錄影（captureStream），請改用 Safari／Chrome 最新版。'; return; }
-  const v = $('vid');
-  const stream = cmp.captureStream(30);
-  let mime = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4']
-    .find(t => MediaRecorder.isTypeSupported(t));
+  const mime = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'].find(t => MediaRecorder.isTypeSupported(t));
   if (!mime){ $('recStatus').textContent = '此瀏覽器不支援可用的錄影格式。'; return; }
-  const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 3_500_000 });
-  const chunks = [];
-  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  const rec = new MediaRecorder(cmp.captureStream(30), { mimeType: mime, videoBitsPerSecond: 3_500_000 });
+  const chunks = []; rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
   const done = new Promise(res => rec.onstop = res);
   rec.start(200);
   $('recStatus').innerHTML = '<span class="spinner"></span> 錄製中，請不要切換頁面…';
-
-  v.muted = true; v.playbackRate = 0.5;
-  const t0 = m.window.startT - 0.35, t1 = m.window.endT + 0.35;
-  v.currentTime = Math.max(0, t0);
-  await v.play().catch(()=>{});
-  await new Promise(res => {
-    const tick = () => {
-      if (v.paused || v.ended || v.currentTime >= t1){ v.pause(); res(); return; }
-      const prog = clamp((v.currentTime - t0)/Math.max(.1, t1 - t0), 0, 1);
-      drawFrameAt(prog, frameIndexForTime(v.currentTime));
-      const p = phaseOf(prog);
-      document.querySelectorAll('#phases span').forEach((el,i)=>el.classList.toggle('on', i===p));
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  });
+  await playWindow();
   await new Promise(r => setTimeout(r, 300));
   rec.stop(); await done;
-
-  if (!chunks.length){ $('recStatus').textContent = '錄製失敗（沒有取得任何畫面資料）。請改用 Chrome／Safari 最新版，或先看預覽。'; return; }
+  if (!chunks.length){ $('recStatus').textContent = '錄製失敗（沒有取得畫面資料）。請改用 Chrome／Safari 最新版。'; return; }
   const blob = new Blob(chunks, { type: mime.split(';')[0] });
   const url = URL.createObjectURL(blob);
   const a = $('dl');
-  a.href = url;
-  a.download = `swing-comparison-${Date.now()}.${mime.includes('mp4') ? 'mp4' : 'webm'}`;
+  a.href = url; a.download = `analysis-${state.mode}-${Date.now()}.${mime.includes('mp4')?'mp4':'webm'}`;
   a.classList.remove('hide');
   $('recStatus').innerHTML = `完成（${(blob.size/1048576).toFixed(1)} MB）。<a href="${url}" download="${a.download}" style="color:var(--lime)">下載</a>`;
   a.click();
 }
 $('recBtn').onclick = recordComparison;
+
+/* ---------------- 職業示範動作（YouTube · 0.25×） ---------------- */
+const PRO = [
+  { mode:'pitch', who:'大谷翔平', en:'SHOHEI OHTANI · PITCHING', id:'ZZO2-C-_tX4',
+    note:'FanGraphs 慢動作：握球與投球機制，對照髖肩分離與出手延伸' },
+  { mode:'hit', who:'Mike Trout', en:'MIKE TROUT · BATTING', id:'lX_dm39fkfw',
+    note:'10000fps 高速攝影：揮棒路徑、髖肩分離與收棒' },
+  { mode:'field', who:'江坤宇', en:'CHIANG KUN-YU · FIELDING', id:'qkKoxwvbkwA',
+    note:'中信兄弟官方頻道：游擊美技守備合輯，對照啟動、手套位置與轉傳' }
+];
+const proPlayers = {};
+let ytPromise = null;
+
+function loadYTApi(){
+  if (window.YT && window.YT.Player) return Promise.resolve(true);
+  if (ytPromise) return ytPromise;
+  ytPromise = new Promise(resolve => {
+    window.__ytCbs = window.__ytCbs || [];
+    window.__ytCbs.push(() => resolve(true));
+    if (!window.onYouTubeIframeAPIReady){
+      window.onYouTubeIframeAPIReady = () => { (window.__ytCbs||[]).forEach(f=>f()); window.__ytCbs = []; };
+    }
+    if (!document.getElementById('yt-api')){
+      const s = document.createElement('script');
+      s.id = 'yt-api'; s.src = 'https://www.youtube.com/iframe_api';
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+    }
+    setTimeout(() => resolve(!!(window.YT && window.YT.Player)), 8000);
+  });
+  return ytPromise;
+}
+
+function renderPro(){
+  const box = $('proList'); if (!box) return;
+  box.innerHTML = '';
+  PRO.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'item' + (p.mode === state.mode ? ' active' : '');
+    el.innerHTML = `<div class="head"><b>${p.who}</b><em>${p.en}</em></div>
+      <div class="note">${p.note}　<a href="https://www.youtube.com/watch?v=${p.id}" target="_blank" rel="noopener" style="color:var(--lime)">在 YouTube 開啟</a></div>
+      <button class="thumb" type="button" aria-label="載入 ${p.who} 影片">
+        <img src="https://i.ytimg.com/vi/${p.id}/hqdefault.jpg" alt="${p.who}" loading="lazy">
+        <span class="play">▶</span><span class="tag">0.25× 慢動作</span>
+      </button>
+      <div class="ctl" hidden>
+        <button data-rate="0.25" class="on">0.25×</button>
+        <button data-rate="0.5">0.5×</button>
+        <button data-rate="1">1×</button>
+        <button data-act="replay">重播</button>
+      </div>`;
+    box.appendChild(el);
+    el.querySelector('.thumb').onclick = () => mountPro(i);
+    el.querySelectorAll('.ctl button').forEach(b => b.onclick = () => proControl(i, b));
+  });
+  window.__proReady = true;
+}
+function syncProActive(){
+  const box = $('proList'); if (!box) return;
+  [...box.children].forEach((el,i) => el.classList.toggle('active', PRO[i] && PRO[i].mode === state.mode));
+}
+
+async function mountPro(i){
+  const p = PRO[i], item = $('proList').children[i];
+  if (proPlayers[i]){ try { proPlayers[i].playVideo(); } catch(e){} return; }
+  const ok = await loadYTApi();
+  const thumb = item.querySelector('.thumb');
+  const holder = document.createElement('div');
+  holder.className = 'player'; holder.id = 'ytp' + i;
+  if (thumb) thumb.replaceWith(holder);
+  item.querySelector('.ctl').hidden = false;
+  if (!ok){
+    $('proStatus').innerHTML = `<span style="color:var(--warn)">YouTube 播放器載入失敗（網路或瀏覽器阻擋），請點上面「在 YouTube 開啟」。</span>`;
+    return;
+  }
+  proPlayers[i] = new YT.Player('ytp' + i, {
+    videoId: p.id,
+    playerVars: { playsinline:1, rel:0, modestbranding:1, origin: location.origin },
+    events: {
+      onReady: e => { try { e.target.setPlaybackRate(0.25); e.target.playVideo(); } catch(err){} 
+        $('proStatus').textContent = `已載入：${p.who}（0.25× 慢動作）`; }
+    }
+  });
+}
+function proControl(i, btn){
+  const pl = proPlayers[i]; if (!pl) return;
+  if (btn.dataset.rate){
+    const r = parseFloat(btn.dataset.rate);
+    try { pl.setPlaybackRate(r); } catch(e){}
+    btn.parentElement.querySelectorAll('button[data-rate]').forEach(b => b.classList.toggle('on', b === btn));
+  } else if (btn.dataset.act === 'replay'){
+    try { pl.seekTo(0, true); pl.playVideo(); } catch(e){}
+  }
+}
+renderPro();
 </script>
 </body>
 </html>
