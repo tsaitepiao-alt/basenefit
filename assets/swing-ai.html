@@ -97,6 +97,18 @@
   #trajectory-summary{font-size:14px;line-height:1.8;white-space:pre-line}
   .trajectory-marking{outline:3px solid #ffd166;cursor:crosshair}
   #trajectory-navigation{position:sticky;top:0;z-index:3;padding:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;margin:8px 0}
+  .world-tabs{display:flex;gap:8px;margin:12px 0}
+  .world-tabs button{flex:1;min-height:48px;border:1px solid var(--lime);border-radius:12px;background:transparent;color:var(--lime);font-family:inherit;font-size:15px;font-weight:700;padding:10px;cursor:pointer}
+  .world-tabs button[aria-selected=true]{background:var(--lime);color:#141412}
+  .world-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .world-grid>div{min-width:0}
+  .world-grid h3{font-size:15px;margin:8px 0;color:#d9e9d2}
+  .world-note{font-size:14px;line-height:1.8;color:#c4d4bc;margin:10px 0}
+  .world-values{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+  .world-values span{border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--lime);font-size:15px}
+  #world-navigation{position:sticky;top:0;z-index:3;background:var(--card);padding:8px;border:1px solid var(--line);border-radius:10px}
+  #world-angle-chart{cursor:crosshair}
+  @media(max-width:620px){.world-grid{grid-template-columns:1fr}}
   #feedback-copy{width:auto;min-height:44px}
   #feedback-status{white-space:pre-line;overflow-wrap:anywhere}
   .metrics{display:grid;gap:11px;margin-top:6px}
@@ -140,7 +152,7 @@
 <body>
 <div class="eyebrow">AI MOTION ANALYSIS</div>
 <h1>AI 動作分析</h1>
-<p class="lead">選一項（投球／打擊／守備），選一段 3–8 秒影片。保留<b>總分與分項評分</b>，再用慢放、逐格、身體部位與<b>移動軌跡和方向箭頭</b>看懂重點。球路或棒頭可逐格手動標記。<b>影片不會上傳到任何伺服器。</b></p>
+<p class="lead">選一項（投球／打擊／守備），選一段 3–8 秒影片。保留<b>總分與分項評分</b>，可同步看原片、<b>可旋轉的 3D 骨架、相對軌跡與肘膝角度曲線</b>。3D 數據是手機影像估測；球路或棒頭維持逐格手動標記。<b>影片不會上傳到任何伺服器。</b></p>
 
 <div class="card" id="step-mode">
   <h2><span class="num">1</span>選分析項目</h2>
@@ -237,8 +249,22 @@
     <p class="small">圓點是起點，箭頭依時間往終點走。這是固定拍攝角度看到的路線；彎曲或交叉不直接代表動作錯誤。自動辨識中斷時，軌跡會斷開。</p>
   </details>
   <div id="trajectory-navigation" class="review-buttons hide"><button id="trajectory-manual-prev" class="btn ghost sm" type="button">上一格</button><button id="trajectory-manual-next" class="btn ghost sm" type="button">下一格，繼續標</button><button id="trajectory-manual-done" class="btn ghost sm" type="button">完成標記</button></div>
+  <div class="world-tabs" role="tablist" aria-label="選擇動作檢視"><button id="world-tab-2d" type="button" role="tab" aria-selected="true" aria-controls="cmp">影片與路徑</button><button id="world-tab-3d" type="button" role="tab" aria-selected="false" aria-controls="world-panel">3D 骨架與角度</button></div>
+  <section id="world-panel" class="hide" role="tabpanel" aria-labelledby="world-tab-3d">
+    <p class="world-note"><b>手機影像估測：</b>拖曳骨架可旋轉，原影片與曲線跟著同一時間回放。3D 軌跡以髖部為原點，不代表球場移動距離、球速或棒速。目前以 24 fps 抽樣；放慢播放不會補回原片未拍到的細節。</p>
+    <div id="world-navigation" class="review-buttons"><button id="world-prev" class="btn ghost sm" type="button">上一格</button><button id="world-play" class="btn ghost sm" type="button">慢放</button><button id="world-next" class="btn ghost sm" type="button">下一格</button></div>
+    <div class="world-grid"><div><h3>原影片｜同一時間</h3><canvas id="world-source" width="720" height="560" aria-label="與3D骨架同步的原始影片"></canvas></div><div><h3>3D 骨架｜模型估測</h3><canvas id="world-view" width="720" height="560" tabindex="0" aria-label="拖曳旋轉估測3D骨架，方向鍵可旋轉"></canvas></div></div>
+    <div class="review-buttons" style="margin:12px 0"><button id="world-front" class="btn ghost sm" type="button">原向檢視</button><button id="world-side" class="btn ghost sm" type="button">側轉 90°</button><button id="world-top" class="btn ghost sm" type="button">上方看</button><button id="world-reset" class="btn ghost sm" type="button">重設視角</button><button id="world-zoom-in" class="btn ghost sm" type="button">放大</button><button id="world-zoom-out" class="btn ghost sm" type="button">縮小</button></div>
+    <div class="review-tools"><label for="world-trail">相對髖部的 3D 路線</label><select id="world-trail"><option value="rWri">右手腕</option><option value="lWri">左手腕</option><option value="rAnk">右腳踝</option><option value="lAnk">左腳踝</option><option value="none">不顯示軌跡</option></select>
+      <label for="world-range">3D 軌跡範圍</label><select id="world-range"><option value="entire">整段已記錄路線</option><option value="until">起點到目前這格</option><option value="recent">目前之前 0.75 秒</option></select>
+      <label for="world-angle">關節屈曲角度｜伸直為 0°</label><select id="world-angle"><option value="rightElbow">右肘屈曲</option><option value="leftElbow">左肘屈曲</option><option value="rightKnee">右膝屈曲</option><option value="leftKnee">左膝屈曲</option></select></div>
+    <div class="world-values"><span id="world-current">學員：—</span><span id="world-reference-current">示範：—</span></div>
+    <canvas id="world-angle-chart" width="720" height="300" aria-label="影像估測的關節角度與時間曲線，點擊可回看對應時間"></canvas>
+    <div id="world-status" class="review-guide" role="status"></div>
+    <p class="world-note">青色為學員，橘色為已確認的示範。曲線缺資料處會斷開；3D 曲線不另行打分，既有參考評分保留。角度不是測力或受傷風險判定。球與棒頭的手動標記維持在「影片與路徑」，不補造 3D 深度。</p>
+  </section>
   <canvas id="cmp" width="720" height="1280"></canvas>
-  <div class="legend"><span><i style="background:#5bd8ff"></i>學員身體部位</span><span><i style="background:#ffb45c"></i>教練示範部位</span><span><i style="background:#ff79bf"></i>已對齊環節的位置差距</span></div>
+  <div class="legend" id="review-legend"><span><i style="background:#5bd8ff"></i>學員身體部位</span><span><i style="background:#ffb45c"></i>教練示範部位</span><span><i style="background:#ff79bf"></i>已對齊環節的位置差距</span></div>
   <div class="review-guide" id="review-callout" role="status" aria-live="polite"></div>
   <details id="reference-panel"><summary>加入教練示範，對齊同一個環節比較</summary>
     <p>選一段同視角、全身入鏡的示範影片，再把兩邊停在同一個環節，例如「前腳落地」。確認後才顯示位置差距。職業示範仍可在第 6 步觀看。</p>
@@ -280,11 +306,14 @@
 <script type="module">
 import {JOINT_LABELS,SKELETON_SEGMENTS,pointVisible,nearestFrame,fitFrame,bodyTransform,projectPoint,comparePose} from './motion-review.js?v=1';
 import {TRAJECTORY_LABELS,buildTrajectory,directionSummary,annotationPoint} from './motion-trajectory.js?v=1';
+import {readWorldPose,metrics3D,buildAngleSeries,buildWorldTrail} from './motion-3d-data.js?v=1';
+import {createMotion3DView} from './motion-3d-view.js?v=1';
+import {drawAngleChart,timeAtChartClick} from './motion-3d-chart.js?v=1';
 /* =========================================================================
-   basenefit · AI 動作分析 v4 · 移動軌跡、方向與手動物件標記
+   basenefit · AI 動作分析 v5 · 手機 3D 影像估測與同步角度曲線
    模式：打擊 / 投球 / 守備（各自指標、階段與偵測點）
    分析：MediaPipe PoseLandmarker（按下去才載入）→ 3 幀平滑 → 區間偵測 → 指標
-   輸出：720×1280，原影片部位標示／已對齊示範差距＋練習提醒 → MediaRecorder
+   輸出：720×1280，影片路徑或原片＋3D骨架＋角度曲線＋練習提醒 → MediaRecorder
    ========================================================================= */
 const VISION_VER = '0.10.14';
 const CDN = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${VISION_VER}`;
@@ -295,7 +324,8 @@ const $ = (id) => document.getElementById(id);
 const state = { mode:'hit', file:null, url:null, frames:[], metrics:null, feedback:null, analysisId:0, playbackId:0, playing:false, analysing:false, videoW:0, videoH:0,
   reviewFocus:null, reviewTime:0, renderId:0, studentAnchor:null,
   reference:{file:null,url:null,frames:[],mode:null,id:0,busy:false,anchor:null},analysisDuration:0,
-  trajectory:{marking:false,manual:{ball:[],batTip:[]},history:[],summary:''} };
+  trajectory:{marking:false,manual:{ball:[],batTip:[]},history:[],summary:''},worldTab:'2d' };
+let worldView=null,worldChartState=null;
 window.__swing = state;
 
 /* ---------------- 模式 ---------------- */
@@ -338,6 +368,11 @@ function clearAnalysis(){
   state.analysing = false; state.renderId++; state.reviewFocus = null; state.studentAnchor = null;
   state.referenceViewTime = null; state.reviewTime = 0;
   state.analysisDuration=0;state.trajectory={marking:false,manual:{ball:[],batTip:[]},history:[],summary:''};
+  state.worldTab='2d';worldView?.reset();worldChartState=null;
+  $('world-panel').classList.add('hide');$('cmp').classList.remove('hide');$('world-tab-2d').setAttribute('aria-selected','true');$('world-tab-3d').setAttribute('aria-selected','false');
+  $('trajectory-panel').classList.remove('hide');$('review-legend').classList.remove('hide');$('review-callout').classList.remove('hide');
+  for(const id of ['world-source','world-angle-chart']){const canvas=$(id);canvas.getContext('2d')?.clearRect(0,0,canvas.width,canvas.height);}
+  $('world-current').textContent='學員：—';$('world-reference-current').textContent='示範：—';$('world-status').textContent='完成分析後顯示可靠的 3D 資料。';
   $('cmp').classList.remove('trajectory-marking');
   if(state.exportUrl){URL.revokeObjectURL(state.exportUrl);state.exportUrl=null;}
   $('ref-confirm').checked = false; updateAnchorStatus();
@@ -468,7 +503,7 @@ async function analyse(){
         const core = (P.lSho.v + P.rSho.v + P.lHip.v + P.rHip.v)/4;
         if (core > .4){
           const shoMid = mid(P.lSho, P.rSho), hipMid = mid(P.lHip, P.rHip);
-          frames.push({ t, W, H, P, shoMid, hipMid, scale: Math.max(20, dist(shoMid, hipMid)),
+          frames.push({ t, W, H, P,world:readWorldPose(res), shoMid, hipMid, scale: Math.max(20, dist(shoMid, hipMid)),
             shoAng: ang(P.lSho, P.rSho), hipAng: ang(P.lHip, P.rHip),
             sep: Math.abs(angDiff(ang(P.lSho, P.rSho), ang(P.lHip, P.rHip))) });
         }
@@ -1024,7 +1059,7 @@ function updateTrajectorySummary(series){
 }
 function changeTrajectory(){pauseReview();state.trajectory.marking=false;updateTrajectoryControls();showReviewTime(state.reviewTime);}
 for(const id of ['trajectory-kind','trajectory-hand','trajectory-range','trajectory-enabled'])$(id).onchange=changeTrajectory;
-$('trajectory-mark').onclick=()=>{pauseReview();if(!manualTrajectoryKind()||!state.metrics)return;state.trajectory.marking=!state.trajectory.marking;$('trajectory-enabled').checked=true;updateTrajectoryControls();if(state.trajectory.marking)cmp.scrollIntoView({behavior:'smooth',block:'center'});};
+$('trajectory-mark').onclick=()=>{pauseReview();if(!manualTrajectoryKind()||!state.metrics)return;if(state.worldTab!=='2d')setWorldTab('2d');state.trajectory.marking=!state.trajectory.marking;$('trajectory-enabled').checked=true;updateTrajectoryControls();if(state.trajectory.marking)cmp.scrollIntoView({behavior:'smooth',block:'center'});};
 $('trajectory-manual-prev').onclick=()=>reviewStep(-1);
 $('trajectory-manual-next').onclick=()=>reviewStep(1);
 $('trajectory-manual-done').onclick=()=>{state.trajectory.marking=false;updateTrajectoryControls();};
@@ -1040,6 +1075,99 @@ cmp.onclick=event=>{
   if(same>=0)points[same]=next;else points.push(next);points.sort((a,b)=>a.t-b.t);
   updateTrajectoryControls();showReviewTime(state.reviewTime);
 };
+
+const WORLD_ANGLE_NAMES={leftElbow:'左肘屈曲',rightElbow:'右肘屈曲',leftKnee:'左膝屈曲',rightKnee:'右膝屈曲'};
+function getWorldView(){
+  if(!worldView)worldView=createMotion3DView($('world-view'));
+  return worldView;
+}
+function setWorldTab(tab,{redraw=true}={}){
+  pauseReview();state.worldTab=tab==='3d'?'3d':'2d';const enabled=state.worldTab==='3d';
+  state.trajectory.marking=false;updateTrajectoryControls();
+  $('world-panel').classList.toggle('hide',!enabled);$('cmp').classList.toggle('hide',enabled);
+  $('trajectory-panel').classList.toggle('hide',enabled);$('trajectory-navigation').classList.add('hide');
+  $('review-legend').classList.toggle('hide',enabled);$('review-callout').classList.toggle('hide',enabled);
+  $('world-tab-2d').setAttribute('aria-selected',String(!enabled));$('world-tab-3d').setAttribute('aria-selected',String(enabled));
+  $('recBtn').textContent=enabled?'下載 3D 估測與角度影片':'下載動作與練習提醒';
+  if(enabled)getWorldView();
+  if(redraw&&state.metrics)return showReviewTime(state.reviewTime);
+}
+function setupWorldPanel(){
+  $('world-angle').value=state.mode==='field'?'rightKnee':'rightElbow';
+  $('world-trail').value=state.mode==='field'?'rAnk':state.mode==='pitch'?$('trajectory-hand').value||'rWri':'rWri';
+  const count=state.frames.filter(f=>f.world?.estimated===true&&Object.keys(f.world.P||{}).length>=3).length;
+  $('world-status').textContent=count>=3?`已取得 ${count} 格模型估計 3D 資料；仍需對照原影片確認。`:'這段沒有足夠可靠的 3D 座標；2D 評分與軌跡仍可使用。';
+  setWorldTab(count>=3?'3d':'2d',{redraw:false});
+}
+function mirroredWorld(pose){
+  if(!pose)return null;const P={};
+  for(const key of Object.keys(JOINT_LABELS)){const p=pose.P?.[mirrorKey(key)];if(p)P[key]={...p,x:-p.x};}
+  return {...pose,P};
+}
+function mirroredAngle(key){return key.startsWith('left')?'right'+key.slice(4):key.startsWith('right')?'left'+key.slice(5):key;}
+function clipWorldSeries(series,offset){
+  return series.map(segment=>segment.filter(point=>point.t+offset>=0&&point.t+offset<=reviewEndTime())).filter(segment=>segment.length);
+}
+function worldTrailRange(time,frames){
+  const kind=$('world-range').value;
+  return {from:kind==='recent'?Math.max(0,time-.75):0,to:kind==='entire'?(frames[frames.length-1]?.t||0):time};
+}
+function renderWorldPanel(frame,referenceFrame){
+  if(state.worldTab!=='3d')return;
+  const pose=frame?.world||null,angle=$('world-angle').value||'rightElbow',joint=$('world-trail').value||'rWri';
+  const mirror=$('ref-mirror').checked,ref=state.reference;
+  const confirmed=ref.mode===state.mode&&state.studentAnchor!==null&&ref.anchor!==null&&$('ref-confirm').checked;
+  const sameKey=confirmed&&Math.abs(state.reviewTime-state.studentAnchor)<=FRAME_TOLERANCE&&state.referenceViewTime!==null&&Math.abs(state.referenceViewTime-ref.anchor)<=FRAME_TOLERANCE;
+  const core=world=>['lSho','rSho','lHip','rHip'].every(key=>world?.P?.[key]);
+  let comparison=sameKey&&core(pose)&&core(referenceFrame?.world)?referenceFrame.world:null;
+  if(mirror)comparison=mirroredWorld(comparison);
+  const range=worldTrailRange(state.reviewTime,state.frames);
+  const trail=joint==='none'?[]:buildWorldTrail(state.frames,{joint,...range});
+  let referenceTrail=[];
+  if(comparison&&joint!=='none'){
+    const refRange=worldTrailRange(state.referenceViewTime,ref.frames);
+    referenceTrail=buildWorldTrail(ref.frames,{joint:mirror?mirrorKey(joint):joint,...refRange});
+    if(mirror)referenceTrail=referenceTrail.map(path=>path.map(p=>({...p,x:-p.x})));
+  }
+  getWorldView().setPose(pose,{reference:comparison,trail,referenceTrail,label:'3D 骨架｜影像估測 · '+state.reviewTime.toFixed(2)+' 秒'});
+  const source=$('world-source'),sourceCtx=source.getContext('2d'),video=$('vid');
+  sourceCtx.clearRect(0,0,source.width,source.height);sourceCtx.fillStyle='#09110b';sourceCtx.fillRect(0,0,source.width,source.height);
+  if(video.readyState>=2&&video.videoWidth){const fit=fitFrame(video.videoWidth,video.videoHeight,{x:0,y:42,w:source.width,h:source.height-42});sourceCtx.drawImage(video,fit.dx,fit.dy,video.videoWidth*fit.scale,video.videoHeight*fit.scale);}
+  sourceCtx.fillStyle='#dcebd7';sourceCtx.font='20px system-ui';sourceCtx.fillText('原影片 · '+state.reviewTime.toFixed(2)+' 秒',20,29);
+  const series=buildAngleSeries(state.frames,{key:angle}),offset=confirmed?state.studentAnchor-ref.anchor:0;
+  const referenceSeries=confirmed?clipWorldSeries(buildAngleSeries(ref.frames,{key:mirror?mirroredAngle(angle):angle}),offset):[];
+  worldChartState=drawAngleChart($('world-angle-chart'),{series,referenceSeries,time:state.reviewTime,label:WORLD_ANGLE_NAMES[angle]+'（3D 估測）',referenceOffset:offset});
+  const values=metrics3D(pose),value=values[angle];
+  $('world-current').textContent='學員：'+(Number.isFinite(value)?value.toFixed(1)+'°（估測）':'這格角度不足');
+  $('world-reference-current').textContent='示範：'+(Number.isFinite(worldChartState.referenceValue)?worldChartState.referenceValue.toFixed(1)+'°（時間對照）':'—');
+  const reliable=pose?.estimated===true&&Object.keys(pose.P||{}).length>=3;
+  let status=!reliable?'這格沒有可靠的 3D 座標，骨架與角度留空；原影片和既有評分仍可回看。':comparison?'已在確認的同一關鍵點顯示學員與教練的 3D 骨架。角度與路線均為影像估測，請教練對照原片。':confirmed?'已顯示學員 3D 估測；橘色曲線依關鍵點對齊時間，示範骨架只在已確認的關鍵點疊合。':'已顯示學員 3D 估測。拖曳看不同方向、點角度曲線回看；加入並確認教練示範後，可在同環節比較。';
+  if(reliable&&Object.keys(pose.P).length<13)status+=' 只顯示可辨識的部位，其餘留空。';
+  if(reliable&&joint!=='none'&&trail.reduce((sum,path)=>sum+path.length,0)<3)status+=' 所選 3D 軌跡資料不足，先留空。';
+  if($('world-status').textContent!==status)$('world-status').textContent=status;
+  drawWorldExport(value,worldChartState.referenceValue);
+}
+function drawWorldExport(value,referenceValue){
+  ctx.clearRect(0,0,CMP.w,CMP.h);ctx.fillStyle='#0b0f0c';ctx.fillRect(0,0,CMP.w,CMP.h);
+  ctx.fillStyle='#cbf24c';ctx.font='700 24px "PingFang TC",sans-serif';ctx.fillText('basenefit · '+MODES[state.mode].label+' 3D 影像估測',24,38);
+  ctx.fillStyle='#cad9c0';ctx.font='18px "PingFang TC",sans-serif';const total=scoreReadiness(state.metrics,state.feedback,state.frames)?'參考總分 '+state.metrics.total+' / 100':'總分暫無，可看有效分項';ctx.fillText(total+'　'+state.reviewTime.toFixed(2)+' 秒',24,69);
+  ctx.drawImage($('world-source'),24,95,330,257);ctx.drawImage($('world-view'),366,95,330,257);
+  ctx.drawImage($('world-angle-chart'),24,375,672,280);
+  ctx.font='700 23px "PingFang TC",sans-serif';ctx.fillStyle='#5bd8ff';ctx.fillText('學員 '+(Number.isFinite(value)?value.toFixed(1)+'°':'此格角度不足'),24,698);
+  if(Number.isFinite(referenceValue)){ctx.fillStyle='#ffb45c';ctx.fillText('示範 '+referenceValue.toFixed(1)+'°',390,698);}
+  const focus=activeReview();ctx.fillStyle='#cbf24c';ctx.font='700 25px "PingFang TC",sans-serif';ctx.fillText('這次先看：'+focus.title,24,759);
+  ctx.fillStyle='#eef3e6';ctx.font='25px "PingFang TC",sans-serif';let y=canvasText(focus.watch,24,810,672,38,3);
+  ctx.fillStyle='#cbf24c';ctx.font='700 25px "PingFang TC",sans-serif';ctx.fillText('下次怎麼練',24,y+45);
+  ctx.fillStyle='#eef3e6';ctx.font='25px "PingFang TC",sans-serif';canvasText(focus.check,24,y+95,672,38,4);
+  ctx.fillStyle='#b9cbb0';ctx.font='19px "PingFang TC",sans-serif';canvasText('相對髖部的模型估測；未量測球速、棒速或關節負荷。缺少的 3D 資料不補造。',24,1170,672,27,2);
+}
+$('world-tab-2d').onclick=()=>setWorldTab('2d');$('world-tab-3d').onclick=()=>setWorldTab('3d');
+for(const view of ['front','side','top','reset'])$('world-'+view).onclick=()=>getWorldView().setCamera(view);
+$('world-zoom-in').onclick=()=>getWorldView().setCamera({zoomFactor:.9});$('world-zoom-out').onclick=()=>getWorldView().setCamera({zoomFactor:1.1});
+$('world-prev').onclick=()=>reviewStep(-1);$('world-next').onclick=()=>reviewStep(1);$('world-play').onclick=()=>state.playing?pauseReview():$('playBtn').click();
+for(const id of ['world-trail','world-angle','world-range'])$(id).onchange=()=>{pauseReview();return showReviewTime(state.reviewTime);};
+$('world-view').onkeydown=event=>{const changes={ArrowLeft:{yaw:-.12},ArrowRight:{yaw:.12},ArrowUp:{pitch:-.10},ArrowDown:{pitch:.10}};if(!changes[event.key])return;event.preventDefault();const camera=getWorldView().getCamera(),change=changes[event.key];getWorldView().setCamera({yaw:camera.yaw+(change.yaw||0),pitch:camera.pitch+(change.pitch||0)});};
+$('world-angle-chart').onclick=event=>{if(!worldChartState)return;const box=$('world-angle-chart').getBoundingClientRect(),time=timeAtChartClick(event.clientX-box.left,{cssWidth:box.width,canvasWidth:$('world-angle-chart').width,...worldChartState});if(time!==null){pauseReview();return showReviewTime(time);}};
 
 const REVIEW_PARTS = {
   tempo:{keys:['lSho','rSho','lHip','rHip'],watch:'看肩膀與髖部開始移動到手部加速的接續。',check:'若每次開始都忽快忽慢，先用舒服速度慢做 3 次，找回可重複的節奏。'},
@@ -1075,7 +1203,7 @@ function setupReview(){
   select.value = state.reviewFocus;
   $('review-time').min = state.frames[0].t;
   $('review-time').max = reviewEndTime();
-  updateReviewGuide(); updateAnchorStatus();setupTrajectory();
+  updateReviewGuide(); updateAnchorStatus();setupTrajectory();setupWorldPanel();
 }
 function updateReviewGuide(){
   const focus = activeReview();
@@ -1174,7 +1302,7 @@ async function openReference(file){
       if (pts && NEED.every(k=>pts[IDX[k]])){
         const W=video.videoWidth,H=video.videoHeight,P={};
         for(const k of NEED){const p=pts[IDX[k]];P[k]={x:p.x*W,y:p.y*H,v:Number.isFinite(p.visibility)&&p.x>=0&&p.x<=1&&p.y>=0&&p.y<=1?Math.min(p.visibility,p.presence??1):0};}
-        if (['lSho','rSho','lHip','rHip'].every(k=>pointVisible(P[k],.4))){const hipMid=mid(P.lHip,P.rHip),shoMid=mid(P.lSho,P.rSho);frames.push({t,W,H,P,hipMid,shoMid,scale:Math.max(20,dist(hipMid,shoMid))});}
+        if (['lSho','rSho','lHip','rHip'].every(k=>pointVisible(P[k],.4))){const hipMid=mid(P.lHip,P.rHip),shoMid=mid(P.lSho,P.rSho);frames.push({t,W,H,P,world:readWorldPose(result),hipMid,shoMid,scale:Math.max(20,dist(hipMid,shoMid))});}
       }
       if(i%6===0){$('ref-status').textContent=`分析示範中：${Math.round(i/total*100)}%`;await new Promise(resolve=>setTimeout(resolve,0));}
     }
@@ -1273,13 +1401,15 @@ function drawFrameAt(prog, frameIdx){
   ctx.fillStyle='#9aa894';ctx.font='17px "PingFang TC",sans-serif';
   ctx.fillText('標點是影像估計；差距需教練確認，動作不舒服就停下。',pad,H-47);
   ctx.fillStyle='#263223';ctx.fillRect(pad,H-28,W-pad*2,5);ctx.fillStyle='#cbf24c';ctx.fillRect(pad,H-28,(W-pad*2)*clamp(prog,0,1),5);
+  renderWorldPanel(f,refFrame);
 }
 
 function frameIndexForTime(t){
   const frame=nearestFrame(state.frames,t,FRAME_TOLERANCE);return frame?state.frames.indexOf(frame):-1;
 }
 function setPlaybackBusy(busy){
-  for (const id of ['playBtn','recBtn','feedback-replay','review-prev','review-next','review-key','review-time','review-focus','ref-file','anchor-student']) if ($(id)) $(id).disabled = busy;
+  for (const id of ['playBtn','recBtn','feedback-replay','review-prev','review-next','review-key','review-time','review-focus','ref-file','anchor-student','world-prev','world-next']) if ($(id)) $(id).disabled = busy;
+  $('world-play').textContent=busy?'暫停':'慢放';
   $('pauseBtn').disabled=!busy;$('ref-video').controls=!busy&&!state.reference.busy;
   if(busy)state.trajectory.marking=false;updateTrajectoryControls();
   updateAnchorStatus();
