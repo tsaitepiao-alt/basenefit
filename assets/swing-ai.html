@@ -55,6 +55,16 @@
   .ring .val span{font-size:10px;color:var(--muted);letter-spacing:.14em;margin-top:3px}
   .verdict{flex:1 1 200px;font-size:13px;line-height:1.7;color:#d8e3cd}
   .verdict b{color:var(--lime)}
+  .feedback-step{border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px;background:#101510}
+  .feedback-step h3{font-size:17px;margin:0 0 10px;color:var(--lime)}
+  .feedback-step p,.feedback-step li{font-size:15px;line-height:1.8;color:#d8e3cd}
+  .feedback-step p{margin:8px 0}
+  .feedback-step ol{padding-left:22px;margin:10px 0}
+  .feedback-step .cue{font-size:20px;font-weight:700;color:var(--txt);margin:12px 0}
+  .feedback-step .next-check{padding:12px;border-radius:10px;background:var(--card2)}
+  .feedback-step .small{font-size:13px;color:var(--muted)}
+  #feedback-copy{width:auto;min-height:44px}
+  #feedback-status{white-space:pre-line;overflow-wrap:anywhere}
   .metrics{display:grid;gap:11px;margin-top:6px}
   .m{display:grid;grid-template-columns:88px 1fr 34px;gap:10px;align-items:center;font-size:12.5px}
   .m .track{height:7px;border-radius:99px;background:#232b20;overflow:hidden}
@@ -96,7 +106,7 @@
 <body>
 <div class="eyebrow">AI MOTION ANALYSIS</div>
 <h1>AI 動作分析</h1>
-<p class="lead">選一項（投球／打擊／守備），上傳 3–8 秒影片。系統在你的手機上做姿態辨識，算出該項目的流暢度分數、指出最該修的三件事，並輸出一段「<b>你的動作 / 標準動作</b>」雙畫面對比影片。<b>影片不會上傳到任何伺服器。</b></p>
+<p class="lead">選一項（投球／打擊／守備），選一段 3–8 秒影片。先一起看懂畫面，再選<b>一件小事</b>慢慢練。你會拿到一句口訣、三次練習與下次錄影的觀察重點。<b>影片不會上傳到任何伺服器。</b></p>
 
 <div class="card" id="step-mode">
   <h2><span class="num">1</span>選分析項目</h2>
@@ -134,32 +144,26 @@
 </div>
 
 <div class="card hide" id="step-result">
-  <h2><span class="num">4</span>分析結果</h2>
-  <div class="score-wrap">
-    <div class="ring">
-      <svg width="104" height="104" viewBox="0 0 104 104">
-        <circle cx="52" cy="52" r="46" fill="none" stroke="#242c20" stroke-width="9"></circle>
-        <circle id="ringArc" cx="52" cy="52" r="46" fill="none" stroke="#cbf24c" stroke-width="9"
-          stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289"></circle>
-      </svg>
-      <div class="val"><b id="scoreNum">0</b><span>FLUIDITY</span></div>
-    </div>
-    <div class="verdict" id="verdict"></div>
-  </div>
+  <h2><span class="num">4</span>給你的小回饋</h2>
+  <div id="feedback" aria-live="polite"></div>
+  <button class="btn ghost" id="feedback-copy" type="button">複製回饋給教練</button>
+  <div class="status" id="feedback-status" role="status"></div>
+  <details><summary>查看影像參考數值（給教練一起看）</summary>
+  <p>以下是單一角度的 2D 影像估計，數值與分數不是能力評分，也不能用來判斷力量、球速或受傷風險。</p>
   <div class="metrics" id="metrics"></div>
-  <details><summary>▸ 每個分數怎麼算的</summary><p id="howText"></p></details>
-  <div style="margin-top:14px"><b style="font-size:13px">先修這三件事</b><ul class="tips" id="tips"></ul></div>
+  <p id="howText"></p>
+  </details>
 </div>
 
 <div class="card hide" id="step-compare">
-  <h2><span class="num">5</span>雙畫面對比</h2>
-  <p class="small" style="margin:0 0 10px">左：你的動作（骨架疊圖）。右：同一幀的「標準角度」版本（灰＝你原本、綠＝修正後）。錄製約 8 秒，可直接下載傳給教練。</p>
+  <h2><span class="num">5</span>回看這次的小重點</h2>
+  <p class="small" id="compare-focus" style="margin:0 0 10px">左邊看原影片，右邊看同一個動作的骨架。亮圈標出這次要觀察的部位。</p>
   <canvas id="cmp" width="720" height="1280"></canvas>
-  <div class="legend"><span><i style="background:#5bb8ff"></i>髖線</span><span><i style="background:#ff9f43"></i>肩線</span><span><i style="background:#cbf24c"></i>標準姿態</span><span><i style="background:#6b7a63"></i>你的原始姿態</span></div>
+  <div class="legend"><span><i style="background:#cbf24c"></i>這次觀察的部位</span><span><i style="background:#6b7a63"></i>原影片的姿態估計</span></div>
   <div class="phase" id="phases"></div>
   <div class="row" style="margin-top:12px">
-    <button class="btn" id="recBtn" type="button">產生並下載對比影片</button>
-    <button class="btn ghost sm" id="playBtn" type="button">先看一次</button>
+    <button class="btn" id="recBtn" type="button">下載動作與練習提醒</button>
+    <button class="btn ghost sm" id="playBtn" type="button">回看動作片段</button>
   </div>
   <div class="status" id="recStatus"></div>
   <a id="dl" class="btn ghost hide" download="analysis-comparison.webm" style="text-decoration:none">下載對比影片</a>
@@ -167,7 +171,7 @@
 
 <div class="card" id="step-pro">
   <h2><span class="num">6</span>職業示範動作（0.25× 慢動作）</h2>
-  <p class="small" style="margin:0 0 10px">看你這個項目的職業動作，用 0.25 倍速一格一格對照剛剛的角度。影片由 YouTube 原頻道播放，不會下載到本站。</p>
+  <p class="small" style="margin:0 0 10px">和教練一起用慢動作觀察節奏。每個人的身形與動作不同，不用追求和職業球員一樣的角度。影片由 YouTube 原頻道播放。</p>
   <div class="pro" id="proList"></div>
   <div class="status" id="proStatus">點卡片載入影片（第一次會慢一點）。</div>
 </div>
@@ -188,45 +192,49 @@ const CDN = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${VISION_VER}`
 const MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
 
 const $ = (id) => document.getElementById(id);
-const state = { mode:'hit', file:null, url:null, frames:[], metrics:null, videoW:0, videoH:0 };
+const state = { mode:'hit', file:null, url:null, frames:[], metrics:null, feedback:null, analysisId:0, playbackId:0, playing:false, videoW:0, videoH:0 };
 window.__swing = state;
 
 /* ---------------- 模式 ---------------- */
 const MODES = {
   hit: {
     label:'打擊', en:'BATTING',
-    desc:'看「力量有沒有從地面傳到球棒」：揮棒節奏、髖肩分離、重心轉移、手部路徑、頭部穩定、旋轉速度、收棒平衡。',
-    phases:['準備','啟動','加速','觸球','延伸','收棒'],
-    phaseHints:['髖肩同步蓄力','髖先動、肩留住','髖肩分離 24–48°','手直送、頭不動','延伸、不繞棒','收棒停穩 2 秒'],
-    targetSep: 36
+    desc:'一起回看揮棒時的身體位置與收尾，再選一個小重點慢慢練。',
+    phases:['開始附近','動作前段','動作中段','動作中後段','動作後段','結束附近']
   },
   pitch: {
     label:'投球', en:'PITCHING',
-    desc:'看「節奏與傳導」：抬腿平衡、髖肩分離、跨步長度、手臂路徑、重心前移、出手高度、收尾平衡。',
-    phases:['抬腿','蓄力','跨步','出手','延伸','收尾'],
-    phaseHints:['軸心腳站穩、抬腿不過高','髖部先轉、肩留住','跨步方向朝本壘','手臂延伸、肘不過早開','胸口朝捕手、身體前壓','收尾平衡 2 秒'],
-    targetSep: 40
+    desc:'一起回看抬腿附近與收尾的平衡。手臂角度與實際出手時刻，請教練一起確認。',
+    phases:['開始附近','動作前段','動作中段','動作中後段','動作後段','結束附近']
   },
   field: {
     label:'守備', en:'FIELDING',
-    desc:'看「啟動與移動效率」：預備重心、第一步啟動、移動路徑、手套位置、重心穩定、接球到轉傳、收球平衡。',
-    phases:['預備','啟動','移動','接球','轉傳','收球'],
-    phaseHints:['低重心、手套在前','第一步要快、不要墊步','路徑要直、不要繞','手套低、手掌朝球','接球同時轉向','收球穩定、球在胸前'],
-    targetSep: 26
+    desc:'一起回看移動時的身體起伏與收尾。手套方向與真正接球時刻，請教練一起確認。',
+    phases:['開始附近','動作前段','動作中段','動作中後段','動作後段','結束附近']
   }
 };
 
 function setMode(m){
+  clearAnalysis();
   state.mode = m;
   document.querySelectorAll('.mode').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
   const d = MODES[m];
   $('modeDesc').innerHTML = `<b style="color:var(--lime)">${d.label}</b>｜${d.desc}`;
   $('step-compare').classList.add('hide');
   if (window.__proReady) syncProActive();
-  if (state.metrics) $('runStatus').textContent = '已切換項目，請重新按「開始分析」。';
+  if (state.file) $('runStatus').textContent = '已切換項目，請重新按「開始分析」。';
 }
 document.querySelectorAll('.mode').forEach(b => b.onclick = () => setMode(b.dataset.mode));
 setMode('hit');
+
+function clearAnalysis(){
+  $('vid').pause();
+  state.playbackId++; state.playing = false; setPlaybackBusy(false);
+  state.analysisId++; state.frames = []; state.metrics = null; state.feedback = null;
+  $('step-result').classList.add('hide'); $('step-compare').classList.add('hide');
+  $('dl').classList.add('hide'); $('feedback-status').textContent = '';
+  $('run').disabled = false; $('prog').style.width = '0%';
+}
 
 /* ---------------- 選檔 ---------------- */
 $('pick').onclick = () => $('file').click();
@@ -243,6 +251,7 @@ function openFile(f){
   }
   if (f.size > 120*1024*1024) { $('pickStatus').innerHTML = '<span style="color:var(--warn)">檔案超過 120MB，請先截短。</span>'; return; }
   state.file = f;
+  clearAnalysis();
   if (state.url) URL.revokeObjectURL(state.url);
   state.url = URL.createObjectURL(f);
   const v = $('vid'); v.src = state.url;
@@ -257,6 +266,7 @@ function openFile(f){
   };
 }
 $('reset').onclick = () => {
+  clearAnalysis();
   $('step-preview').classList.add('hide'); $('step-result').classList.add('hide'); $('step-compare').classList.add('hide');
   $('file').value = ''; state.file = null; state.frames = []; state.metrics = null; $('pickStatus').textContent = '';
 };
@@ -309,11 +319,14 @@ const median = (a) => { const b=[...a].sort((x,y)=>x-y); const m=b.length>>1; re
 async function analyse(){
   const v = $('vid');
   if (!state.file) return;
+  clearAnalysis();
+  const analysisId = ++state.analysisId, analysisMode = state.mode;
   $('run').disabled = true; $('prog').style.width = '0%';
   $('step-result').classList.add('hide'); $('step-compare').classList.add('hide');
   const note = (s) => $('runStatus').innerHTML = `<span class="spinner"></span> ${s}`;
   try {
     const lm = await ensureModel(note);
+    if (analysisId !== state.analysisId) return;
     if (!v.videoWidth) await new Promise(r => v.onloadedmetadata = r);
     await seekTo(v, 0);
 
@@ -324,6 +337,7 @@ async function analyse(){
     for (let i=0; i<total; i++){
       const t = Math.min(i*step, dur - 0.001);
       await seekTo(v, t);
+      if (analysisId !== state.analysisId) return;
       let res; try { res = lm.detect(v); } catch(e){ res = null; }
       const pts = res && res.landmarks && res.landmarks[0];
       if (pts && NEED.every(k => pts[IDX[k]])){
@@ -342,16 +356,21 @@ async function analyse(){
     $('prog').style.width = '92%';
     if (frames.length < 8) throw new Error('偵測不到穩定的人體，請確認全身在畫面內、光線足夠。');
 
-    const metrics = computeMetrics(frames, state.mode);
+    const metrics = computeMetrics(frames, analysisMode);
+    metrics.coverage = frames.length / total;
     state.frames = frames; state.metrics = metrics;
     $('prog').style.width = '100%';
     $('runStatus').textContent = `完成：${MODES[state.mode].label}・分析 ${frames.length} 幀`;
     renderResult(metrics);
     $('step-compare').classList.remove('hide');
     $('phases').innerHTML = MODES[state.mode].phases.map(p => `<span>${p}</span>`).join('');
-    $('recStatus').textContent = '按「先看一次」預覽，或直接產生影片。';
+    await seekTo(v, state.feedback.startT);
+    if (analysisId !== state.analysisId) return;
+    drawFrameAt(0, frameIndexForTime(state.feedback.startT));
+    $('recStatus').textContent = '回看亮圈部位，再和教練一起確認這次的觀察。';
     $('run').disabled = false;
   } catch (err){
+    if (analysisId !== state.analysisId) return;
     window.__err = (err && err.stack) || String(err);
     $('run').disabled = false; $('prog').style.width = '0%';
     $('runStatus').innerHTML = `<span style="color:var(--bad)">${err.message || err}</span>`;
@@ -553,29 +572,112 @@ function pack(items, window){
 
 /* ---------------- 結果畫面 ---------------- */
 function colorFor(v){ return v>=75 ? '#cbf24c' : v>=55 ? '#ffb020' : '#ff6b5e'; }
+const FINISH_GUIDES = {
+  hit:{title:'收棒後，能不能自然站穩', cue:'慢慢揮，做完站一下。', action:'空手慢慢做一次揮棒，收尾時自然站穩 2 秒，再放鬆。'},
+  pitch:{title:'投球動作做完後的平衡', cue:'順順做完，站一下。', action:'空手慢慢做一次投球動作，收尾時自然站穩 2 秒，再放鬆。'},
+  field:{title:'移動收球後的平衡', cue:'慢慢移動，收好站一下。', action:'不拿球，慢慢移動一步、模擬收球，再自然站穩 2 秒。'}
+};
+function feedbackGuide(mode, key){
+  if (key === 'head') return {title:'揮棒時，頭部有沒有額外晃動', cue:'看前方記號，順順做完。',
+    action:'空手慢慢做一次揮棒，視線看前方記號，頭部跟著身體自然移動，不用刻意固定。',
+    check:'同角度再錄一次，回看頭部有沒有突然往另一邊晃；請教練確認是否需要調整。',
+    points:['nose','lSho','rSho'], part:'頭部與肩膀'};
+  if (key === 'lift') return {title:'動作前段，能不能維持平衡', cue:'抬到舒服，先站穩。',
+    action:'空手抬腿到舒服的高度，再慢慢放下；不需要抬得更高。',
+    check:'同角度再錄一次，看抬腿時是否需要額外踏步找平衡，請教練一起確認。',
+    points:['lHip','rHip','lAnk','rAnk'], part:'髖部與雙腳'};
+  if (key === 'stable') return {title:'移動時，身體有沒有突然上下起伏', cue:'看好方向，順順移動。',
+    action:'不拿球，朝同一個方向慢慢移動兩步，再自然停下，不用刻意蹲得更低。',
+    check:'同角度再錄一次，回看身體是否有突然上下跳動，請教練確認腳步是否需要調整。',
+    points:['lHip','rHip','lKnee','rKnee'], part:'髖部與膝蓋'};
+  return {...FINISH_GUIDES[mode],
+    check:'同角度再錄一次，保留收尾後 2 秒，看是否能自然站穩、有沒有額外踏步。',
+    points:['nose','lHip','rHip','lAnk','rAnk'], part:'身體與雙腳'};
+}
+function buildFeedback(m, frames){
+  const mode = MODES[m.mode] ? m.mode : state.mode;
+  const item = key => m.items.find(it => it.k === key && Number.isFinite(it.v));
+  // 只用可回看的身體位置變化選觀察點；不以肩髖角度或手臂分數推論技術缺陷。
+  let key = 'finish';
+  if (mode === 'hit' && item('head')?.v > .10) key = 'head';
+  if (mode === 'pitch' && item('lift')?.v > .10) key = 'lift';
+  if (mode === 'field' && item('stable')?.v > .09) key = 'stable';
+  const guide = feedbackGuide(mode, key);
+  const source = m.window;
+  const w = {...source};
+  if (frames.length && key === 'finish') {
+    const last = frames[frames.length-1];
+    w.startI = Math.max(0, frames.findIndex(f => f.t >= Math.max(source.peakT || 0, last.t - 2.25)));
+    w.endI = frames.length-1; w.startT = frames[w.startI].t; w.endT = last.t;
+  } else if (frames.length && key === 'lift') {
+    w.startI = 0; w.startT = frames[0].t; w.endI = source.peakI; w.endT = frames[w.endI].t;
+  }
+  const selected = frames.slice(w.startI, w.endI + 1);
+  const clear = selected.filter(f => guide.points.every(k => f.P[k] && f.P[k].v >= .6));
+  const needsRetake = !selected.length || clear.length / selected.length < .7 || m.coverage < .6;
+  const time = `${w.startT.toFixed(1)}–${w.endT.toFixed(1)} 秒`;
+  let observed = '先回看動作最後一段，觀察做完後有沒有額外踏步找平衡；影片要保留收尾，才能一起確認。';
+  if (key === 'head') observed = '程式估計這段頭部相對身體的位置變化較明顯。先回看亮圈，確認是動作中的晃動，還是拍攝與辨識造成的變化。';
+  if (key === 'lift') observed = '程式估計動作前段的髖部位置有變化。先回看身體與雙腳，確認有沒有額外踏步找平衡。';
+  if (key === 'stable') observed = '程式估計移動期間髖部有上下起伏。先回看亮圈，確認是自然的移動，還是有突然跳動。';
+  const keepMetric = mode === 'hit' ? item('head') : mode === 'pitch' ? item('lift') : item('stable');
+  const keep = keepMetric && keepMetric.v <= (mode === 'field' ? .09 : .10)
+    ? '這段畫面中，' + (mode === 'hit' ? '頭部相對身體' : '髖部') + '的位置變化較小，可以和教練回看，確認後繼續保持舒服的節奏。'
+    : '你已經留下這次的動作影片。接下來一次只看一個重點，其他動作先照舒服的節奏做。';
+  const result = {mode,key,...guide,time,startT:w.startT,endT:w.endT,observed,keep,needsRetake};
+  if (needsRetake) {
+    result.title = '先把動作拍清楚'; result.cue = '全身入鏡，手機放穩。';
+    result.observed = `這段的${guide.part}沒有持續清楚被辨識，先補拍一段，才能給你較可靠的回饋。`;
+    result.keep = '這次已完成選片，先把拍攝調整好，再一起觀察動作。';
+    result.action = '請大人幫忙固定手機，讓全身與雙腳入鏡，避免遮擋與背光。';
+    result.check = '從準備開始拍到動作結束後 2 秒；先確認骨架有跟著身體，再請教練一起看。';
+  }
+  return result;
+}
+function feedbackText(f){
+  return [`${MODES[f.mode].label}｜這次的小回饋`, `第一段：這次看見什麼（${f.time}）`, f.keep, f.observed,
+    '第二段：下次只做一件事', f.title, `口訣：${f.cue}`, f.action,
+    f.needsRetake ? '補拍一段清楚的影片，再分析。' : '用舒服的速度做 3 次，每次放鬆後再開始。不加速、不加重量。',
+    `下次怎麼看：${f.check}`, '這是 2D 影像觀察，請教練確認；不是技術檢定。'].join('\n');
+}
+async function copyFeedback(){
+  if (!state.feedback) return;
+  const text = feedbackText(state.feedback);
+  try {
+    await navigator.clipboard.writeText(text);
+    $('feedback-status').textContent = '已複製，可以貼給教練一起看。';
+  } catch (e) {
+    $('feedback-status').textContent = '無法自動複製，可長按選取以下文字：\n' + text;
+  }
+}
+$('feedback-copy').onclick = copyFeedback;
 function renderResult(m){
   $('step-result').classList.remove('hide');
-  $('scoreNum').textContent = m.total;
-  $('ringArc').style.stroke = colorFor(m.total);
-  $('ringArc').setAttribute('stroke-dashoffset', (289*(1-m.total/100)).toFixed(1));
-
-  const sorted = [...m.items].sort((a,b)=>a.s-b.s);
-  const weak = sorted.slice(0,2), strong = sorted[sorted.length-1];
-  const txt = m.total>=80 ? '整體流暢，動作串連得很完整。'
-    : m.total>=65 ? '有基本串連，但還有明顯可以「省力換速度」的空間。'
-    : m.total>=50 ? '力量多半來自上半身，下半身還沒真正參與。'
-    : '還沒串起來，先修節奏與重心，效率會馬上升。';
-  $('verdict').innerHTML = `${txt}<br><br>最強項：<b>${strong.label}</b>（${strong.s}）<br>
-    最該修：<b>${weak[0].label}</b>（${weak[0].s}）、<b>${weak[1].label}</b>（${weak[1].s}）`;
-
+  const f = buildFeedback(m, state.frames); state.feedback = f;
+  $('feedback').innerHTML = `<section class="feedback-step"><h3>第一段｜這次看見什麼</h3>
+    <p><b>先保留：</b>${f.keep}</p><p><b>一起觀察：</b>${f.observed}</p>
+    <p class="small">回看片段：${f.time}。和教練一起確認這次的觀察。</p>
+    <button class="btn ghost sm" id="feedback-replay" type="button">回看這段，找找亮圈部位</button></section>
+    <section class="feedback-step"><h3>第二段｜${f.needsRetake ? '先補拍，再給回饋' : '下次只練這一件事'}</h3>
+    <p><b>${f.title}</b></p><p class="cue">「${f.cue}」</p><ol><li>${f.action}</li>
+    <li>${f.needsRetake ? '拍一段 3–8 秒、動作完整的影片。' : '用舒服的速度做 3 次，每次放鬆後再開始；不加速、不加重量。'}</li>
+    <li>${f.needsRetake ? '重新分析，和教練一起確認骨架有跟著身體。' : '請大人用同一個角度再錄一次，和教練一起比較。'}</li></ol>
+    <p class="next-check"><b>下次怎麼看：</b>${f.check}</p>
+    <p class="small">若有不舒服就停下，請教練協助。畫面中的觀察需要教練確認。</p>
+    <button class="btn ghost sm" id="feedback-retry" type="button">${f.needsRetake ? '選擇補拍的影片' : '練好 3 次，選下一段影片'}</button></section>`;
+  $('feedback-replay').onclick = () => { $('step-compare').scrollIntoView({behavior:'smooth'}); $('playBtn').click(); };
+  $('feedback-retry').onclick = () => $('file').click();
+  $('compare-focus').textContent = `這次只看：${f.title}。左：原影片；右：同一動作的骨架，亮圈標出${f.part}。姿態沒有被改成「標準動作」。`;
+  $('feedback-status').textContent = '';
   const box = $('metrics'); box.innerHTML = '';
   m.items.forEach(it => {
     const row = document.createElement('div'); row.className = 'm';
-    row.innerHTML = `<span>${it.label}</span><span class="track"><i style="width:${it.s}%;background:${colorFor(it.s)}"></i></span><span class="v">${it.s}</span>`;
+    row.style.gridTemplateColumns = '1fr 1fr';
+    const label = {sep:'肩髖投影角度差',elbow:'手臂投影夾角（待確認）',glove:'手腕位置（待確認）',stance:'預備位置（待確認）',release:'手腕與肩線位置',transfer:'動作後段時間（待確認）',tempo:'手部加速區間',rot:'肩線投影角速度'}[it.k] || it.label;
+    row.innerHTML = `<span>${label}</span><span class="v">${Number.isFinite(it.v) ? it.fmt(it.v) : '無法估計'}</span>`;
     box.appendChild(row);
   });
-  $('howText').textContent = m.items.map(it => `${it.label}：${it.how}｜本次 ${it.fmt(it.v)}，標準 ${it.ideal}`).join('\n\n');
-  $('tips').innerHTML = sorted.slice(0,3).map(it => `<li>${it.tip}</li>`).join('');
+  $('howText').textContent = '肩髖角度是畫面投影，手腕不代表球棒或手套，手部速度峰值也不等於真正出手或觸球。拍攝角度、遮擋與辨識誤差都會改變數值；手臂角度、手套位置與接球轉傳時間，請教練回看確認。';
   $('step-result').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
@@ -599,16 +701,6 @@ function drawSkeletonFrom(c, P, dx, dy, sc, color, lw, alpha){
   ['nose','lWri','rWri','lAnk','rAnk'].forEach(k => { const p = pt(k); c.beginPath(); c.arc(p.x,p.y,lw*0.7,0,Math.PI*2); c.fill(); });
   c.restore();
 }
-function correctedPose(f, mode){
-  const target = MODES[mode].targetSep;
-  const sign = Math.sign(angDiff(f.shoAng, f.hipAng)) || 1;
-  const delta = (target - (f.sep||0)) * sign;
-  const out = {};
-  for (const k in f.P) out[k] = { ...f.P[k] };
-  const c = f.shoMid;
-  ['lSho','rSho','lElb','rElb','lWri','rWri','nose'].forEach(k => { out[k] = rot(f.P[k], c, delta); });
-  return { P: out, sep: target, shoAng: f.shoAng + delta };
-}
 function roundRect(c,x,y,w,h,r){
   c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
   c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
@@ -616,6 +708,15 @@ function roundRect(c,x,y,w,h,r){
 function phaseOf(prog){
   if (prog < .18) return 0; if (prog < .35) return 1; if (prog < .55) return 2;
   if (prog < .70) return 3; if (prog < .86) return 4; return 5;
+}
+function canvasText(text, x, y, width, lineHeight){
+  let line = '';
+  for (const char of text){
+    if (line && ctx.measureText(line + char).width > width){ ctx.fillText(line, x, y); y += lineHeight; line = ''; }
+    line += char;
+  }
+  if (line) ctx.fillText(line, x, y);
+  return y + lineHeight;
 }
 
 function drawFrameAt(prog, frameIdx){
@@ -627,13 +728,13 @@ function drawFrameAt(prog, frameIdx){
   ctx.fillStyle = '#cbf24c'; ctx.font = '600 20px "PingFang TC",sans-serif';
   ctx.fillText(`basenefit · ${mode.label}分析`, 24, 42);
   ctx.fillStyle = '#8c9a84'; ctx.font = '14px "PingFang TC",sans-serif';
-  ctx.fillText(`流暢度 ${m.total} / 100`, 24, 66);
+  ctx.fillText('一起看懂畫面，再練一件小事 · 2D 影像觀察', 24, 66);
 
   const padX = 24, gap = 12, top = 96;
   const pw = (W - padX*2 - gap)/2, ph = Math.round(pw*1.30);
   ctx.fillStyle = '#9aa894'; ctx.font = '600 13px "PingFang TC",sans-serif';
   ctx.fillText('你的動作', padX, top-10);
-  ctx.fillStyle = '#cbf24c'; ctx.fillText('標準動作', padX + pw + gap, top-10);
+  ctx.fillStyle = '#cbf24c'; ctx.fillText('亮圈：這次觀察部位', padX + pw + gap, top-10);
 
   const v = $('vid'), f = frames[frameIdx];
 
@@ -651,7 +752,7 @@ function drawFrameAt(prog, frameIdx){
   if (f) drawSkeletonFrom(ctx, f.P, dx, dy, s, 'rgba(203,242,76,.95)', 3.2, 1);
   ctx.restore();
 
-  // 右：修正後（標準角度）
+  // 右：保留原姿態，只圈出回饋對應部位；不生成虛構的標準動作。
   const rx = padX + pw + gap;
   ctx.save(); ctx.beginPath(); roundRect(ctx, rx, top, pw, ph, 14); ctx.clip();
   const g = ctx.createLinearGradient(rx, top, rx, top+ph);
@@ -660,25 +761,17 @@ function drawFrameAt(prog, frameIdx){
   ctx.strokeStyle = '#1f2a1b'; ctx.lineWidth = 1;
   for (let yy = top+20; yy < top+ph; yy += 28){ ctx.beginPath(); ctx.moveTo(rx,yy); ctx.lineTo(rx+pw,yy); ctx.stroke(); }
   if (f){
-    const cp = correctedPose(f, state.mode);
     const s2 = Math.min(pw/f.W, ph/f.H) * 0.94;
     const dx2 = rx + (pw - f.W*s2)/2, dy2 = top + (ph - f.H*s2)/2;
     drawSkeletonFrom(ctx, f.P, dx2, dy2, s2, '#6b7a63', 2.6, .55);
-    drawSkeletonFrom(ctx, cp.P, dx2, dy2, s2, '#cbf24c', 3.4, 1);
-    const cxm = dx2 + f.hipMid.x*s2, cym = dy2 + f.hipMid.y*s2, r = f.scale*s2*0.9;
-    ctx.save(); ctx.setLineDash([7,6]); ctx.lineWidth = 2.4;
-    ctx.strokeStyle = '#5bb8ff';
-    ctx.beginPath(); ctx.moveTo(cxm, cym); ctx.lineTo(cxm + Math.cos(f.hipAng*Math.PI/180)*r, cym + Math.sin(f.hipAng*Math.PI/180)*r); ctx.stroke();
-    const sx2 = dx2 + f.shoMid.x*s2, sy2 = dy2 + f.shoMid.y*s2;
-    ctx.strokeStyle = '#ff9f43';
-    ctx.beginPath(); ctx.moveTo(sx2, sy2); ctx.lineTo(sx2 + Math.cos(cp.shoAng*Math.PI/180)*r*0.85, sy2 + Math.sin(cp.shoAng*Math.PI/180)*r*0.85); ctx.stroke();
-    ctx.restore();
+    ctx.strokeStyle = '#cbf24c'; ctx.lineWidth = 3;
+    for (const key of state.feedback?.points || []){
+      const point = f.P[key]; if (!point || point.v < .6) continue;
+      ctx.beginPath(); ctx.arc(dx2 + point.x*s2, dy2 + point.y*s2, 10, 0, Math.PI*2); ctx.stroke();
+    }
     ctx.fillStyle = 'rgba(11,15,12,.86)'; roundRect(ctx, rx+8, top+ph-40, pw-16, 30, 8); ctx.fill();
     ctx.fillStyle = '#cbf24c'; ctx.font = '600 12.5px "PingFang TC",sans-serif';
-    const inStd = f.sep >= 24 && f.sep <= (state.mode === 'hit' ? 48 : 52);
-    const sepTxt = inStd ? `髖肩分離 ${Math.round(f.sep)}°（已在標準內）`
-                         : `髖肩分離 ${Math.round(f.sep)}° → ${MODES[state.mode].targetSep}°`;
-    ctx.fillText(sepTxt, rx+16, top+ph-19);
+    ctx.fillText(state.feedback?.part || '原影片姿態估計', rx+16, top+ph-19);
   }
   ctx.restore();
 
@@ -687,25 +780,32 @@ function drawFrameAt(prog, frameIdx){
   const p = phaseOf(prog);
   ctx.fillStyle = '#141912'; roundRect(ctx, padX, py, W-padX*2, 66, 12); ctx.fill();
   ctx.strokeStyle = '#2a3327'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.fillStyle = '#8c9a84'; ctx.font = '12px "PingFang TC",sans-serif'; ctx.fillText('階段', padX+14, py+26);
+  ctx.fillStyle = '#8c9a84'; ctx.font = '12px "PingFang TC",sans-serif'; ctx.fillText('播放位置（非事件辨識）', padX+14, py+26);
   ctx.fillStyle = '#cbf24c'; ctx.font = '700 20px "PingFang TC",sans-serif'; ctx.fillText(mode.phases[p], padX+14, py+52);
-  ctx.fillStyle = '#d3dfc7'; ctx.font = '14px "PingFang TC",sans-serif'; ctx.fillText(mode.phaseHints[p], padX+96, py+46);
+  ctx.fillStyle = '#d3dfc7'; ctx.font = '14px "PingFang TC",sans-serif'; ctx.fillText(state.feedback?.cue || '', padX+200, py+46);
 
-  // 分項
+  // 讓下載影片也帶走兩段回饋，不只帶走骨架與數字。
   const by = py + 82;
-  ctx.fillStyle = '#eef3e6'; ctx.font = '600 15px "PingFang TC",sans-serif';
-  ctx.fillText('你的分項', padX, by);
-  m.items.slice(0,7).forEach((it,i) => {
-    const y = by + 22 + i*34;
-    ctx.fillStyle = '#8c9a84'; ctx.font = '13px "PingFang TC",sans-serif';
-    ctx.fillText(it.label, padX, y+3);
-    const bx = padX + 104, bw = W - padX*2 - 150;
-    ctx.fillStyle = '#232b20'; roundRect(ctx, bx, y-7, bw, 10, 5); ctx.fill();
-    ctx.fillStyle = colorFor(it.s); roundRect(ctx, bx, y-7, bw*it.s/100, 10, 5); ctx.fill();
-    ctx.fillStyle = '#cfdcc2'; ctx.font = '12px ui-monospace,Menlo,monospace';
-    ctx.fillText(String(it.s), W-padX-24, y+3);
-  });
-
+  const feedback = state.feedback;
+  if (feedback){
+    ctx.fillStyle = '#141912'; roundRect(ctx, padX, by, W-padX*2, 196, 12); ctx.fill();
+    ctx.fillStyle = '#cbf24c'; ctx.font = '700 24px "PingFang TC",sans-serif';
+    ctx.fillText('第一段｜這次看見什麼', padX+16, by+36);
+    ctx.fillStyle = '#eef3e6'; ctx.font = '22px "PingFang TC",sans-serif';
+    canvasText(feedback.observed, padX+16, by+76, W-padX*2-32, 32);
+    const nextY = by + 212;
+    ctx.fillStyle = '#141912'; roundRect(ctx, padX, nextY, W-padX*2, 368, 12); ctx.fill();
+    ctx.fillStyle = '#cbf24c'; ctx.font = '700 24px "PingFang TC",sans-serif';
+    ctx.fillText(feedback.needsRetake ? '第二段｜先補拍，再回饋' : '第二段｜下次只練一件事', padX+16, nextY+36);
+    ctx.fillStyle = '#eef3e6'; ctx.font = '700 27px "PingFang TC",sans-serif';
+    let textY = canvasText('「' + feedback.cue + '」', padX+16, nextY+78, W-padX*2-32, 36);
+    ctx.font = '22px "PingFang TC",sans-serif';
+    textY = canvasText(feedback.action + (feedback.needsRetake ? '' : ' 慢做 3 次，每次放鬆後再開始。'), padX+16, textY+12, W-padX*2-32, 32);
+    ctx.fillStyle = '#c9d6bd';
+    canvasText('下次怎麼看：' + feedback.check, padX+16, textY+14, W-padX*2-32, 32);
+  }
+  ctx.fillStyle = '#9aa894'; ctx.font = '17px "PingFang TC",sans-serif';
+  ctx.fillText('影像估計需要教練確認；動作不舒服就停下。', padX, H-46);
   ctx.fillStyle = '#232b20'; ctx.fillRect(padX, H-30, W-padX*2, 5);
   ctx.fillStyle = '#cbf24c'; ctx.fillRect(padX, H-30, (W-padX*2)*clamp(prog,0,1), 5);
 }
@@ -716,13 +816,26 @@ function frameIndexForTime(t){
   for (let i=0;i<fr.length;i++){ const d = Math.abs(fr[i].t - t); if (d < bd){ bd = d; best = i; } }
   return best;
 }
-async function playWindow(){
+function setPlaybackBusy(busy){
+  for (const id of ['playBtn','recBtn','feedback-replay']) if ($(id)) $(id).disabled = busy;
+}
+async function withPlayback(action){
+  if (state.playing || !state.metrics) return;
+  const playbackId = ++state.playbackId;
+  state.playing = true; setPlaybackBusy(true);
+  try { await action(playbackId); }
+  catch (err){ if (playbackId === state.playbackId) $('recStatus').textContent = '播放或錄製未完成，請再試一次。'; }
+  finally { if (playbackId === state.playbackId) { state.playing = false; setPlaybackBusy(false); } }
+}
+async function playWindow(playbackId){
   const v = $('vid'), m = state.metrics;
-  const t0 = Math.max(0, m.window.startT - 0.35), t1 = m.window.endT + 0.35;
+  const t0 = Math.max(0, state.feedback?.startT ?? m.window.startT - .35);
+  const t1 = Math.min(v.duration || Infinity, state.feedback?.endT ?? m.window.endT + .35);
   v.muted = true; v.playbackRate = 0.5; v.currentTime = t0;
   await v.play().catch(()=>{});
   return new Promise(res => {
     const tick = () => {
+      if (playbackId !== state.playbackId){ res(); return; }
       if (v.paused || v.ended || v.currentTime >= t1){ v.pause(); res(); return; }
       const prog = clamp((v.currentTime - t0)/Math.max(.1, t1-t0), 0, 1);
       drawFrameAt(prog, frameIndexForTime(v.currentTime));
@@ -734,13 +847,15 @@ async function playWindow(){
   });
 }
 $('playBtn').onclick = async () => {
-  if (!state.metrics) return;
-  $('recStatus').textContent = '播放中（0.5 倍速）…';
-  await playWindow();
-  $('recStatus').textContent = '預覽結束。';
+  await withPlayback(async playbackId => {
+    $('recStatus').textContent = '播放中（0.5 倍速），一起看看亮圈部位…';
+    await playWindow(playbackId);
+    if (playbackId === state.playbackId) $('recStatus').textContent = '回看完成。照口訣慢練，再用同角度錄一次。';
+  });
 };
 
 async function recordComparison(){
+  return withPlayback(async playbackId => {
   const m = state.metrics; if (!m) return;
   if (!window.MediaRecorder){ $('recStatus').textContent = '這個瀏覽器不支援影片錄製，請改用截圖或 Safari 最新版。'; return; }
   if (typeof cmp.captureStream !== 'function'){ $('recStatus').textContent = '這個瀏覽器不支援 Canvas 錄影（captureStream），請改用 Safari／Chrome 最新版。'; return; }
@@ -751,9 +866,10 @@ async function recordComparison(){
   const done = new Promise(res => rec.onstop = res);
   rec.start(200);
   $('recStatus').innerHTML = '<span class="spinner"></span> 錄製中，請不要切換頁面…';
-  await playWindow();
+  await playWindow(playbackId);
   await new Promise(r => setTimeout(r, 300));
   rec.stop(); await done;
+  if (m !== state.metrics) return;
   if (!chunks.length){ $('recStatus').textContent = '錄製失敗（沒有取得畫面資料）。請改用 Chrome／Safari 最新版。'; return; }
   const blob = new Blob(chunks, { type: mime.split(';')[0] });
   const url = URL.createObjectURL(blob);
@@ -762,6 +878,7 @@ async function recordComparison(){
   a.classList.remove('hide');
   $('recStatus').innerHTML = `完成（${(blob.size/1048576).toFixed(1)} MB）。<a href="${url}" download="${a.download}" style="color:var(--lime)">下載</a>`;
   a.click();
+  });
 }
 $('recBtn').onclick = recordComparison;
 
@@ -862,3 +979,4 @@ renderPro();
 </script>
 </body>
 </html>
+
