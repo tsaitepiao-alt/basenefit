@@ -669,41 +669,56 @@ function pack(items, window){
 /* ---------------- 結果畫面 ---------------- */
 function colorFor(v){ return v>=75 ? '#cbf24c' : v>=55 ? '#ffb020' : '#ff6b5e'; }
 
+function scoreObservation(m, frames){
+  const all=Array.isArray(frames)?frames:[];
+  const start=Number.isInteger(m?.window?.startI)?m.window.startI:0;
+  const end=Number.isInteger(m?.window?.endI)?m.window.endI+1:all.length;
+  const sample=all.slice(start,end);
+  const core=['lSho','rSho','lHip','rHip'];
+  const coreVisible=sample.filter(f=>core.reduce((sum,key)=>sum+(Number.isFinite(f.P?.[key]?.v)?f.P[key].v:0),0)/core.length>=.4);
+  const clear=sample.filter(f=>NEED.every(key=>Number.isFinite(f.P?.[key]?.v)&&f.P[key].v>=.6));
+  const coverage=Number.isFinite(m?.coverage)?clamp(m.coverage,0,1):0;
+  return {usable:all.length>=8&&sample.length>0&&coreVisible.length>=Math.min(3,sample.length),
+    limited:!sample.length||clear.length/sample.length<.7||coverage<.6,coverage};
+}
 function scoreReadiness(m, feedback, frames){
-  const sample = frames.slice(m.window.startI, m.window.endI + 1);
-  const visible = sample.filter(f => NEED.every(k => f.P?.[k] && f.P[k].v >= .6));
-  return Boolean(feedback && !feedback.needsRetake && Number.isFinite(m.total)
-    && m.items.length && m.items.every(it => Number.isFinite(it.s) && Number.isFinite(it.v))
-    && m.coverage >= .6 && sample.length && visible.length / sample.length >= .7);
+  return Boolean(scoreObservation(m,frames).usable&&Number.isFinite(m?.total)
+    &&Array.isArray(m.items)&&m.items.some(it=>Number.isFinite(it.s)&&Number.isFinite(it.v)));
 }
 function renderScorePanel(m, feedback){
+  const observation=scoreObservation(m,state.frames);
   const ready = scoreReadiness(m, feedback, state.frames);
   const value = score => Math.round(clamp(score, 0, 100));
   const total = ready ? value(m.total) : null;
   $('scoreTotal').textContent = ready ? String(total) : '—';
   $('scoreArc').setAttribute('stroke-dashoffset', ready ? (289 * (1-total/100)).toFixed(1) : '289');
   $('scoreArc').style.stroke = ready ? colorFor(total) : 'var(--muted)';
-  $('scoreRing').setAttribute('aria-label', ready ? `本次參考總分 ${total} 分，滿分 100 分` : '辨識不足，這次暫不評分');
+  $('scoreRing').setAttribute('aria-label', ready ? `本次參考總分 ${total} 分，滿分 100 分${observation.limited?'；局部影像不清，可信度較低':''}` : '本次總分尚無有效計算結果');
+  const hasItem=observation.usable&&m.items.some(it=>Number.isFinite(it.s)&&Number.isFinite(it.v));
   $('scoreSummary').textContent = ready
-    ? '保留總分與各項分數，方便看自己的變化。先回看這次的重點，再選一件事慢慢練。'
-    : '這段身體關節沒有持續清楚被辨識，暫不顯示分數。先補拍，再一起確認。';
+    ? observation.limited
+      ? '已顯示本次參考分數。部分關節被遮擋或有效影格較少，可信度較低；請和教練回看，必要時補拍。'
+      : '已顯示總分與各項分數。先回看這次的重點，再選一件事慢慢練。'
+    : hasItem?'總分尚未算出，已保留能計算的分項分數；無法計算的項目顯示「—」。'
+      :'這段沒有足夠的有效人體資料可計算分數，請補拍全身清楚入鏡的影片。';
   const rows = $('scoreRows'); rows.replaceChildren();
   const references = $('scoreReference'); references.replaceChildren();
   const labels = {sep:'肩髖投影角度差',elbow:'手臂投影夾角',glove:'手腕位置',stance:'預備位置',release:'手腕與肩線位置',transfer:'動作後段時間',tempo:'手部加速區間',rot:'肩線投影角速度'};
   const confirm = {elbow:'投影夾角需由教練確認',release:'依個人出手方式確認',glove:'手腕高度不等於手套面向',stance:'預備位置需搭配腳步確認',transfer:'需確認真正接球與轉傳時刻'};
   for (const it of m.items){
+    const itemReady=observation.usable&&Number.isFinite(it.s)&&Number.isFinite(it.v);
     const name = labels[it.k] || it.label;
     const row = document.createElement('div'); row.className = 'score-row';
     const label = document.createElement('span'); label.textContent = name;
     const track = document.createElement('span'); track.className = 'track';
     const bar = document.createElement('i');
-    bar.style.width = ready ? value(it.s) + '%' : '0%';
-    bar.style.background = ready ? colorFor(it.s) : 'var(--muted)';
+    bar.style.width = itemReady ? value(it.s) + '%' : '0%';
+    bar.style.background = itemReady ? colorFor(it.s) : 'var(--muted)';
     track.appendChild(bar);
-    const number = document.createElement('span'); number.className = 'value'; number.textContent = ready ? String(value(it.s)) : '—';
+    const number = document.createElement('span'); number.className = 'value'; number.textContent = itemReady ? String(value(it.s)) : '—';
     row.append(label, track, number); rows.appendChild(row);
     const reference = document.createElement('li');
-    const reading = ready ? it.fmt(it.v) : '本次辨識不足';
+    const reading = itemReady ? it.fmt(it.v) : '本次沒有有效計算結果';
     reference.textContent = `${name}：${reading}；參考：${confirm[it.k] || it.ideal}。`;
     references.appendChild(reference);
   }
@@ -910,10 +925,10 @@ function activeReview(){
 function setupReview(){
   state.reviewFocus = state.feedback?.key || 'finish';
   const select = $('review-focus'); select.replaceChildren();
-  const ready = scoreReadiness(state.metrics,state.feedback,state.frames);
+  const observation = scoreObservation(state.metrics,state.frames);
   for (const item of state.metrics.items){
     const option = document.createElement('option'); option.value = item.k;
-    option.textContent = item.label + (ready ? `｜${Math.round(item.s)} 分` : '｜待確認'); select.appendChild(option);
+    option.textContent = item.label + (observation.usable&&Number.isFinite(item.s)&&Number.isFinite(item.v) ? `｜${Math.round(item.s)} 分` : '｜待確認'); select.appendChild(option);
   }
   select.value = state.reviewFocus;
   $('review-time').min = state.frames[0].t;
@@ -1050,7 +1065,7 @@ function drawFrameAt(prog, frameIdx){
   ctx.fillStyle='#cbf24c';ctx.font='600 22px "PingFang TC",sans-serif';ctx.fillText('basenefit · '+mode.label+'｜'+focus.title,24,38);
   ctx.fillStyle='#b8c7af';ctx.font='16px "PingFang TC",sans-serif';
   const scored=scoreReadiness(m,state.feedback,frames);
-  ctx.fillText((scored?'參考總分 '+m.total+' / 100　':'辨識不足，暫不評分　')+state.reviewTime.toFixed(2)+' 秒',24,65);
+  ctx.fillText((scored?'參考總分 '+m.total+' / 100　':'總分暫無，可查看有效分項　')+state.reviewTime.toFixed(2)+' 秒',24,65);
   const pad=24,gap=12,top=108,pw=(W-pad*2-gap)/2,ph=430;
   const left={x:pad,y:top,w:pw,h:ph},right={x:pad+pw+gap,y:top,w:pw,h:ph};
   ctx.font='600 18px "PingFang TC",sans-serif';ctx.fillStyle='#5bd8ff';ctx.fillText('學員｜原影片與部位',left.x,top-13);
