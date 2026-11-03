@@ -91,6 +91,12 @@
   .review-check{display:flex!important;gap:10px;align-items:flex-start;margin-top:12px}
   .review-check input{width:20px;height:20px;flex:none;margin-top:3px;accent-color:var(--lime)}
   .review-time{font:14px ui-monospace,monospace;color:var(--lime);text-align:center}
+  .trajectory-note{font-size:14px;line-height:1.8;color:#e6d8a5;margin:8px 0}
+  .trajectory-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;line-height:1.8;margin:8px 0}
+  .trajectory-legend i{display:inline-block;width:20px;height:4px;margin-right:5px;vertical-align:3px;border-radius:3px}
+  #trajectory-summary{font-size:14px;line-height:1.8;white-space:pre-line}
+  .trajectory-marking{outline:3px solid #ffd166;cursor:crosshair}
+  #trajectory-navigation{position:sticky;top:0;z-index:3;padding:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;margin:8px 0}
   #feedback-copy{width:auto;min-height:44px}
   #feedback-status{white-space:pre-line;overflow-wrap:anywhere}
   .metrics{display:grid;gap:11px;margin-top:6px}
@@ -134,7 +140,7 @@
 <body>
 <div class="eyebrow">AI MOTION ANALYSIS</div>
 <h1>AI 動作分析</h1>
-<p class="lead">選一項（投球／打擊／守備），選一段 3–8 秒影片。保留<b>總分與分項評分</b>，再用慢放、逐格與身體部位標示看懂這次的重點。你會拿到一句口訣、三次練習與下次錄影的觀察方式。<b>影片不會上傳到任何伺服器。</b></p>
+<p class="lead">選一項（投球／打擊／守備），選一段 3–8 秒影片。保留<b>總分與分項評分</b>，再用慢放、逐格、身體部位與<b>移動軌跡和方向箭頭</b>看懂重點。球路或棒頭可逐格手動標記。<b>影片不會上傳到任何伺服器。</b></p>
 
 <div class="card" id="step-mode">
   <h2><span class="num">1</span>選分析項目</h2>
@@ -213,6 +219,24 @@
     <div class="review-time" id="review-clock">0.00 秒</div>
     <label class="review-check"><input type="checkbox" id="review-labels" checked>顯示身體部位名稱（左右以學員本人為準）</label>
   </div>
+  <details id="trajectory-panel"><summary>看看動作的路線與方向｜選擇路徑／手動標球</summary>
+    <div class="review-tools">
+      <label class="review-check"><input id="trajectory-enabled" type="checkbox" checked>顯示移動軌跡與方向箭頭</label>
+      <label for="trajectory-kind">想看哪條路線？</label><select id="trajectory-kind"></select>
+      <label for="trajectory-hand" id="trajectory-hand-label">投球手</label><select id="trajectory-hand"><option value="rWri">右手</option><option value="lWri">左手</option></select>
+      <label for="trajectory-range">顯示範圍</label><select id="trajectory-range"><option value="entire">整段已記錄的路徑</option><option value="until">從起點到目前這格</option><option value="recent">目前這格之前 0.75 秒</option></select>
+      <p class="trajectory-note" id="trajectory-note"></p>
+      <div id="trajectory-manual" class="hide">
+        <p class="small">在左邊原影片點一下球心或棒頭，再按「下一格」繼續標同一個東西。看不清楚就跳過；至少標 3 格。虛線只連接已標記的位置，中間位置未量測。</p>
+        <div class="review-buttons"><button id="trajectory-mark" class="btn ghost sm" type="button">開始逐格標記</button><button id="trajectory-undo" class="btn ghost sm" type="button">復原上一點</button><button id="trajectory-clear" class="btn ghost sm" type="button">清除這條標記</button></div>
+        <div class="status" id="trajectory-mark-status" role="status"></div>
+      </div>
+    </div>
+    <div id="trajectory-legend" class="trajectory-legend"></div>
+    <div id="trajectory-summary" class="review-guide" role="status"></div>
+    <p class="small">圓點是起點，箭頭依時間往終點走。這是固定拍攝角度看到的路線；彎曲或交叉不直接代表動作錯誤。自動辨識中斷時，軌跡會斷開。</p>
+  </details>
+  <div id="trajectory-navigation" class="review-buttons hide"><button id="trajectory-manual-prev" class="btn ghost sm" type="button">上一格</button><button id="trajectory-manual-next" class="btn ghost sm" type="button">下一格，繼續標</button><button id="trajectory-manual-done" class="btn ghost sm" type="button">完成標記</button></div>
   <canvas id="cmp" width="720" height="1280"></canvas>
   <div class="legend"><span><i style="background:#5bd8ff"></i>學員身體部位</span><span><i style="background:#ffb45c"></i>教練示範部位</span><span><i style="background:#ff79bf"></i>已對齊環節的位置差距</span></div>
   <div class="review-guide" id="review-callout" role="status" aria-live="polite"></div>
@@ -255,8 +279,9 @@
 
 <script type="module">
 import {JOINT_LABELS,SKELETON_SEGMENTS,pointVisible,nearestFrame,fitFrame,bodyTransform,projectPoint,comparePose} from './motion-review.js?v=1';
+import {TRAJECTORY_LABELS,buildTrajectory,directionSummary,annotationPoint} from './motion-trajectory.js?v=1';
 /* =========================================================================
-   basenefit · AI 動作分析 v3 · 同步慢放與教練關鍵點對照
+   basenefit · AI 動作分析 v4 · 移動軌跡、方向與手動物件標記
    模式：打擊 / 投球 / 守備（各自指標、階段與偵測點）
    分析：MediaPipe PoseLandmarker（按下去才載入）→ 3 幀平滑 → 區間偵測 → 指標
    輸出：720×1280，原影片部位標示／已對齊示範差距＋練習提醒 → MediaRecorder
@@ -269,24 +294,25 @@ const FRAME_TOLERANCE = 1/48 + .002;
 const $ = (id) => document.getElementById(id);
 const state = { mode:'hit', file:null, url:null, frames:[], metrics:null, feedback:null, analysisId:0, playbackId:0, playing:false, analysing:false, videoW:0, videoH:0,
   reviewFocus:null, reviewTime:0, renderId:0, studentAnchor:null,
-  reference:{file:null,url:null,frames:[],mode:null,id:0,busy:false,anchor:null} };
+  reference:{file:null,url:null,frames:[],mode:null,id:0,busy:false,anchor:null},analysisDuration:0,
+  trajectory:{marking:false,manual:{ball:[],batTip:[]},history:[],summary:''} };
 window.__swing = state;
 
 /* ---------------- 模式 ---------------- */
 const MODES = {
   hit: {
     label:'打擊', en:'BATTING',
-    desc:'一起回看揮棒時的身體位置與收尾，再選一個小重點慢慢練。',
+    desc:'一起回看雙手腕揮動的路線、頭部與收尾；真正棒頭路線可逐格手動標記。',
     phases:['開始附近','動作前段','動作中段','動作中後段','動作後段','結束附近']
   },
   pitch: {
     label:'投球', en:'PITCHING',
-    desc:'一起回看抬腿附近與收尾的平衡。手臂角度與實際出手時刻，請教練一起確認。',
+    desc:'先選投球手，看手腕如何移動到收尾；球離手後的位置可逐格手動標記。',
     phases:['開始附近','動作前段','動作中段','動作中後段','動作後段','結束附近']
   },
   field: {
     label:'守備', en:'FIELDING',
-    desc:'一起回看移動時的身體起伏與收尾。手套方向與真正接球時刻，請教練一起確認。',
+    desc:'一起看髖部與腳踝往哪裡移動、在哪裡停穩；來球位置可另外手動標記。',
     phases:['開始附近','動作前段','動作中段','動作中後段','動作後段','結束附近']
   }
 };
@@ -311,6 +337,8 @@ function clearAnalysis(){
   state.analysisId++; state.frames = []; state.metrics = null; state.feedback = null;
   state.analysing = false; state.renderId++; state.reviewFocus = null; state.studentAnchor = null;
   state.referenceViewTime = null; state.reviewTime = 0;
+  state.analysisDuration=0;state.trajectory={marking:false,manual:{ball:[],batTip:[]},history:[],summary:''};
+  $('cmp').classList.remove('trajectory-marking');
   if(state.exportUrl){URL.revokeObjectURL(state.exportUrl);state.exportUrl=null;}
   $('ref-confirm').checked = false; updateAnchorStatus();
   $('step-result').classList.add('hide'); $('step-compare').classList.add('hide');
@@ -452,7 +480,7 @@ async function analyse(){
 
     const metrics = computeMetrics(frames, analysisMode);
     metrics.coverage = frames.length / total;
-    state.frames = frames; state.metrics = metrics;
+    state.frames = frames; state.metrics = metrics; state.analysisDuration=dur;
     $('prog').style.width = '100%';
     $('runStatus').textContent = `完成：${MODES[state.mode].label}・分析 ${frames.length} 幀`;
     renderResult(metrics);
@@ -819,7 +847,7 @@ function renderResult(m){
     <button class="btn ghost sm" id="feedback-retry" type="button">${f.needsRetake ? '選擇補拍的影片' : '練好 3 次，選下一段影片'}</button></section>`;
   $('feedback-replay').onclick = () => { $('step-compare').scrollIntoView({behavior:'smooth'}); $('playBtn').click(); };
   $('feedback-retry').onclick = () => $('file').click();
-  $('compare-focus').textContent = `這次只看：${f.title}。左：原影片；右：同一動作的骨架，亮圈標出${f.part}。姿態沒有被改成「標準動作」。`;
+  $('compare-focus').textContent = `這次先看：${f.title}。左邊是原影片與移動軌跡，右邊看部位或已對齊的示範。展開「路線與方向」可選路徑，也能手動標球或棒頭。`;
   $('feedback-status').textContent = '';
   const box = $('metrics'); box.innerHTML = '';
   m.items.forEach(it => {
@@ -874,9 +902,10 @@ function selectedPose(c,P,project,rect,keys,color,{mirror=false,labels=true}={})
   c.restore();return points;
 }
 function mirrorKey(key){return key==='nose'?key:key.startsWith('l')?'r'+key.slice(1):'l'+key.slice(1);}
-function drawNormalisedPose(frame,rect,keys,color,mirror=false,labels=true){
+function drawNormalisedPose(frame,rect,keys,color,mirror=false,labels=true,trailOptions=null){
   const transform=bodyTransform(frame.P,rect,{mirror});if(!transform)return null;
   const project=p=>projectPoint(p,transform);
+  if(trailOptions)paintTrajectories(trailOptions.frames,project,rect,{...trailOptions,mirror});
   ctx.save();ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.globalAlpha=.45;
   for(const [a,b]of SKELETON_SEGMENTS){const p=frame.P[mirror?mirrorKey(a):a],q=frame.P[mirror?mirrorKey(b):b];if(!pointVisible(p)||!pointVisible(q))continue;const x=project(p),y=project(q);ctx.beginPath();ctx.moveTo(x.x,x.y);ctx.lineTo(y.x,y.y);ctx.stroke();}
   ctx.restore();selectedPose(ctx,frame.P,project,rect,keys,color,{mirror,labels});return transform;
@@ -898,6 +927,119 @@ function canvasText(text, x, y, width, lineHeight, maxLines=Infinity){
   if (line) ctx.fillText(line, x, y);
   return y + lineHeight;
 }
+
+function reviewEndTime(){
+  const last=state.frames[state.frames.length-1]?.t||0;
+  return state.analysisDuration>0?Math.max(last,state.analysisDuration-.001):last;
+}
+function trajectoryOptions(){
+  const common=[{value:'ball',text:'球的位置路線（手動標記）'}];
+  if(state.mode==='hit')return [{value:'auto',text:'雙手腕揮動路線（自動）'},{value:'rWri',text:'右手腕路線（自動）'},{value:'lWri',text:'左手腕路線（自動）'},{value:'batTip',text:'棒頭路線（手動標記）'},...common];
+  if(state.mode==='pitch')return [{value:'auto',text:'投球手腕路線（自動）'},{value:'hipMid',text:'身體前移路線（自動）'},...common];
+  return [{value:'auto',text:'髖部與雙腳移動路線（自動）'},{value:'hipMid',text:'身體移動方向（自動）'},{value:'feet',text:'雙腳腳步路線（自動）'},{value:'wrists',text:'雙手腕移動路線（自動）'},...common];
+}
+function setupTrajectory(){
+  const select=$('trajectory-kind');select.replaceChildren();
+  for(const item of trajectoryOptions()){const option=document.createElement('option');option.value=item.value;option.textContent=item.text;select.appendChild(option);}
+  select.value='auto';state.trajectory.marking=false;updateTrajectoryControls();
+}
+function manualTrajectoryKind(){const kind=$('trajectory-kind').value;return kind==='ball'||kind==='batTip'?kind:null;}
+function updateTrajectoryControls(){
+  const kind=manualTrajectoryKind(),manual=Boolean(kind),throwing=state.mode==='pitch'&&$('trajectory-kind').value==='auto';
+  $('trajectory-manual').classList.toggle('hide',!manual);
+  $('trajectory-hand-label').classList.toggle('hide',!throwing);$('trajectory-hand').classList.toggle('hide',!throwing);
+  $('trajectory-mark').textContent=state.trajectory.marking?'完成標記，回看路線':'開始逐格標記';
+  $('cmp').classList.toggle('trajectory-marking',state.trajectory.marking&&manual);
+  $('trajectory-navigation').classList.toggle('hide',!state.trajectory.marking||!manual);
+  const count=kind?state.trajectory.manual[kind].length:0;
+  $('trajectory-mark-status').textContent=manual?`已標記 ${count} 格。${state.trajectory.marking?'請點左邊原影片中的'+(kind==='ball'?'球心':'棒頭')+'，再按下一格。':'每一格只標同一個位置；看不清楚就跳過。'}`:'';
+  $('trajectory-note').textContent=manual?'黃色／橘色虛線是你手動標記的位置順序，不是 AI 自動追蹤或預測的完整路徑。':state.mode==='pitch'?'先選對投球手。自動路線是手腕移動，不代表球離手後的飛行方向。':state.mode==='hit'?'自動路線是手腕揮動，不是棒頭或球棒完整路徑；要看棒頭，請改用手動標記。':'自動路線顯示髖部與腳踝如何移動；來球位置可另外手動標記。';
+  for(const id of ['trajectory-kind','trajectory-hand','trajectory-range','trajectory-mark','trajectory-undo','trajectory-clear'])$(id).disabled=state.playing;
+  $('trajectory-undo').disabled=state.playing||!state.trajectory.history.some(item=>item.kind===kind);
+  $('trajectory-clear').disabled=state.playing||!count;
+}
+function trajectoryRange(time,frames){
+  const end=frames[frames.length-1]?.t||0,kind=$('trajectory-range').value;
+  return {from:kind==='recent'?Math.max(0,time-.75):0,to:kind==='entire'?Math.max(end,reviewEndTime()):time};
+}
+function trajectorySeries(frames,{reference=false,mirror=false,time=state.reviewTime}={}){
+  const kind=$('trajectory-kind').value||'auto',manual=manualTrajectoryKind(),range=trajectoryRange(time,frames);
+  if(manual){
+    if(reference)return [];
+    const points=state.trajectory.manual[manual].filter(p=>p.t>=range.from&&p.t<=range.to).slice().sort((a,b)=>a.t-b.t),paths=[];let path=[];
+    for(const p of points){if(path.length&&p.t-path[path.length-1].t>.25){paths.push(path);path=[];}path.push(p);}if(path.length)paths.push(path);
+    return [{name:manual==='ball'?'球的位置（手動）':'棒頭位置（手動）',color:manual==='ball'?'#ffd166':'#ffae78',paths,manual:true}];
+  }
+  let joints;
+  if(kind==='feet')joints=['lAnk','rAnk'];
+  else if(kind==='wrists')joints=['lWri','rWri'];
+  else if(kind!=='auto')joints=[kind];
+  else joints=state.mode==='pitch'?[$('trajectory-hand').value||'rWri']:state.mode==='hit'?['rWri','lWri']:['hipMid','lAnk','rAnk'];
+  const colors={rWri:'#5bd8ff',lWri:'#dd9cff',hipMid:'#9bed80',lAnk:'#c1a0ff',rAnk:'#ffd166'};
+  return joints.map(joint=>({name:TRAJECTORY_LABELS[joint],color:reference?'#ffb45c':colors[joint]||'#9bed80',paths:buildTrajectory(frames,{joint:mirror&&joint!=='hipMid'?mirrorKey(joint):joint,...range}),manual:false}));
+}
+function arrowHead(from,to,color){
+  const angle=Math.atan2(to.y-from.y,to.x-from.x);ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(to.x,to.y);
+  ctx.lineTo(to.x-10*Math.cos(angle-.45),to.y-10*Math.sin(angle-.45));ctx.lineTo(to.x-10*Math.cos(angle+.45),to.y-10*Math.sin(angle+.45));ctx.closePath();ctx.fill();
+}
+function paintTrajectories(frames,project,rect,options={}){
+  if(!$('trajectory-enabled').checked)return [];
+  const series=trajectorySeries(frames,options);
+  ctx.save();ctx.beginPath();ctx.rect(rect.x,rect.y,rect.w,rect.h);ctx.clip();
+  series.forEach((line,index)=>{
+    const longest=line.paths.reduce((best,path)=>path.length>best.length?path:best,[]);
+    for(const path of line.paths){
+      const points=path.map(p=>({...project(p),t:p.t}));if(!points.length)continue;
+      ctx.save();ctx.lineJoin='round';ctx.lineCap='round';ctx.strokeStyle='#091008';ctx.lineWidth=7;
+      if(line.manual)ctx.setLineDash([8,6]);
+      ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();
+      ctx.strokeStyle=line.color;ctx.lineWidth=3.5;ctx.stroke();ctx.restore();
+      let since=0;for(let i=1;i<points.length;i++){since+=Math.hypot(points[i].x-points[i-1].x,points[i].y-points[i-1].y);if(since>48&&Math.hypot(points[i].x-points[i-1].x,points[i].y-points[i-1].y)>2){arrowHead(points[i-1],points[i],line.color);since=0;}}
+      const first=points[0],last=points[points.length-1];ctx.fillStyle=line.color;ctx.beginPath();ctx.arc(first.x,first.y,5,0,Math.PI*2);ctx.fill();
+      let before=null;for(let i=points.length-2;i>=0;i--)if(Math.hypot(last.x-points[i].x,last.y-points[i].y)>=6){before=points[i];break;}
+      if(before)arrowHead(before,last,line.color);
+      if(index===0){ctx.font='600 19px "PingFang TC",sans-serif';ctx.fillText('起',first.x+8,first.y-9);if(before)ctx.fillText('終',last.x+10,last.y+20);}
+      if(path===longest&&points.length>=2){
+        ctx.font='600 18px "PingFang TC",sans-serif';const width=ctx.measureText(line.name).width+14;
+        const x=clamp(last.x+10,rect.x+4,rect.x+rect.w-width-4),y=clamp(last.y-34,rect.y+4,rect.y+rect.h-30);
+        ctx.fillStyle='rgba(5,12,8,.92)';roundRect(ctx,x,y,width,27,5);ctx.fill();ctx.fillStyle=line.color;ctx.fillText(line.name,x+7,y+20);
+      }
+      const now=options.markCurrent===false?null:points.find(p=>Math.abs(p.t-(options.time??state.reviewTime))<=FRAME_TOLERANCE);
+      if(now){ctx.beginPath();ctx.arc(now.x,now.y,7,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=line.color;ctx.lineWidth=3;ctx.stroke();}
+    }
+  });ctx.restore();return series;
+}
+function updateTrajectorySummary(series){
+  if(!$('trajectory-enabled').checked){$('trajectory-summary').textContent='已關閉軌跡；仍可查看身體部位與評分。';$('trajectory-legend').replaceChildren();state.trajectory.summary='';return;}
+  const legend=$('trajectory-legend');legend.replaceChildren();
+  const lines=[];
+  for(const item of series){
+    const span=document.createElement('span'),color=document.createElement('i'),name=document.createElement('span');color.style.background=item.color;name.textContent=item.name;span.append(color,name);legend.appendChild(span);
+    const summary=directionSummary(item.paths,{minDistance:Math.max(6,(state.frames[0]?.scale||60)*.10)});
+    lines.push(item.name+'：'+(summary.valid?`${summary.from.toFixed(2)}–${summary.to.toFixed(2)} 秒，這段起終點整體朝${summary.direction}移動。`:summary.distance>6&&summary.validPoints>=3?'這段起終點接近，轉向請看沿線箭頭。':summary.reason));
+  }
+  const tip=state.mode==='pitch'?'下一次：空手慢做 3 次，讓教練一起看手腕如何接到收尾；球的方向要看手動球路。':state.mode==='hit'?'下一次：空手慢揮 3 次，再同角度錄影比較路線。不用刻意把揮棒拉成直線。':'下一次：不拿球慢慢移動兩步、停穩，對照髖部與腳步是否每次接近；配合來球再請教練確認。';
+  $('trajectory-summary').textContent=lines.join('\n')+'\n'+tip;
+  state.trajectory.summary=lines.join('　');
+}
+function changeTrajectory(){pauseReview();state.trajectory.marking=false;updateTrajectoryControls();showReviewTime(state.reviewTime);}
+for(const id of ['trajectory-kind','trajectory-hand','trajectory-range','trajectory-enabled'])$(id).onchange=changeTrajectory;
+$('trajectory-mark').onclick=()=>{pauseReview();if(!manualTrajectoryKind()||!state.metrics)return;state.trajectory.marking=!state.trajectory.marking;$('trajectory-enabled').checked=true;updateTrajectoryControls();if(state.trajectory.marking)cmp.scrollIntoView({behavior:'smooth',block:'center'});};
+$('trajectory-manual-prev').onclick=()=>reviewStep(-1);
+$('trajectory-manual-next').onclick=()=>reviewStep(1);
+$('trajectory-manual-done').onclick=()=>{state.trajectory.marking=false;updateTrajectoryControls();};
+$('trajectory-undo').onclick=()=>{pauseReview();const kind=manualTrajectoryKind();let index=-1;for(let i=state.trajectory.history.length-1;i>=0;i--)if(state.trajectory.history[i].kind===kind){index=i;break;}if(index>=0){const old=state.trajectory.history.splice(index,1)[0];state.trajectory.manual[old.kind]=old.points;}updateTrajectoryControls();showReviewTime(state.reviewTime);};
+$('trajectory-clear').onclick=()=>{pauseReview();const kind=manualTrajectoryKind();if(!kind)return;state.trajectory.history.push({kind,points:state.trajectory.manual[kind].map(p=>({...p}))});state.trajectory.manual[kind]=[];updateTrajectoryControls();showReviewTime(state.reviewTime);};
+cmp.onclick=event=>{
+  const kind=manualTrajectoryKind();if(!kind||!state.trajectory.marking||state.playing||state.analysing||!state.metrics)return;
+  const box=cmp.getBoundingClientRect(),v=$('vid');
+  const point=annotationPoint({x:event.clientX-box.left,y:event.clientY-box.top},{canvasW:CMP.w,canvasH:CMP.h,cssW:box.width,cssH:box.height,rect:{x:24,y:108,w:330,h:430},sourceW:v.videoWidth,sourceH:v.videoHeight});
+  if(!point){$('trajectory-mark-status').textContent='請點左邊原影片的畫面內；黑邊與右邊比較圖不標記。';return;}
+  const points=state.trajectory.manual[kind];state.trajectory.history.push({kind,points:points.map(p=>({...p}))});
+  const same=points.findIndex(p=>Math.abs(p.t-state.reviewTime)<1/48),next={...point,t:state.reviewTime,v:1};
+  if(same>=0)points[same]=next;else points.push(next);points.sort((a,b)=>a.t-b.t);
+  updateTrajectoryControls();showReviewTime(state.reviewTime);
+};
 
 const REVIEW_PARTS = {
   tempo:{keys:['lSho','rSho','lHip','rHip'],watch:'看肩膀與髖部開始移動到手部加速的接續。',check:'若每次開始都忽快忽慢，先用舒服速度慢做 3 次，找回可重複的節奏。'},
@@ -932,8 +1074,8 @@ function setupReview(){
   }
   select.value = state.reviewFocus;
   $('review-time').min = state.frames[0].t;
-  $('review-time').max = state.frames[state.frames.length-1].t;
-  updateReviewGuide(); updateAnchorStatus();
+  $('review-time').max = reviewEndTime();
+  updateReviewGuide(); updateAnchorStatus();setupTrajectory();
 }
 function updateReviewGuide(){
   const focus = activeReview();
@@ -962,7 +1104,7 @@ async function showReviewTime(time){
   if (!state.metrics || !state.frames.length) return false;
   if (state.reference.busy){ $('recStatus').textContent = '示範分析中，請完成後再回看。'; return false; }
   const renderId = ++state.renderId;
-  let t = clamp(Number(time),state.frames[0].t,state.frames[state.frames.length-1].t);
+  let t = clamp(Number(time),state.frames[0].t,reviewEndTime());
   if (!Number.isFinite(t)) return false;
   const snap=nearestFrame(state.frames,t,FRAME_TOLERANCE);if(snap)t=snap.t;
   try {
@@ -981,15 +1123,14 @@ async function showReviewTime(time){
     if (renderId !== state.renderId) return false;
     state.reviewTime = t; $('review-time').value = t;
     $('review-clock').textContent = t.toFixed(2) + ' 秒';
-    const end = state.frames[state.frames.length-1].t, start = state.frames[0].t;
+    const end = reviewEndTime(), start = state.frames[0].t;
     drawFrameAt(clamp((t-start)/Math.max(.01,end-start),0,1),frameIndexForTime(t));
     return true;
   } catch (err){ if (renderId === state.renderId) $('recStatus').textContent = err.message; return false; }
 }
 function reviewStep(direction){
   pauseReview(); if (!state.frames.length) return;
-  const index = state.frames.reduce((best,f,i)=>Math.abs(f.t-state.reviewTime)<Math.abs(state.frames[best].t-state.reviewTime)?i:best,0);
-  showReviewTime(state.frames[clamp(index+direction,0,state.frames.length-1)].t);
+  showReviewTime(clamp(state.reviewTime+direction/24,state.frames[0].t,reviewEndTime()));
 }
 $('review-prev').onclick = () => reviewStep(-1);
 $('review-next').onclick = () => reviewStep(1);
@@ -1074,13 +1215,14 @@ function drawFrameAt(prog, frameIdx){
   clip(left);
   if(video.readyState>=2&&video.videoWidth){
     const fit=fitFrame(video.videoWidth,video.videoHeight,left);ctx.drawImage(video,fit.dx,fit.dy,video.videoWidth*fit.scale,video.videoHeight*fit.scale);
+    const tracks=paintTrajectories(frames,p=>({x:fit.dx+p.x*fit.scale,y:fit.dy+p.y*fit.scale}),left,{time:video.currentTime,markCurrent:!video.seeking&&Math.abs(video.currentTime-state.reviewTime)<=.025});updateTrajectorySummary(tracks);
     if(f){drawSkeletonFrom(ctx,f.P,fit.dx,fit.dy,fit.scale,'#c5dec7',2.2,.55);selectedPose(ctx,f.P,p=>({x:fit.dx+p.x*fit.scale,y:fit.dy+p.y*fit.scale}),left,focus.keys,'#5bd8ff',{labels});}
   }
   ctx.restore();clip(right);
   let differences=[],studentTransform=null,referenceTransform=null;
   if(aligned){
-    studentTransform=drawNormalisedPose(f,right,focus.keys,'#5bd8ff',false,false);
-    referenceTransform=drawNormalisedPose(refFrame,right,focus.keys,'#ffb45c',mirror,labels);
+    studentTransform=drawNormalisedPose(f,right,focus.keys,'#5bd8ff',false,false,{frames,time:state.reviewTime});
+    referenceTransform=drawNormalisedPose(refFrame,right,focus.keys,'#ffb45c',mirror,labels,{frames:ref.frames,reference:true,time:state.referenceViewTime});
     differences=comparePose(f,refFrame,{mirror,keys:focus.keys});
     if(studentTransform&&referenceTransform){
       for(const difference of differences){
@@ -1094,15 +1236,16 @@ function drawFrameAt(prog, frameIdx){
     const rv=$('ref-video'),fit=fitFrame(refFrame.W,refFrame.H,right);
     ctx.save();if(mirror){ctx.translate(right.x*2+right.w,0);ctx.scale(-1,1);}ctx.drawImage(rv,fit.dx,fit.dy,refFrame.W*fit.scale,refFrame.H*fit.scale);ctx.restore();
     const project=p=>({x:mirror?right.x*2+right.w-(fit.dx+p.x*fit.scale):fit.dx+p.x*fit.scale,y:fit.dy+p.y*fit.scale});
+    paintTrajectories(ref.frames,project,right,{reference:true,mirror,time:state.referenceViewTime});
     selectedPose(ctx,refFrame.P,project,right,focus.keys,'#ffb45c',{mirror,labels});
   } else if(f){
-    studentTransform=drawNormalisedPose(f,right,focus.keys,'#5bd8ff',false,labels);
+    studentTransform=drawNormalisedPose(f,right,focus.keys,'#5bd8ff',false,labels,{frames,time:state.reviewTime});
   }
   if(!f){ctx.fillStyle='#d5decf';ctx.font='21px "PingFang TC",sans-serif';canvasText('這格辨識不足，不沿用舊標點。',right.x+14,right.y+60,pw-28,32);}
   ctx.restore();
   let message=focus.watch;
   const visible=f?focus.keys.filter(k=>pointVisible(f.P[k])).length:0;
-  if(!f||visible<2)message='這格的觀察部位沒有清楚被辨識，標點標線先隱藏。請移到清楚的一格，或重新拍攝。';
+  if(!f||visible<2)message='這格的觀察部位沒有清楚被辨識，這一格的身體標點先隱藏；已記錄的移動軌跡仍可回看。';
   else if(ref.frames.length&&state.referenceViewTime!==null&&!refFrame)message='示範這格沒有可靠標點，暫不比較差距；請移到兩邊都清楚的一格。';
   else if(!refFrame&&!studentTransform)message='這格肩髖辨識不足，暫不放大標線。請移到身體拍清楚的一格。';
   else if(aligned&&!differences.length)message='這格的肩髖或所選部位辨識不足，暫不比較差距。';
@@ -1126,6 +1269,7 @@ function drawFrameAt(prog, frameIdx){
   const y=canvasText(focus.check,pad+16,next+83,W-pad*2-32,35);
   ctx.fillStyle='#c9d6bd';ctx.font='22px "PingFang TC",sans-serif';
   canvasText('練習後用同一角度再錄一次，停在同環節，看看這個部位的變化。',pad+16,y+25,W-pad*2-32,33);
+  if(state.trajectory.summary){ctx.fillStyle='#e6d8a5';ctx.font='19px "PingFang TC",sans-serif';canvasText(state.trajectory.summary,pad,H-110,W-pad*2,25,2);}
   ctx.fillStyle='#9aa894';ctx.font='17px "PingFang TC",sans-serif';
   ctx.fillText('標點是影像估計；差距需教練確認，動作不舒服就停下。',pad,H-47);
   ctx.fillStyle='#263223';ctx.fillRect(pad,H-28,W-pad*2,5);ctx.fillStyle='#cbf24c';ctx.fillRect(pad,H-28,(W-pad*2)*clamp(prog,0,1),5);
@@ -1137,6 +1281,7 @@ function frameIndexForTime(t){
 function setPlaybackBusy(busy){
   for (const id of ['playBtn','recBtn','feedback-replay','review-prev','review-next','review-key','review-time','review-focus','ref-file','anchor-student']) if ($(id)) $(id).disabled = busy;
   $('pauseBtn').disabled=!busy;$('ref-video').controls=!busy&&!state.reference.busy;
+  if(busy)state.trajectory.marking=false;updateTrajectoryControls();
   updateAnchorStatus();
 }
 async function withPlayback(action){
@@ -1149,7 +1294,7 @@ async function withPlayback(action){
   finally { if (playbackId === state.playbackId) { state.playing = false; setPlaybackBusy(false); } }
 }
 async function playWindow(playbackId){
-  const first=state.frames[0].t,last=state.frames[state.frames.length-1].t;
+  const first=state.frames[0].t,last=reviewEndTime();
   const start=state.reviewTime>=last-.05?first:Math.max(first,state.reviewTime);
   // 每一格先等影片 seeked，再畫同一時間的姿態。漏檢處不沿用舊標點。
   for(let t=start;t<=last+.001;t+=1/24){
