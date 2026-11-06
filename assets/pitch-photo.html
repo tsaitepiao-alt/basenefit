@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>投球姿勢照片分析 · basenefit</title>
+<style>
+  :root{
+    --bg:#0b0f0c; --card:#141912; --card2:#1b221a; --line:#2a3327;
+    --lime:#cbf24c; --lime-d:#a8cf2f; --txt:#eef3e6; --muted:#9aa894;
+    --warn:#ffb020; --bad:#ff6b5e; --good:#7ee787; --blue:#5bb8ff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
+    font-family:"PingFang TC","Noto Sans TC","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  body{padding:16px 14px calc(28px + env(safe-area-inset-bottom));max-width:820px;margin:0 auto}
+  h1{font-size:20px;margin:2px 0 6px;letter-spacing:.5px}
+  .eyebrow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;
+    letter-spacing:.22em;color:var(--lime);text-transform:uppercase;opacity:.85}
+  .lead{color:var(--muted);font-size:13px;line-height:1.7;margin:6px 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+  .card h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+    border-radius:50%;background:var(--lime);color:#141412;font-size:12px;font-weight:700}
+  .drop{border:1.5px dashed #3a4634;border-radius:14px;padding:20px 14px;text-align:center;background:#101510;transition:.2s;cursor:pointer}
+  .drop.hover{border-color:var(--lime);background:#131a10}
+  .drop b{display:block;font-size:14px;margin-bottom:6px}
+  .drop .hint{color:var(--muted);font-size:12px;line-height:1.6}
+  input[type=file]{display:none}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;
+    padding:14px 16px;border-radius:14px;border:0;background:var(--lime);color:#141412;
+    font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:12px}
+  .btn:disabled{opacity:.45;cursor:default}
+  .btn.ghost{background:transparent;color:var(--lime);border:1px solid var(--lime-d)}
+  .btn.sm{width:auto;padding:9px 14px;font-size:13px;margin-top:0}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  canvas{width:100%;border-radius:14px;background:#000;display:block}
+  .bar{height:8px;border-radius:99px;background:#232b20;overflow:hidden;margin-top:10px}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--lime-d),var(--lime));transition:width .15s}
+  .status{font-size:12px;color:var(--muted);margin-top:8px;min-height:16px}
+  .m{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+    padding:10px 0;border-bottom:1px dashed #263022}
+  .m:last-child{border-bottom:0}
+  .m .k{font-size:13px;color:#cdd8c2}
+  .m .k em{display:block;font-style:normal;font-size:10px;letter-spacing:.12em;color:var(--muted);
+    font-family:ui-monospace,Menlo,monospace;margin-top:2px}
+  .m .v{font-size:20px;font-weight:700;color:var(--lime);white-space:nowrap}
+  .m .v small{font-size:12px;color:var(--muted);font-weight:400}
+  .req{color:var(--muted);font-size:11.5px;line-height:1.65;margin:10px 0 0}
+  .tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:99px;
+    border:1px solid var(--line);color:var(--muted);margin:0 6px 6px 0}
+  .tag.ok{border-color:#3f5a2e;color:var(--good)}
+  .tag.mid{border-color:#5a4c2e;color:var(--warn)}
+  .tag.hi{border-color:#5a2e2e;color:var(--bad)}
+</style>
+</head>
+<body>
+<div class="eyebrow">AI MOTION · PITCHING</div>
+<h1>📷 投球姿勢照片分析</h1>
+<p class="lead">上傳一張<b>側面、全身入鏡</b>的投球照片 → AI 抓出 33 個關節點 → 量測軀幹前傾、前導膝、跨步比例 → 產出 <b>15 秒分析短片</b>（中英雙語字幕）。
+<b>照片只留在你的裝置，不會上傳到任何伺服器。</b></p>
+
+<div class="card">
+  <h2><span class="num">1</span>選一張投球照片</h2>
+  <div class="drop" id="drop">
+    <b>點這裡選照片，或把照片拖進來</b>
+    <div class="hint">建議：側面拍攝、全身入鏡（頭到腳）、光線充足、背景乾淨<br>JPG / PNG，手機直式最好</div>
+  </div>
+  <input type="file" id="file" accept="image/*">
+  <div class="status" id="status"></div>
+</div>
+
+<div class="card" id="step2" hidden>
+  <h2><span class="num">2</span>量測結果</h2>
+  <div id="metrics"></div>
+  <div id="verdict" style="margin-top:12px"></div>
+  <p class="req" id="limits"></p>
+</div>
+
+<div class="card" id="step3" hidden>
+  <h2><span class="num">3</span>分析短片（15 秒）</h2>
+  <canvas id="cv" width="1080" height="1920"></canvas>
+  <button class="btn" id="btnRender">▶ 產生分析短片（約 15 秒）</button>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="row">
+    <button class="btn ghost sm" id="btnDl" disabled>⬇ 下載短片</button>
+    <button class="btn ghost sm" id="btnPng" disabled>⬇ 下載分析圖</button>
+  </div>
+  <div class="status" id="status2"></div>
+</div>
+
+<script type="module">
+const VISION_VER='0.10.14';
+const CDN=`https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${VISION_VER}`;
+const MODEL='https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task';
+
+const $=id=>document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=1080, H=1920;
+
+const EDGES=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],
+             [23,25],[25,27],[24,26],[26,28],[11,22],[12,22],[23,11],[24,12]];
+const LIME='#cbf24c', YEL='#ffce14', GRN='#3ce678', ORG='#ff8228', RED='#e83e3e', WHITE='#ffffff';
+
+const S={img:null, lm:null, metrics:null, ready:false, recording:false, blob:null, poster:null};
+window.__pitchPhoto=S;
+
+/* ---------- 載入模型 ---------- */
+let modelP=null;
+function loadModel(){
+  if(modelP) return modelP;
+  $('status').textContent='載入 AI 模型（第一次約 10–20 秒）…';
+  modelP=(async()=>{
+    const vision=await import(`${CDN}/vision_bundle.mjs`);
+    const fileset=await vision.FilesetResolver.forVisionTasks(`${CDN}/wasm`);
+    const lm=await vision.PoseLandmarker.createFromOptions(fileset,{
+      baseOptions:{modelAssetPath:MODEL, delegate:'GPU'},
+      runningMode:'IMAGE', numPoses:1,
+      minPoseDetectionConfidence:.35, minPosePresenceConfidence:.35
+    });
+    return {vision, lm};
+  })().catch(e=>{modelP=null; throw e;});
+  return modelP;
+}
+
+/* ---------- 選檔 ---------- */
+$('drop').onclick=()=>$('file').click();
+$('drop').addEventListener('dragover',e=>{e.preventDefault();$('drop').classList.add('hover')});
+$('drop').addEventListener('dragleave',()=>$('drop').classList.remove('hover'));
+$('drop').addEventListener('drop',e=>{e.preventDefault();$('drop').classList.remove('hover');
+  const f=e.dataTransfer.files[0]; if(f) handleFile(f);});
+$('file').onchange=e=>{const f=e.target.files[0]; if(f) handleFile(f);};
+
+async function handleFile(file){
+  if(!file.type.startsWith('image/')){ $('status').textContent='請選圖片檔。'; return; }
+  try{
+    const {lm}=await loadModel();
+    $('status').textContent='讀取照片…';
+    const bmp=await createImageBitmap(file);
+    S.img=bmp;
+    const res=lm.detect(bmp);
+    if(!res.landmarks || !res.landmarks.length){
+      $('status').textContent='偵測不到人體：請確認全身入鏡、側面、光線足夠。';
+      return;
+    }
+    S.lm=res.landmarks[0].map(p=>({x:p.x,y:p.y,z:p.z,v:p.visibility??1}));
+    S.metrics=computeMetrics(S.lm, bmp.width, bmp.height);
+    $('status').textContent=`完成：影像 ${bmp.width}×${bmp.height}，抓到 33 個關節點。`;
+    renderMetrics();
+    $('step2').hidden=false; $('step3').hidden=false;
+    drawPoster();
+    $('step3').scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(err){
+    console.error(err);
+    $('status').textContent='分析失敗：'+(err?.message||err);
+  }
+}
+
+/* ---------- 量測 ---------- */
+const P=(lm,i)=>lm[i];
+function ang(a,b,c){
+  const v1=[a.x-b.x,a.y-b.y], v2=[c.x-b.x,c.y-b.y];
+  const d=v1[0]*v2[0]+v1[1]*v2[1];
+  const n=Math.hypot(...v1)*Math.hypot(...v2)||1e-9;
+  return Math.acos(Math.max(-1,Math.min(1,d/n)))*180/Math.PI;
+}
+function computeMetrics(lm,iw,ih){
+  // 全部換成像素座標再算：MediaPipe 的 x/y 分別以寬、高正規化，不是等向，直接算會失真
+  const P=lm.map(q=>({x:q.x*iw,y:q.y*ih,v:q.v??1}));
+  const hip={x:(P[23].x+P[24].x)/2,y:(P[23].y+P[24].y)/2};
+  const sh={x:(P[11].x+P[12].x)/2,y:(P[11].y+P[12].y)/2};
+  // 身高（像素）：小腿長 ≈ 0.246 身高 → H ≈ 4.07 × 脛長（蹲下也不變）
+  const shankL=Math.hypot(P[25].x-P[27].x, P[25].y-P[27].y);
+  const shankR=Math.hypot(P[26].x-P[28].x, P[26].y-P[28].y);
+  const shank=(shankL+shankR)/2;
+  const hPx=Math.max(20, shank*4.07);
+  // 軀幹前傾：髖→肩 與垂直線夾角
+  const dx=sh.x-hip.x, dy=hip.y-sh.y;
+  const tilt=Math.atan2(dx,dy)*180/Math.PI;        // + = 往畫面右倒
+  const leanDir=Math.sign(dx)||1;
+  // 前導腳：往傾倒方向較遠的踝
+  const aL=P[27], aR=P[28];
+  const leadIsL=((aL.x-hip.x)*leanDir) > ((aR.x-hip.x)*leanDir);
+  const lead=leadIsL?aL:aR, drive=leadIsL?aR:aL;
+  const leadKnee=leadIsL?P[25]:P[26], leadHip=leadIsL?P[23]:P[24];
+  const driveKnee=leadIsL?P[26]:P[25], driveHip=leadIsL?P[24]:P[23];
+  const kneeFlex=180-ang(leadHip,leadKnee,lead);
+  const driveKneeFlex=180-ang(driveHip,driveKnee,drive);
+  const stride=Math.abs(lead.x-drive.x)/hPx;
+  const headOverLead=(P[0].x-lead.x)/hPx;
+  // 投球手：手腕此刻較高者
+  const wL=P[15], wR=P[16];
+  const throwIsR = (wR.y < wL.y);
+  const wrist=throwIsR?wR:wL, mySh=throwIsR?P[12]:P[11];
+  const elbow=throwIsR?P[14]:P[13];
+  const elbowAbove = wrist.y < mySh.y;             // 影像 y 向下
+  const elbowAngle=180-ang(mySh,elbow,wrist);
+  return {tilt:Math.abs(tilt), tiltSign:Math.sign(tilt)||1, hPx, hN:hPx,
+          stride, kneeFlex, driveKneeFlex, headOverLead, elbowAbove, elbowAngle,
+          leadIsL, throwIsR, hip, sh, iw, ih, px:P};
+}
+
+/* ---------- 面板 ---------- */
+function band(v,a,b){ return v<a?'low':(v<=b?'mid':'high'); }
+function renderMetrics(){
+  const m=S.metrics;
+  const tTag = m.tilt<15?['偏低','tag mid','軀幹接近直立，留意是否只用手臂發力']
+             : m.tilt<=35?['適中','tag ok','重心大致疊在前腳上方']
+             : ['前倒','tag hi','前倒明顯，檢查骨盆是否被上半身帶走'];
+  const rows=[
+    ['軀幹前傾角','TRUNK TILT AT THIS FRAME',`${m.tilt.toFixed(0)}°<small> ${tTag[0]}</small>`],
+    ['前導膝屈曲','LEAD KNEE FLEXION',`${m.kneeFlex.toFixed(0)}°`],
+    ['跨步 / 身高','STRIDE OVER BODY HEIGHT',`${m.stride.toFixed(2)}<small> 倍</small>`],
+    ['軸心腳膝角','DRIVE KNEE ANGLE',`${m.driveKneeFlex.toFixed(0)}°`],
+    ['手肘高度','THROWING ELBOW VS SHOULDER',m.elbowAbove?'<small>高於肩</small>':'<small>低於肩</small>'],
+    ['頭部相對前導腳','HEAD OVER LEAD FOOT',`${(m.headOverLead*100).toFixed(0)}<small> % 身高</small>`]
+  ];
+  $('metrics').innerHTML=rows.map(([k,en,v])=>
+    `<div class="m"><div class="k">${k}<em>${en}</em></div><div class="v">${v}</div></div>`).join('');
+  $('verdict').innerHTML=
+    `<span class="tag ${tTag[1]}">軀幹：${tTag[0]}</span>`+
+    `<span class="tag ${m.stride<.6?'mid':(m.stride>.9?'mid':'ok')}">跨步：${m.stride.toFixed(2)} 身高</span>`+
+    `<span class="tag ${m.kneeFlex>60?'mid':'ok'}">前導膝：${m.kneeFlex.toFixed(0)}°</span>`;
+  $('limits').innerHTML='⚠️ 這是<b>單張照片、單一瞬間</b>的姿勢量測：不能算球速、不能算出手時序、不能判斷動作好壞或受傷風險。'+
+    '角度誤差約 ±5°，跨步比值誤差約 ±0.05。要判斷「動作對不對」需要連續影像與教練判讀。<br>'+
+    '拍攝角度若不是正側面，角度會被壓縮；建議同一位置、同一距離長期比較自己的變化。';
+}
+
+/* ---------- 繪圖工具 ---------- */
+function coverDraw(g,img,x,y,w,h){
+  const s=Math.max(w/img.width,h/img.height);
+  const dw=img.width*s, dh=img.height*s;
+  g.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
+  return {scale:s,dx:x+(w-dw)/2,dy:y+(h-dh)/2};
+}
+function lmPt(lm,i,fit){
+  return [fit.dx+lm[i].x*S.img.width*fit.scale, fit.dy+lm[i].y*S.img.height*fit.scale];
+}
+function drawSkel(g,lm,fit,prog=1,color=GRN,w=6){
+  const n=Math.max(1,Math.round(EDGES.length*prog));
+  g.lineCap='round';
+  for(let i=0;i<n;i++){
+    const [a,b]=EDGES[i];
+    const pa=lmPt(lm,a,fit), pb=lmPt(lm,b,fit);
+    g.strokeStyle='rgba(0,0,0,.55)'; g.lineWidth=w+5;
+    g.beginPath(); g.moveTo(...pa); g.lineTo(...pb); g.stroke();
+    g.strokeStyle=color; g.lineWidth=w;
+    g.beginPath(); g.moveTo(...pa); g.lineTo(...pb); g.stroke();
+  }
+  for(const k of [0,11,12,13,14,15,16,23,24,25,26,27,28]){
+    const [x,y]=lmPt(lm,k,fit);
+    g.fillStyle=ORG; g.beginPath(); g.arc(x,y,w*1.3,0,7); g.fill();
+  }
+}
+function arcBetween(g,c,p0,p1,r,color,label,fs=64){
+  const a0=Math.atan2(p0[1]-c[1],p0[0]-c[0]);
+  const a1=Math.atan2(p1[1]-c[1],p1[0]-c[0]);
+  const d=(a1-a0+Math.PI*4)%(Math.PI*2);
+  g.strokeStyle=color; g.lineWidth=8; g.beginPath();
+  g.arc(c[0],c[1],r,Math.min(a0,a0+d),Math.max(a0,a0+d)); g.stroke();
+  if(label){
+    const am=a0+d/2;
+    const x=c[0]+(r+58)*Math.cos(am), y=c[1]+(r+58)*Math.sin(am);
+    g.font=`700 ${fs}px "PingFang TC",sans-serif`;
+    g.textAlign='center'; g.textBaseline='middle';
+    const tw=g.measureText(label).width;
+    g.fillStyle='rgba(0,0,0,.72)';
+    roundRect(g,x-tw/2-20,y-fs*.72,tw+40,fs*1.44,14); g.fill();
+    g.fillStyle=color; g.fillText(label,x,y);
+  }
+}
+function roundRect(g,x,y,w,h,r){
+  g.beginPath();
+  g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
+}
+function chip(g,zh,en,idx){
+  g.font='700 40px "PingFang TC",sans-serif';
+  const w1=g.measureText(zh).width;
+  g.font='20px ui-monospace,Menlo,monospace';
+  const w2=g.measureText(en).width;
+  const bw=Math.max(w1,w2)+70;
+  g.fillStyle='rgba(0,0,0,.62)'; roundRect(g,40,60,bw,124,18); g.fill();
+  g.fillStyle=LIME; roundRect(g,40,60,12,124,6); g.fill();
+  g.fillStyle=WHITE; g.font='700 40px "PingFang TC",sans-serif'; g.textAlign='left'; g.textBaseline='top';
+  g.fillText(zh,72,74);
+  g.fillStyle='rgba(220,230,215,.85)'; g.font='20px ui-monospace,Menlo,monospace';
+  g.fillText(en,72,128);
+  if(idx){
+    g.fillStyle='rgba(255,255,255,.6)'; g.font='700 34px ui-monospace,Menlo,monospace';
+    g.textAlign='right'; g.fillText(idx,W-52,74);
+  }
+}
+function subBlock(g,zh,en){
+  g.textAlign='center'; g.textBaseline='alphabetic';
+  let fs=54;
+  g.font=`700 ${fs}px "PingFang TC",sans-serif`;
+  while(g.measureText(zh).width>W-140 && fs>34){ fs-=2; g.font=`700 ${fs}px "PingFang TC",sans-serif`; }
+  const zw=g.measureText(zh).width;
+  g.font='30px "Helvetica Neue",Arial,sans-serif';
+  const ew=g.measureText(en).width;
+  const bw=Math.max(zw,ew)+80, bh=fs+30+30+44;
+  const x=(W-bw)/2, y=H-bh-90;
+  g.fillStyle='rgba(0,0,0,.7)'; roundRect(g,x,y,bw,bh,22); g.fill();
+  g.fillStyle=WHITE; g.font=`700 ${fs}px "PingFang TC",sans-serif`;
+  g.fillText(zh,W/2,y+22+fs*0.86);
+  g.fillStyle='rgba(214,224,236,.92)'; g.font='30px "Helvetica Neue",Arial,sans-serif';
+  g.fillText(en,W/2,y+bh-24);
+}
+function basenefitLogo(g,cx,cy,h){
+  // 白球 + 紅縫線 + 黑底白字 + 黃底線
+  const r=h*0.34;
+  g.save(); g.translate(cx,cy);
+  g.fillStyle='#fff'; g.beginPath(); g.arc(-h*1.05,0,r,0,7); g.fill();
+  g.strokeStyle='#d8342c'; g.lineWidth=r*0.16;
+  for(const s of [-1,1]){
+    g.beginPath(); g.arc(-h*1.05+s*r*0.62,0,r*0.95,-0.9,0.9); g.stroke();
+  }
+  g.font=`700 ${h*0.72}px "Helvetica Neue",Arial,sans-serif`;
+  g.textAlign='left'; g.textBaseline='middle';
+  const tw=g.measureText('basenefit').width;
+  const x0=-h*1.05+r+16;
+  g.lineWidth=h*0.10; g.strokeStyle='rgba(0,0,0,.85)';
+  g.strokeText('basenefit',x0,0);
+  g.fillStyle='#fff'; g.fillText('basenefit',x0,0);
+  g.fillStyle=LIME; g.fillRect(x0,h*0.44,tw,h*0.075);
+  g.restore();
+}
+function progressBar(g,p){
+  g.fillStyle='rgba(255,255,255,.12)'; g.fillRect(0,0,W,7);
+  g.fillStyle=LIME; g.fillRect(0,0,W*Math.max(0,Math.min(1,p)),7);
+}
+
+/* ---------- 靜態海報（選完照片立刻畫一張） ---------- */
+function drawPoster(){
+  const g=ctx; g.clearRect(0,0,W,H);
+  const fit=coverDraw(g,S.img,0,0,W,H);
+  const grad=g.createLinearGradient(0,H*0.55,0,H);
+  grad.addColorStop(0,'rgba(4,6,12,0)'); grad.addColorStop(1,'rgba(4,6,12,.92)');
+  g.fillStyle=grad; g.fillRect(0,H*0.55,W,H*0.45);
+  drawSkel(g,S.lm,fit,1);
+  const m=S.metrics;
+  const hip=lmPt(S.lm,23,fit), hip2=lmPt(S.lm,24,fit);
+  const sh=lmPt(S.lm,11,fit), sh2=lmPt(S.lm,12,fit);
+  const hc=[(hip[0]+hip2[0])/2,(hip[1]+hip2[1])/2], sc=[(sh[0]+sh2[0])/2,(sh[1]+sh2[1])/2];
+  g.strokeStyle=YEL; g.lineWidth=7; g.beginPath(); g.moveTo(...hc); g.lineTo(...sc); g.stroke();
+  arcBetween(g,hc,[hc[0],hc[1]-500],sc,190,YEL,`${m.tilt.toFixed(0)}°`);
+  g.strokeStyle=RED; g.lineWidth=7; g.beginPath(); g.arc(hc[0],hc[1],86,0,7); g.stroke();
+  chip(g,'投球姿勢 · 靜態量測','PITCHING POSTURE SCAN','01');
+  subBlock(g,`軀幹前傾 ${m.tilt.toFixed(0)}°`,`Trunk tilt ${m.tilt.toFixed(0)} degrees`);
+  S.poster=cv.toDataURL('image/png');
+  $('btnPng').disabled=false;
+}
+
+/* ---------- 15 秒短片 ---------- */
+const T=15;
+function pickMime(){
+  const c=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  for(const m of c){ if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }
+  return '';
+}
+
+$('btnRender').onclick=async()=>{
+  if(!S.img||!S.lm) return;
+  if(S.recording) return;
+  const mime=pickMime();
+  const stream=cv.captureStream?cv.captureStream(30):null;
+  let rec=null, chunks=[];
+  if(stream&&mime){
+    rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:4_000_000});
+    rec.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); };
+  }
+  S.recording=true; $('btnRender').disabled=true; $('status2').textContent='錄製中…';
+  const t0=performance.now();
+  let raf=0;
+  const tick=()=>{
+    const t=(performance.now()-t0)/1000;
+    frame(t);
+    $('prog').style.width=Math.min(100,t/T*100).toFixed(1)+'%';
+    if(t<T){ raf=requestAnimationFrame(tick); }
+    else{
+      cancelAnimationFrame(raf);
+      S.recording=false; $('btnRender').disabled=false;
+      if(rec&&rec.state!=='inactive') rec.stop();
+      setTimeout(()=>{
+        if(chunks.length){
+          S.blob=new Blob(chunks,{type:mime.split(';')[0]});
+          const url=URL.createObjectURL(S.blob);
+          $('btnDl').disabled=false;
+          $('btnDl').onclick=()=>{
+            const a=document.createElement('a');
+            a.href=url; a.download=`basenefit_投球姿勢分析_${Date.now()}.${mime.includes('mp4')?'mp4':'webm'}`;
+            a.click();
+          };
+          $('status2').textContent=`完成：${(S.blob.size/1e6).toFixed(1)} MB（${mime.includes('mp4')?'mp4':'webm'}）`;
+        }else{
+          $('status2').textContent='這個瀏覽器不支援錄影，但可以下載分析圖（PNG）。';
+        }
+      },400);
+    }
+  };
+  if(rec) rec.start(200);
+  tick();
+};
+
+function frame(t){
+  const g=ctx, m=S.metrics;
+  g.clearRect(0,0,W,H);
+  // 背景
+  g.fillStyle='#07090e'; g.fillRect(0,0,W,H);
+  const fit=coverDraw(g,S.img,0,0,W,H);
+  // 暗角＋底部漸層
+  const grad=g.createLinearGradient(0,H*0.5,0,H);
+  grad.addColorStop(0,'rgba(4,6,12,0)'); grad.addColorStop(1,'rgba(4,6,12,.94)');
+  g.fillStyle=grad; g.fillRect(0,H*0.5,W,H*0.5);
+
+  const hip=lmPt(S.lm,23,fit), hip2=lmPt(S.lm,24,fit);
+  const sh=lmPt(S.lm,11,fit), sh2=lmPt(S.lm,12,fit);
+  const hc=[(hip[0]+hip2[0])/2,(hip[1]+hip2[1])/2];
+  const sc=[(sh[0]+sh2[0])/2,(sh[1]+sh2[1])/2];
+  let sub=null;
+
+  if(t<1.6){
+    // 標題：照片淡入
+    g.fillStyle=`rgba(7,9,14,${1-Math.min(1,t/1.0)*0.75})`; g.fillRect(0,0,W,H);
+    g.textAlign='center'; g.fillStyle=WHITE;
+    g.font='700 76px "PingFang TC",sans-serif';
+    g.fillText('投球姿勢分析',W/2,H*0.42);
+    g.fillStyle=LIME; g.font='26px ui-monospace,Menlo,monospace';
+    g.fillText('PITCHING POSTURE SCAN',W/2,H*0.42+64);
+    g.fillStyle='rgba(230,238,225,.8)'; g.font='34px "PingFang TC",sans-serif';
+    g.fillText('單張照片 · 靜態量測',W/2,H*0.42+140);
+    sub=null;
+  } else if(t<4.4){
+    // 骨架逐段畫出
+    const p=Math.min(1,(t-1.6)/2.4);
+    drawSkel(g,S.lm,fit,p);
+    chip(g,'AI 骨架偵測','33 LANDMARKS','01');
+    sub=['AI 抓出 33 個關節點','33 body landmarks detected'];
+  } else if(t<8.2){
+    const p=Math.min(1,(t-4.4)/1.0);
+    drawSkel(g,S.lm,fit,1);
+    g.strokeStyle=YEL; g.lineWidth=7; g.beginPath(); g.moveTo(...hc); g.lineTo(...sc); g.stroke();
+    arcBetween(g,hc,[hc[0],hc[1]-480],sc,180,YEL,`${(m.tilt*p).toFixed(0)}°`);
+    g.strokeStyle='rgba(255,255,255,.5)'; g.lineWidth=4; g.setLineDash([14,14]);
+    g.beginPath(); g.moveTo(hc[0],hc[1]); g.lineTo(hc[0],hc[1]-480); g.stroke(); g.setLineDash([]);
+    chip(g,'軀幹前傾角','TRUNK TILT',"02");
+    sub=[`軀幹前傾 ${m.tilt.toFixed(0)} 度`,`Trunk tilt ${m.tilt.toFixed(0)} degrees`];
+  } else if(t<11.4){
+    drawSkel(g,S.lm,fit,1);
+    // 骨盆圈＋前導膝弧
+    g.strokeStyle=RED; g.lineWidth=7; g.beginPath(); g.arc(hc[0],hc[1],80,0,7); g.stroke();
+    const kL=lmPt(S.lm,25,fit), aL=lmPt(S.lm,27,fit), kR=lmPt(S.lm,26,fit), aR=lmPt(S.lm,28,fit);
+    const leadK=m.leadIsL?kL:kR, leadHip=m.leadIsL?hip:hip2;
+    arcBetween(g,leadK,leadHip,leadK[0]!==undefined?(m.leadIsL?aL:aR):aL,140,'#5bb8ff',
+               `${m.kneeFlex.toFixed(0)}°`,56);
+    chip(g,'前導膝 · 跨步','LEAD KNEE · STRIDE','03');
+    sub=[`前導膝 ${m.kneeFlex.toFixed(0)}°，跨步 ${m.stride.toFixed(2)} 身高`,
+         `Lead knee ${m.kneeFlex.toFixed(0)} deg, stride ${m.stride.toFixed(2)} BH`];
+  } else if(t<13.3){
+    // 三格數據卡
+    g.fillStyle='rgba(0,0,0,.55)'; g.fillRect(0,0,W,H);
+    g.textAlign='center'; g.fillStyle=WHITE;
+    g.font='700 60px "PingFang TC",sans-serif';
+    g.fillText('這一張照片告訴你',W/2,H*0.30);
+    const items=[[`${m.tilt.toFixed(0)}°`,'軀幹前傾 TRUNK'],
+                 [`${m.kneeFlex.toFixed(0)}°`,'前導膝 LEAD KNEE'],
+                 [`${m.stride.toFixed(2)}`,'跨步/身高 STRIDE']];
+    items.forEach(([v,k],i)=>{
+      const ap=Math.min(1,Math.max(0,(t-11.4-i*0.28)/0.5));
+      const y=H*0.40+i*200;
+      g.globalAlpha=ap;
+      g.fillStyle='rgba(20,25,18,.92)'; roundRect(g,110,y-70,W-220,150,22); g.fill();
+      g.fillStyle=LIME; g.font='700 76px "Helvetica Neue",Arial,sans-serif';
+      g.textAlign='left'; g.fillText(v,150,y+12);
+      g.fillStyle='rgba(210,222,200,.9)'; g.font='700 30px "PingFang TC",sans-serif';
+      g.fillText(k,150,y+58);
+      g.globalAlpha=1;
+    });
+    chip(g,'量測總覽','MEASUREMENTS','04');
+    sub=['三個數字，對照你自己的變化','Compare with your own baseline'];
+  } else if(t<13.9){
+    g.fillStyle='rgba(0,0,0,.6)'; g.fillRect(0,0,W,H);
+    g.textAlign='center'; g.fillStyle=LIME; g.font='700 54px "PingFang TC",sans-serif';
+    g.fillText('單張照片不能算球速',W/2,H*0.42);
+    g.fillStyle=WHITE; g.font='36px "PingFang TC",sans-serif';
+    g.fillText('也不能判斷動作好壞或受傷風險',W/2,H*0.42+70);
+    g.fillStyle='rgba(200,212,195,.8)'; g.font='26px ui-monospace,Menlo,monospace';
+    g.fillText('A STILL PHOTO CANNOT MEASURE VELOCITY OR TIMING',W/2,H*0.42+130);
+    sub=null;
+  } else {
+    g.fillStyle='#07090e'; g.fillRect(0,0,W,H);
+    basenefitLogo(g,W/2,H*0.42,150);
+    g.textAlign='center'; g.fillStyle=WHITE; g.font='700 44px "PingFang TC",sans-serif';
+    g.fillText('看懂動作，才練得對',W/2,H*0.42+170);
+    g.fillStyle='rgba(170,182,168,.9)'; g.font='24px ui-monospace,Menlo,monospace';
+    g.fillText('BASEBALL MOTION ANALYSIS',W/2,H*0.42+220);
+    sub=null;
+  }
+  if(sub) subBlock(g,sub[0],sub[1]);
+  progressBar(g,t/T);
+}
+</script>
+</body>
+</html>

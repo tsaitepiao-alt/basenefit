@@ -682,6 +682,12 @@
         <p class="lead">先選項目（投球／打擊／守備），上傳 3–8 秒影片。系統在你的手機上直接做姿態辨識，算出該項目的流暢度分數、指出最該修的三件事，並輸出一段「<b>你的動作 / 標準動作</b>」雙畫面對比影片。<b>影片不會上傳到任何伺服器。</b></p>
         <style>#swingai-frame{display:block;width:100%;height:calc(100dvh - 120px);min-height:620px;border:0;border-radius:14px;background:#0b0f0c}@media(max-width:760px){#swingai-frame{height:calc(100dvh - 96px);min-height:560px}}</style>
         <iframe id="swingai-frame" title="AI 動作分析（投球／打擊／守備）" src="assets/swing-ai.html?v=8" loading="lazy" allow="fullscreen; camera; microphone"></iframe>
+        <div class="card" style="margin-top:16px;border-color:#3f5a2e">
+          <div class="hrow"><h2>📷 投球：只有一張照片也能分析</h2><span class="pill">NEW</span></div>
+          <p class="req">手邊沒有影片、只有一張側面投球照片？上傳照片 → AI 抓出 33 個關節點 → 量測<b>軀幹前傾角、前導膝屈曲、跨步／身高比、軸心腳角度、手肘高度</b> → 直接產出一段 <b>15 秒分析短片</b>（中英雙語字幕、可下載 mp4）。<b>照片只留在你的裝置，不會上傳到任何伺服器。</b></p>
+          <p class="req" style="color:#ffb020">⚠️ 單張照片只看得到「那一個瞬間」的姿勢：不能算球速、不能算出手時序，也不能判斷受傷風險。要判斷動作對不對，需要連續影像＋教練判讀。</p>
+          <p style="margin:10px 0 0"><a href="assets/pitch-photo.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:12px;background:#cbf24c;color:#141412;font-weight:700;text-decoration:none">開始照片分析 →</a></p>
+        </div>
         <div class="card" style="margin-top:16px">
           <div class="hrow"><h2>教練端成品：六段骨架解說</h2><span class="pill">DEMO</span></div>
           <p class="req">上面那個工具是在手機上即時分析；下面這支是<b>教練端</b>用同一套骨架資料做的完整報告：開場評分 → 六段定格（準備動作／載重／啟動／擊球／收棒／下半身延伸，含骨架動畫、子母畫面與旁白）→ 左右慢速對比 → 下一步建議。學員上傳影片後，教練端跑一次就能產出這種成品。</p>
