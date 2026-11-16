@@ -44,10 +44,13 @@
         });
       }
 
-      /* ③ 本壘板場景視差（滾動時緩緩上移） */
-      if (hero) {
-        gsap.to(hero, {
-          y: -36, ease: 'none',
+      /* ③ 本壘板場景視差（滾動時緩緩上移）
+         注意：視差要作用在「內層 .bb-stage」，不能跟進場動畫同一個 .hero-anim，
+         否則兩個 tween 搶同一個 y，會互相蓋掉（實測：進場停在半途） */
+      var stage = home.querySelector('.hero-anim .bb-stage');
+      if (stage) {
+        gsap.to(stage, {
+          y: -30, ease: 'none',
           scrollTrigger: { trigger: home, start: 'top top', end: '+=620', scrub: .6 }
         });
       }
