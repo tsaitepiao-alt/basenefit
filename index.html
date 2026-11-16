@@ -1278,7 +1278,7 @@
               <a class="btn lime sm" href="assets/homerun/index.html?v=swing-flow-20261027" target="_blank" rel="noopener">⛶ 全螢幕開啟</a>
             </div>
           </div>
-          <iframe id="homerun-frame" title="3D全壘打挑戰：投球、揮棒與十球挑戰" data-src="assets/homerun/index.html?v=swing-flow-20261027" loading="lazy" allow="fullscreen; autoplay" allowfullscreen onload="syncHomerunFrame()"></iframe>
+          <iframe id="homerun-frame" title="3D全壘打挑戰：投球、揮棒與十球挑戰" data-src="assets/homerun/index.html?v=swing-flow-20261027" loading="lazy" allow="fullscreen; autoplay" allowfullscreen></iframe>
           <p class="req" style="margin:10px 2px 0">點「開始挑戰」後觀察來球與時機條；離開本頁會自動暫停，返回後可繼續比賽。個人最佳保存在這台裝置。</p>
         </div>
       </section>
@@ -1490,6 +1490,11 @@ function syncHomerunFrame(){
     frame.contentWindow.postMessage({type:'basenefit:homerun-visibility',active},origin);
   }
 }
+/* iframe 的 load 事件改在這裡綁：inline onload 會在函式定義前執行，必定噴 ReferenceError */
+(function bindHomerunLoad(){
+  const f=document.getElementById('homerun-frame');
+  if(f&&!f.dataset.bound){ f.dataset.bound='1'; f.addEventListener('load',syncHomerunFrame); }
+})();
 function restartHomerun(){
   const frame=document.getElementById('homerun-frame');
   if(!frame)return;
